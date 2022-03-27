@@ -62,8 +62,8 @@ jobs:
           if [ "${{ matrix.kind }}" == "linux" ]; then            
             chmod +x ./deploy/GameHook.WebAPI
             cp ./deploy/GameHook.WebAPI ./deploy/GameHook
-            
-            tar czvf "${release_name}.tar.gz" ./deploy/GameHook
+
+            tar czvf "${release_name}.tar.gz" ./deploy/GameHook/
           fi
 
       - name: Release
