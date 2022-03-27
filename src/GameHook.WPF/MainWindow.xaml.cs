@@ -141,7 +141,7 @@ namespace GameHook.WPF
                 if (args.Error is WebException)
                 {
                     MessageBox.Show(
-                        @"There is a problem reaching update server. Please check your internet connection and try again later.\n\nFor additional information please visit our website at https://gamehook.io/",
+                        @"There is a problem reaching update server. For assistance please visit our website at https://gamehook.io/",
                         @"Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
