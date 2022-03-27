@@ -60,8 +60,8 @@ jobs:
           fi
 
           if [ "${{ matrix.kind }}" == "linux" ]; then
-            echo "Preparing GameHook Linux binary."
-
+            ls -R .
+            
             chmod +x ./deploy/GameHook.WebAPI
             cp ./deploy/GameHook.WebAPI ./deploy/GameHook
 
