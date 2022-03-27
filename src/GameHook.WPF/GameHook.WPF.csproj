@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Version>0.0.0+dev</Version>
+		<ProductVersion>0.0.0+dev</ProductVersion>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<OutputType>WinExe</OutputType>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishTrimmed>false</PublishTrimmed>
+		<SelfContained>true</SelfContained>
+		<DebugType>embedded</DebugType>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+		<ApplicationIcon>icon.ico</ApplicationIcon>
+		<UseWPF>true</UseWPF>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="icon.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="icon.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Autoupdater.NET.Official" Version="1.7.0" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1150.38" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\GameHook.WebAPI\GameHook.WebAPI.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,108 @@
+using GameHook.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
+
+namespace GameHook.Domain.GameHookProperties
+{
+    public record PropertyFields
+    {
+        public string Type { get; init; } = string.Empty;
+        public MemoryAddress StartingAddress { get; init; }
+        public int Length { get; init; } = 1;
+        public int? Index { get; init; }
+        public int? Bit { get; init; }
+        public string? Reference { get; init; }
+        public string? Note { get; init; }
+    }
+
+    public abstract class GameHookProperty<T> : IGameHookProperty
+    {
+        public GameHookProperty(IGameHookContainer mapper, string identifier, PropertyFields fields)
+        {
+            Mapper = mapper;
+            Identifier = identifier;
+            Fields = fields;
+
+            Bytes = Array.Empty<byte>();
+        }
+
+        protected IGameHookContainer Mapper { get; }
+        protected ILogger Logger => Mapper.Logger;
+        protected IGameHookDriver Driver => Mapper.Driver;
+        protected IPlatformOptions PlatformOptions => Mapper.PlatformOptions;
+
+        public string Identifier { get; private set; }
+        public PropertyFields Fields { get; private set; }
+        public string Type => Fields.Type;
+        public MemoryAddress StartingAddress => Fields.StartingAddress;
+        public int Length => Fields.Length;
+
+        public T? Value { get; private set; }
+        object? IGameHookProperty.Value => Value;
+        public byte[] Bytes { get; private set; }
+        public bool Frozen => FreezeToBytes != null;
+        public byte[]? FreezeToBytes { get; private set; }
+
+        protected abstract byte[] FromValue(T? value);
+        protected abstract T? ToValue(byte[] bytes);
+
+        public void OnDriverMemoryChanged(byte[] bytes)
+        {
+            Bytes = bytes;
+
+            var oldValue = Value;
+            var newValue = ToValue(bytes);
+
+            if (Equals(oldValue, newValue) == false)
+            {
+                Value = newValue;
+            }
+        }
+
+        public async Task WriteValue(T? value, bool freeze)
+        {
+            var fromValue = FromValue(value);
+            if (fromValue == null)
+            {
+                throw new Exception("Cannot write null value.");
+            }
+            else
+            {
+                await WriteBytes(fromValue, freeze);
+            }
+        }
+        
+        public async Task WriteBytes(byte[] values, bool? freeze)
+        {
+            if (values.Length > Fields.Length)
+            {
+                throw new InvalidOperationException($"Attempted to write past the property length of {Fields.Length} the values '{string.Join(' ', values.Select(x => x.ToHexdecimalString()))}'.");
+            }
+
+            if (freeze == true)
+            {
+                FreezeToBytes = values;
+            }
+            else
+            {
+                FreezeToBytes = null;
+            }
+
+            await Driver.WriteBytes(Fields.StartingAddress, values);
+        }
+
+        public void Unfreeze()
+        {
+            FreezeToBytes = null;
+        }
+
+        public override string ToString()
+        {
+            if (Bytes == null || Bytes.Any() == false)
+            {
+                return "N/A";
+            }
+
+            return $"{Value} [{string.Join(' ', Bytes)}]" ?? string.Empty;
+        }
+    }
+}

@@ -1,0 +1,45 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.Domain", "GameHook.Domain\GameHook.Domain.csproj", "{763C59A7-0206-4B5B-A985-037CBA779C1E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{E5684EF8-81FB-46A0-ADBE-96DFDF572469}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{652E9253-C266-4861-B770-BD5268A6822D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.WebAPI", "GameHook.WebAPI\GameHook.WebAPI.csproj", "{5C10057D-621F-4750-AE42-8C2DADBFFB24}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.WPF", "GameHook.WPF\GameHook.WPF.csproj", "{3BACB562-5D99-41FA-8E58-7E3F1E59D349}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{763C59A7-0206-4B5B-A985-037CBA779C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{763C59A7-0206-4B5B-A985-037CBA779C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{763C59A7-0206-4B5B-A985-037CBA779C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{763C59A7-0206-4B5B-A985-037CBA779C1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C10057D-621F-4750-AE42-8C2DADBFFB24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C10057D-621F-4750-AE42-8C2DADBFFB24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C10057D-621F-4750-AE42-8C2DADBFFB24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C10057D-621F-4750-AE42-8C2DADBFFB24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BACB562-5D99-41FA-8E58-7E3F1E59D349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BACB562-5D99-41FA-8E58-7E3F1E59D349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BACB562-5D99-41FA-8E58-7E3F1E59D349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BACB562-5D99-41FA-8E58-7E3F1E59D349}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{763C59A7-0206-4B5B-A985-037CBA779C1E} = {E5684EF8-81FB-46A0-ADBE-96DFDF572469}
+		{5C10057D-621F-4750-AE42-8C2DADBFFB24} = {652E9253-C266-4861-B770-BD5268A6822D}
+		{3BACB562-5D99-41FA-8E58-7E3F1E59D349} = {652E9253-C266-4861-B770-BD5268A6822D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {856C15D5-5EB2-49C8-A5C3-7A81D3FC2D78}
+	EndGlobalSection
+EndGlobal

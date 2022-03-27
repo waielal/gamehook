@@ -1,0 +1,84 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Build and Release
+    strategy:
+      fail-fast: false
+      matrix:
+        kind: ['linux', 'windows']
+        include:
+          - kind: linux
+            os: ubuntu-latest
+            target: linux-x64
+          - kind: windows
+            os: windows-latest
+            target: win-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Build and Upload Packages
+        shell: bash
+        run: |
+          # Variables
+          commithash=$(git describe --long --always --dirty --exclude=* --abbrev=8)
+          tag=$(git describe --tags --abbrev=0)
+          release_name="GameHook-${{ matrix.target }}-$tag-$commithash"
+          echo "commithash is $commithash"
+          echo "tag is $tag"
+          echo "release_name is $release_name"
+
+          echo "Building GameHook.WebAPI"
+          echo "dotnet publish src/GameHook.WebAPI/GameHook.WebAPI.csproj -r ${{ matrix.target }} -c Release -o deploy /property:Version=$tag /property:InformationalVersion=$tag+$commithash"
+          dotnet publish src/GameHook.WebAPI/GameHook.WebAPI.csproj -r ${{ matrix.target }} -c Release -o deploy /property:Version=$tag /property:InformationalVersion=$tag+$commithash
+
+          if [ "${{ matrix.kind }}" == "windows" ]; then
+            echo "Building GameHook.WPF"
+
+            echo "dotnet publish src/GameHook.WPF/GameHook.WPF.csproj -r ${{ matrix.target }} -c Release -o deploy /property:PublishSingleFile=true /property:Version=$tag /property:InformationalVersion=$tag+$commithash"
+            dotnet publish src/GameHook.WPF/GameHook.WPF.csproj -r ${{ matrix.target }} -c Release -o deploy /property:PublishSingleFile=true /property:Version=$tag /property:InformationalVersion=$tag+$commithash
+          fi
+
+          # Rename binaries.
+          if [ "${{ matrix.kind }}" == "windows" ]; then
+            cp ./deploy/GameHook.WPF.exe ./deploy/GameHook.exe || :
+            cp ./deploy/GameHook.WebAPI.exe ./deploy/GameHook.Console.exe || :
+          fi
+
+          if [ "${{ matrix.kind }}" == "linux" ]; then
+            echo "Preparing GameHook Linux binary."
+
+            chmod +x ./deploy/GameHook.WebAPI
+            cp ./deploy/GameHook.WebAPI ./deploy/GameHook
+          fi
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./deploy/GameHook.exe
+            ./deploy/GameHook.Console.exe
+            ./deploy/GameHook
+  notify:
+    name: Notify Users
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    steps:
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_APP_UPDATES_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: 'A new version of GameHook has been released. Version ${{ github.event.release.tag_name }} is now available. https://github.com/gamehook-io/gamehook/releases/tag/${{ github.event.release.tag_name }}'
