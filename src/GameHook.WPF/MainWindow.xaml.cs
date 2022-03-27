@@ -206,6 +206,22 @@ namespace GameHook.WPF
             await WebView.EnsureCoreWebView2Async(env);
 
             WebView.Source = new Uri("http://localhost:8085");
+            WebView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+        }
+
+        private void CoreWebView2_NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
+        {
+            // Open the new window in the users' browser instead of WebView2.
+            var destinationurl = e.Uri;
+
+            var sInfo = new System.Diagnostics.ProcessStartInfo(destinationurl)
+            {
+                UseShellExecute = true,
+            };
+            
+            System.Diagnostics.Process.Start(sInfo);
+
+            e.Handled = true;
         }
     }
 }
