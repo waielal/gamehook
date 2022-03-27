@@ -59,11 +59,11 @@ jobs:
             7z a -tzip "${release_name}-console-only.zip" "./deploy/GameHook.Console.exe"
           fi
 
-          if [ "${{ matrix.kind }}" == "linux" ]; then
-            ls -R .
-            
+          if [ "${{ matrix.kind }}" == "linux" ]; then            
             chmod +x ./deploy/GameHook.WebAPI
             cp ./deploy/GameHook.WebAPI ./deploy/GameHook
+
+            ls ./deploy/
 
             7z a -tzip "${release_name}.zip" "./deploy/Gamehook"
           fi
