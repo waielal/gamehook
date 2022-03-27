@@ -69,6 +69,8 @@ public class Program
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(x =>
             {
+                x.DocumentFilter<DefaultSwashbuckleFilter>();
+
                 x.EnableAnnotations();
 
                 x.SwaggerDoc("v1", new OpenApiInfo
