@@ -174,7 +174,7 @@ namespace GameHook.WPF
 
                 AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
 
-                AutoUpdater.Start("https://gamehook.io/GameHookWpf_AutoUpdater.xml");
+                AutoUpdater.Start("https://cdn.gamehook.io/GameHookWpf_AutoUpdater.xml");
             }
 
             InitializeComponent();
