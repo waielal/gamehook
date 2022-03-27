@@ -72,6 +72,7 @@ jobs:
           files: |
             ./GameHook-*.zip
             ./GameHook-*.tar.gz
+            ./deploy/GameHook.exe
   notify:
     name: Notify Users
     runs-on: ubuntu-latest
