@@ -11,14 +11,14 @@ public static class BuildEnvironment
         get
         {
             var entryAssembly = Assembly.GetEntryAssembly();
-            var attributes = entryAssembly?.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
+            var attributes = entryAssembly?.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
 
             if (attributes != null && attributes.Length > 0)
             {
-                return ((AssemblyVersionAttribute)attributes[0]).Version;
+                return ((AssemblyFileVersionAttribute)attributes[0]).Version;
             }
 
-            return "0.0.0";
+            return "";
         }
     }
 
@@ -34,7 +34,7 @@ public static class BuildEnvironment
                 return ((AssemblyInformationalVersionAttribute)attributes[0]).InformationalVersion;
             }
 
-            return "0.0.0+unknown";
+            return "";
         }
     }
 
