@@ -52,8 +52,11 @@ jobs:
 
           # Rename binaries.
           if [ "${{ matrix.kind }}" == "windows" ]; then
-            cp ./deploy/GameHook.WPF.exe ./deploy/GameHook.exe || :
-            cp ./deploy/GameHook.WebAPI.exe ./deploy/GameHook.Console.exe || :
+            cp ./deploy/GameHook.WPF.exe ./deploy/GameHook.exe
+            cp ./deploy/GameHook.WebAPI.exe ./deploy/GameHook.Console.exe
+
+            7z a -tzip "${release_name}.zip" "./deploy/GameHook.exe"
+            7z a -tzip "${release_name}-console-only.zip" "./deploy/GameHook.Console.exe"
           fi
 
           if [ "${{ matrix.kind }}" == "linux" ]; then
@@ -61,15 +64,16 @@ jobs:
 
             chmod +x ./deploy/GameHook.WebAPI
             cp ./deploy/GameHook.WebAPI ./deploy/GameHook
+
+            7z a -tzip "${release_name}.zip" "./deploy/Gamehook"
           fi
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ./deploy/GameHook.exe
-            ./deploy/GameHook.Console.exe
-            ./deploy/GameHook
+            ./GameHook-*.zip
+            ./GameHook-*.tar.gz
   notify:
     name: Notify Users
     runs-on: ubuntu-latest
