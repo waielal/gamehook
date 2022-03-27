@@ -1,19 +1,15 @@
-﻿using AutoUpdaterDotNET;
-using Microsoft.Web.WebView2.Core;
-using System.IO;
-using System.Net;
+﻿using Serilog;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace GameHook.WPF
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for LogWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class LogWindow : Window
     {
         #region WindowManagement
         bool IsClosing = false;
@@ -39,6 +35,8 @@ namespace GameHook.WPF
         }
         private void WindowControlButton_Close_Click(object sender, EventArgs e)
         {
+            ApplicationState.OnLogWindowClosed();
+
             Close();
         }
         private void WindowControlButton_Maximize_Refresh()
@@ -125,62 +123,8 @@ namespace GameHook.WPF
         #endregion
         #endregion WindowManagement
 
-        private void WindowControlButton_LogWindow_Click(object sender, EventArgs e)
+        public LogWindow()
         {
-            ApplicationState.OpenLogWindow();
-        }
-
-        private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
-        {
-            if (args.Error == null)
-            {
-                if (args.IsUpdateAvailable)
-                {
-                    AutoUpdater.ShowUpdateForm(args);
-                }
-            }
-            else
-            {
-                if (args.Error is WebException)
-                {
-                    MessageBox.Show(
-                        @"There was a problem reaching our update server." +
-                        @"For additional assistance please visit our website at https://gamehook.io/",
-                        @"Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    MessageBox.Show(args.Error.Message,
-                        args.Error.GetType().ToString(), MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        public MainWindow()
-        {
-            if (BuildEnvironment.IsReleaseBuild)
-            {
-                AutoUpdater.AppTitle = "GameHook";
-
-                AutoUpdater.Synchronous = true;
-                AutoUpdater.ShowSkipButton = false;
-                AutoUpdater.HttpUserAgent = "AutoUpdater";
-                AutoUpdater.ReportErrors = true;
-                AutoUpdater.RunUpdateAsAdmin = false;
-
-                AutoUpdater.LetUserSelectRemindLater = false;
-                AutoUpdater.RemindLaterTimeSpan = RemindLaterFormat.Days;
-                AutoUpdater.RemindLaterAt = 1;
-
-                string jsonPath = Path.Combine(BuildEnvironment.ConfigurationDirectory, "updater.json");
-                AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(jsonPath);
-
-                AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
-
-                AutoUpdater.Start("https://cdn.gamehook.io/GameHookWpf_AutoUpdater.xml");
-            }
-
             InitializeComponent();
 
             WindowControlButton_Maximize_Refresh();
@@ -192,20 +136,6 @@ namespace GameHook.WPF
                 System.Windows.Interop.HwndSource.FromHwnd(new System.Windows.Interop.WindowInteropHelper(this).Handle).AddHook(WindowProc);
             };
             #endregion
-
-            WindowBorderTitle.Text = $"GameHook {BuildEnvironment.AssemblyVersion}";
-
-            Task.Run(async () => await Program.Start());
-        }
-
-        protected override async void OnContentRendered(EventArgs e)
-        {
-            base.OnContentRendered(e);
-
-            var env = await CoreWebView2Environment.CreateAsync(null, Path.Combine(BuildEnvironment.ConfigurationDirectory, "WebView2"));
-            await WebView.EnsureCoreWebView2Async(env);
-
-            WebView.Source = new Uri("http://localhost:8085");
         }
     }
 }

@@ -1,13 +1,12 @@
-﻿<Window x:Class="GameHook.WPF.MainWindow"
+﻿<Window x:Class="GameHook.WPF.LogWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d" WindowStyle="None" AllowsTransparency="True"
         StateChanged="Window_StateChanged" Closing="Window_Closing"
         Foreground="White" Background="#232323"
-        Title="GameHook" Width="1800" Height="1013" MinWidth="1800" MinHeight="1013">
+        Title="GameHook Logs" Width="800" Height="600" MinWidth="800" MinHeight="600">
     <!--#region-->
     <Window.Triggers>
         <EventTrigger RoutedEvent="Loaded">
@@ -108,7 +107,7 @@
                         <Grid DockPanel.Dock="Top" Height="32">
                             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
                                 <Image Source="pack://application:,,,/icon.png" />
-                                <TextBlock Text="GameHook" x:Name="WindowBorderTitle" FontSize="14" Foreground="White" Margin="12,0,0,0"/>
+                                <TextBlock Text="GameHook Logs" x:Name="WindowBorderTitle" FontSize="14" Foreground="White" Margin="12,0,0,0"/>
                             </StackPanel>
                             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Stretch" Orientation="Horizontal">
                                 <Button Name="WindowControlButton_Minimize" Style="{StaticResource WindowBorderControlButtonStyle}" Click="WindowControlButton_Minimize_Click" WindowChrome.IsHitTestVisibleInChrome="True">
@@ -133,9 +132,21 @@
                 </Grid>
             </Grid>
             <Grid Margin="0,32,0,0">
-                <DockPanel Margin="10 10">
-                    <wv2:WebView2 Name="WebView" DefaultBackgroundColor="#232323" />
-                </DockPanel>
+                <Grid>
+                    <Grid>
+                        <Grid>
+                            <DockPanel Margin="10 10">
+                                <RichTextBox
+                                  x:Name="LogContent"
+                                  Background="Black"
+                                  Foreground="LightGray"
+                                  FontFamily="Cascadia Mono, Consolas, Courier New, monospace"
+                                  VerticalScrollBarVisibility="Auto"
+                              />
+                            </DockPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
             </Grid>
         </Grid>
         <Border x:Name="WindowBorderBorder" BorderBrush="#3C3C3C" BorderThickness="1"/>
