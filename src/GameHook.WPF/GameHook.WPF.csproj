@@ -16,6 +16,7 @@
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
 		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
 
 	<ItemGroup>

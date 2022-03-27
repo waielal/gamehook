@@ -1,10 +1,12 @@
-﻿using Microsoft.Web.WebView2.Core;
+﻿using AutoUpdaterDotNET;
+using Microsoft.Web.WebView2.Core;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using AutoUpdaterDotNET;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace GameHook.WPF
 {
@@ -124,6 +126,33 @@ namespace GameHook.WPF
         #endregion WindowManagement
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+        private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
+        {
+            if (args.Error == null)
+            {
+                if (args.IsUpdateAvailable)
+                {
+                    AutoUpdater.ShowUpdateForm(args);
+                }
+            }
+            else
+            {
+                if (args.Error is WebException)
+                {
+                    MessageBox.Show(
+                        @"There is a problem reaching update server. Please check your internet connection and try again later.\n\nFor additional information please visit our website at https://gamehook.io/",
+                        @"Update Check Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    MessageBox.Show(args.Error.Message,
+                        args.Error.GetType().ToString(), MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+        }
+
         public MainWindow()
         {
             if (BuildEnvironment.IsReleaseBuild)
@@ -142,6 +171,8 @@ namespace GameHook.WPF
 
                 string jsonPath = Path.Combine(BuildEnvironment.ConfigurationDirectory, "updater.json");
                 AutoUpdater.PersistenceProvider = new JsonFilePersistenceProvider(jsonPath);
+
+                AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
 
                 AutoUpdater.Start("https://gamehook.io/GameHookWpf_AutoUpdater.xml");
             }
