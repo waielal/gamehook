@@ -6,7 +6,7 @@
         mc:Ignorable="d" WindowStyle="None" AllowsTransparency="True"
         StateChanged="Window_StateChanged" Closing="Window_Closing"
         Foreground="White" Background="#232323"
-        Title="GameHook Logs" Width="800" Height="600" MinWidth="800" MinHeight="600">
+        Title="GameHook Log" MinWidth="384" MinHeight="384">
     <!--#region-->
     <Window.Triggers>
         <EventTrigger RoutedEvent="Loaded">
@@ -135,7 +135,7 @@
                 <Grid>
                     <Grid>
                         <Grid>
-                            <DockPanel Margin="10 10">
+                            <DockPanel Margin="1 1">
                                 <RichTextBox
                                   x:Name="LogContent"
                                   Background="Black"

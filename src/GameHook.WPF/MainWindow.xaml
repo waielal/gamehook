@@ -7,7 +7,7 @@
         mc:Ignorable="d" WindowStyle="None" AllowsTransparency="True"
         StateChanged="Window_StateChanged" Closing="Window_Closing"
         Foreground="White" Background="#232323"
-        Title="GameHook" Width="1800" Height="1013" MinWidth="1800" MinHeight="1013">
+        Title="GameHook" MinWidth="384" MinHeight="648">
     <!--#region-->
     <Window.Triggers>
         <EventTrigger RoutedEvent="Loaded">
@@ -111,6 +111,10 @@
                                 <TextBlock Text="GameHook" x:Name="WindowBorderTitle" FontSize="14" Foreground="White" Margin="12,0,0,0"/>
                             </StackPanel>
                             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Stretch" Orientation="Horizontal">
+                                <Button Name="WindowControlButton_Pin" Style="{StaticResource WindowBorderControlButtonStyle}" Click="WindowControlButton_Pin_Click" WindowChrome.IsHitTestVisibleInChrome="True">
+                                    <Path StrokeThickness="1" Width="46" Height="32" Stroke="{Binding ElementName=WindowControlButton_Pin, Path=Foreground}" RenderOptions.EdgeMode="Aliased"
+			                      Data="M 18.5,12.5 H 25.5 V 19.5 H 18.5 Z M 20.5,12.5 V 10.5"/>
+                                </Button>
                                 <Button Name="WindowControlButton_Minimize" Style="{StaticResource WindowBorderControlButtonStyle}" Click="WindowControlButton_Minimize_Click" WindowChrome.IsHitTestVisibleInChrome="True">
                                     <Path StrokeThickness="1" Width="46" Height="32" Stroke="{Binding ElementName=WindowControlButton_Minimize, Path=Foreground}" RenderOptions.EdgeMode="Aliased"
 			                      Data="M 18,15 H 28"/>
@@ -133,7 +137,7 @@
                 </Grid>
             </Grid>
             <Grid Margin="0,32,0,0">
-                <DockPanel Margin="10 10">
+                <DockPanel Margin="1 1">
                     <wv2:WebView2 Name="WebView" DefaultBackgroundColor="#232323" />
                 </DockPanel>
             </Grid>

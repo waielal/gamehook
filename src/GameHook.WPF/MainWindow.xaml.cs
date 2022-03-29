@@ -129,7 +129,10 @@ namespace GameHook.WPF
         {
             ApplicationState.OpenLogWindow();
         }
-
+        private void WindowControlButton_Pin_Click(object sender, EventArgs e)
+        {
+            Topmost = !Topmost;
+        }
         private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
         {
             if (args.Error == null)
