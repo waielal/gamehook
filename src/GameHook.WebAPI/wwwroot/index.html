@@ -93,7 +93,7 @@
 
             <div class="columns" v-else>
                 <div class="column is-3">
-                    <div class="gh-panel">
+                    <div class="gh-panel gh-properties-panel">
                         <div class="gh-panel-header">All Properties</div>
                         <div class="gh-panel-content">
                             <tree-view-item :obj="this.mapper.properties" depth="0" />
@@ -102,7 +102,7 @@
                 </div>
 
                 <div class="column is-6">
-                    <div class="gh-panel">
+                    <div class="gh-panel gh-center-panel">
                         <div v-bind:class="getTabClasses('pinnedProperties', true)" v-on:click="centerPanelTab = 'pinnedProperties'">
                             Pinned Properties
                         </div>
@@ -114,15 +114,15 @@
                             <table v-if="pinnedPropertyPaths.length > 0" class="gh-table">
                                 <tr class="has-text-white">
                                     <th class="has-text-white pt-1" style="width: 35%">Property Name</th>
-                                    <th class="has-text-white pt-1" style="width: 30%">Value (Bytes)</th>
+                                    <th class="has-text-white pt-1 bytes-th" style="width: 30%">Value (Bytes)</th>
                                     <th class="has-text-white pt-1" style="width: 25%">Value</th>
-                                    <th class="has-text-white pt-1" style="min-width: 148px;"></th>
+                                    <th class="has-text-white pt-1 commands-th" style="min-width: 148px;"></th>
                                 </tr>
                                 <tr v-for="property in getPinnedProperties()">
                                     <td class="pt-1">{{ property.path }}</td>
-                                    <td class="pt-1 displayPropertyBytes">{{ displayBytes(property.bytes) }}</td>
+                                    <td class="pt-1 bytes-td displayPropertyBytes">{{ displayBytes(property.bytes) }}</td>
                                     <td class="pt-1">{{ displayPropertyValue(property) }}</td>
-                                    <td class="pt-1 has-text-centered">
+                                    <td class="pt-1 has-text-centered commands-td">
                                         <note-btn :property="property"></note-btn>
                                         <freeze-property-btn :property="property"></freeze-property-btn>
                                         <pin-property-btn :property="property"></pin-property-btn>
@@ -141,13 +141,13 @@
                                     <th class="has-text-white pt-1" style="width: 35%">Property Name</th>
                                     <th class="has-text-white pt-1" style="width: 30%">Value (Bytes)</th>
                                     <th class="has-text-white pt-1" style="width: 25%">Value</th>
-                                    <th class="has-text-white pt-1" style="min-width: 148px;"></th>
+                                    <th class="has-text-white pt-1 commands-th" style="min-width: 148px;"></th>
                                 </tr>
                                 <tr v-for="property in getFrozenProperties()">
                                     <td class="pt-1">{{ property.path }}</td>
                                     <td class="pt-1 displayPropertyBytes">{{ displayBytes(property.bytes) }}</td>
                                     <td class="pt-1">{{ displayPropertyValue(property) }}</td>
-                                    <td class="pt-1 has-text-centered">
+                                    <td class="pt-1 has-text-centered commands-td">
                                         <note-btn :property="property"></note-btn>
                                         <freeze-property-btn :property="property"></freeze-property-btn>
                                         <pin-property-btn :property="property"></pin-property-btn>
@@ -163,7 +163,7 @@
                 </div>
 
                 <div class="column is-3">
-                    <div class="gh-panel" v-if="editingProperty">
+                    <div class="gh-panel gh-edit-panel" v-if="editingProperty">
                         <div class="gh-panel-header">Editor</div>
                         <div class="gh-panel-content">
                             <table class="gh-table mb-4">

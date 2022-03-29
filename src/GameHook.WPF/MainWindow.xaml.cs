@@ -132,6 +132,17 @@ namespace GameHook.WPF
         private void WindowControlButton_Pin_Click(object sender, EventArgs e)
         {
             Topmost = !Topmost;
+
+            if (Topmost == true)
+            {
+                WindowControlButton_Pin.Visibility = Visibility.Collapsed;
+                WindowControlButton_Unpin.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                WindowControlButton_Pin.Visibility = Visibility.Visible;
+                WindowControlButton_Unpin.Visibility = Visibility.Collapsed;
+            }
         }
         private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
         {

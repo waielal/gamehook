@@ -61,6 +61,15 @@ select.input.is-dark {
 }
 /* End Bulma overrides */
 
+/* Media Queries */
+/* Sidebar mode */
+@media (max-width: 474px) {
+    .gh-center-panel .commands-td, .gh-center-panel .commands-th, .bytes-td, .bytes-th {
+        display: none;
+    }
+}
+/* End Media Queries */
+
 html, body {
     height: 100%;
     color: var(--text-color-primary);
@@ -81,7 +90,7 @@ body {
 }
 
     #header .header-menu-item {
-        width: 82px;
+        width: 64px;
     }
 
         #header .header-menu-item:hover {
