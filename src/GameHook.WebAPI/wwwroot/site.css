@@ -185,11 +185,9 @@ body {
 
 /* Buttons */
 .cmd-button {
-    display: inline;
-    width: 16px;
+    display: inline-block;
+    width: 32px;
     height: 16px;
-    padding-left: 8px;
-    padding-right: 8px;
 }
 
 /* Utility */

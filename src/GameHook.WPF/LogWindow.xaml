@@ -106,7 +106,6 @@
                     <DockPanel LastChildFill="False">
                         <Grid DockPanel.Dock="Top" Height="32">
                             <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
-                                <Image Source="pack://application:,,,/icon.png" />
                                 <TextBlock Text="GameHook Logs" x:Name="WindowBorderTitle" FontSize="14" Foreground="White" Margin="12,0,0,0"/>
                             </StackPanel>
                             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Stretch" Orientation="Horizontal">

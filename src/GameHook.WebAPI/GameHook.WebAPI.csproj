@@ -13,7 +13,6 @@
 		<SelfContained>true</SelfContained>
 		<DebugType>embedded</DebugType>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
-		<PublishSingleFile>true</PublishSingleFile>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 	</PropertyGroup>
 

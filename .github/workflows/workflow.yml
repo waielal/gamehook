@@ -40,8 +40,8 @@ jobs:
           echo "release_name is $release_name"
 
           echo "Building GameHook.WebAPI"
-          echo "dotnet publish src/GameHook.WebAPI/GameHook.WebAPI.csproj -r ${{ matrix.target }} -c Release -o deploy /property:Version=$tag /property:InformationalVersion=$tag+$commithash"
-          dotnet publish src/GameHook.WebAPI/GameHook.WebAPI.csproj -r ${{ matrix.target }} -c Release -o deploy /property:Version=$tag /property:InformationalVersion=$tag+$commithash
+          echo "dotnet publish src/GameHook.WebAPI/GameHook.WebAPI.csproj -r ${{ matrix.target }} -c Release -o deploy /property:PublishSingleFile=true /property:Version=$tag /property:InformationalVersion=$tag+$commithash"
+          dotnet publish src/GameHook.WebAPI/GameHook.WebAPI.csproj -r ${{ matrix.target }} -c Release -o deploy /property:PublishSingleFile=true /property:Version=$tag /property:InformationalVersion=$tag+$commithash
 
           if [ "${{ matrix.kind }}" == "windows" ]; then
             echo "Building GameHook.WPF"

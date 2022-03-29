@@ -20,7 +20,8 @@ namespace GameHook.WebAPI.Controllers
                 Reference = x.Fields.Reference,
                 Value = x.Value,
                 Frozen = x.Frozen,
-                Bytes = x.Bytes.ToIntegerArray()
+                Bytes = x.Bytes.ToIntegerArray(),
+                Note = x.Fields.Note
             };
     }
 
@@ -50,6 +51,8 @@ namespace GameHook.WebAPI.Controllers
         public IEnumerable<int> Bytes { get; init; } = Enumerable.Empty<int>();
 
         public bool? Frozen { get; init; }
+
+        public string? Note { get; init; }
     }
 
     public record UpdatePropertyModel(object? Value, int[]? Bytes, bool? Freeze);

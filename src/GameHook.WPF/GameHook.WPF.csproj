@@ -20,14 +20,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="icon.png" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <EmbeddedResource Include="icon.png" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Autoupdater.NET.Official" Version="1.7.0" />
 		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.1150.38" />
 		<PackageReference Include="Serilog.Sinks.RichTextBox.Wpf" Version="1.1.0" />
