@@ -2,7 +2,7 @@ class GameHookProperty {
     _client = null
 
     path = null
-    startingAddress = null
+    address = null
     length = null
     value = null
     bytes = null

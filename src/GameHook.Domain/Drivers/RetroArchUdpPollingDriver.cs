@@ -10,13 +10,13 @@ namespace GameHook.Domain.Drivers
 {
     class MemoryAddressRange
     {
-        public MemoryAddressRange(MemoryAddress startingAddress, byte[] bytes)
+        public MemoryAddressRange(MemoryAddress address, byte[] bytes)
         {
-            StartingAddress = startingAddress;
+            address = address;
             Bytes = bytes;
         }
 
-        public MemoryAddress StartingAddress { get; private set; }
+        public MemoryAddress address { get; private set; }
         public byte[] Bytes { get; private set; }
     }
 
@@ -136,7 +136,7 @@ namespace GameHook.Domain.Drivers
         {
             foreach (var range in ranges)
             {
-                if (address >= range.StartingAddress && address <= range.StartingAddress + range.Bytes.Length)
+                if (address >= range.address && address <= range.address + range.Bytes.Length)
                 {
                     return range;
                 }
@@ -176,8 +176,8 @@ namespace GameHook.Domain.Drivers
                                 token.ThrowIfCancellationRequested();
 
                                 // Read the entire address range into memory.
-                                var length = range.EndingAddress - range.StartingAddress;
-                                var packet = await ReadMemoryAddress(range.StartingAddress, length);
+                                var length = range.EndingAddress - range.address;
+                                var packet = await ReadMemoryAddress(range.address, length);
 
                                 ranges.Add(new MemoryAddressRange(packet.MemoryAddress, packet.Value));
                                 AddressNumberOfTimeouts[packet.MemoryAddress] = 0;
@@ -195,9 +195,9 @@ namespace GameHook.Domain.Drivers
                                     return;
                                 }
 
-                                var offsetStartingAddress = watch.MemoryAddress - range.StartingAddress;
-                                var totalOffset = offsetStartingAddress + watch.Length;
-                                var result = range.Bytes.Skip(offsetStartingAddress).Take(watch.Length).ToArray();
+                                var offsetaddress = watch.MemoryAddress - range.address;
+                                var totalOffset = offsetaddress + watch.Length;
+                                var result = range.Bytes.Skip(offsetaddress).Take(watch.Length).ToArray();
 
                                 if (watch.OldBytes == null || result.SequenceEqual(watch.OldBytes) == false)
                                 {

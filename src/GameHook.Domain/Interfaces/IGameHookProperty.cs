@@ -8,7 +8,7 @@ namespace GameHook.Domain.Interfaces
 
         PropertyFields Fields { get; }
         string Type { get; }
-        MemoryAddress StartingAddress { get; }
+        MemoryAddress Address { get; }
         int Length { get; }
 
         object? Value { get; }

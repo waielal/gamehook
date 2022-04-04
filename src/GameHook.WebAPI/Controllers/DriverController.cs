@@ -4,7 +4,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace GameHook.WebAPI.Controllers
 {
-    public record UpdateMemoryModel(int StartingAddress, byte[] Bytes);
+    public record UpdateMemoryModel(int Address, byte[] Bytes);
 
     [ApiController]
     [Produces("application/json")]
@@ -28,7 +28,7 @@ namespace GameHook.WebAPI.Controllers
             if (_gameHookContainerFactory.LoadedMapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            await _driver.WriteBytes(model.StartingAddress, model.Bytes);
+            await _driver.WriteBytes(model.Address, model.Bytes);
 
             return Ok();
         }

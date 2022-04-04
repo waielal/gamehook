@@ -25,7 +25,7 @@ namespace GameHook.Domain.GameHookProperties
         {
             var results = new List<string?>();
 
-            var values = ReferenceArrayHelper.GetFromGlossary<string?>(Logger, StartingAddress, GlossaryPageName, GlossaryPage, bytes, true);
+            var values = ReferenceArrayHelper.GetFromGlossary<string?>(Logger, Address, GlossaryPageName, GlossaryPage, bytes, true);
 
             // If the returned values array is empty,
             // then there's nothing to do, return an empty string.

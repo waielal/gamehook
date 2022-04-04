@@ -5,7 +5,8 @@ namespace GameHook.Domain.GameHookProperties
 {
     public class BitProperty : GameHookProperty<bool>
     {
-        public int Index => Fields.Index ?? throw new Exception("Undefined field: Index");
+        // Position is 1-index-based where the actual Get() requires 0-based-index.
+        public int Position => Fields.Position ?? throw new Exception($"Property did not define field {nameof(Fields.Position)}");
 
         public BitProperty(IGameHookContainer mapper, string identifier, PropertyFields fields)
             : base(mapper, identifier, fields)
@@ -24,7 +25,7 @@ namespace GameHook.Domain.GameHookProperties
                 Array.Reverse(bytes);
             }
 
-            return new BitArray(bytes).Get(Index);
+            return new BitArray(bytes).Get(Position - 1);
         }
     }
 }

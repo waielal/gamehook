@@ -61,7 +61,7 @@ namespace GameHook.Domain.GameHookProperties
 
         protected override object? ToValue(byte[] bytes)
         {
-            var values = ReferenceArrayHelper.GetFromGlossary<object?>(Logger, StartingAddress, GlossaryPageName, GlossaryPage, bytes);
+            var values = ReferenceArrayHelper.GetFromGlossary<object?>(Logger, Address, GlossaryPageName, GlossaryPage, bytes);
 
             return values.FirstOrDefault();
         }
@@ -86,7 +86,7 @@ namespace GameHook.Domain.GameHookProperties
 
         protected override IEnumerable<object?> ToValue(byte[] bytes)
         {
-            return bytes.Select(x => ReferenceArrayHelper.GetFromGlossary<object?>(Logger, StartingAddress, GlossaryPageName, GlossaryPage, new byte[] { x }));
+            return bytes.Select(x => ReferenceArrayHelper.GetFromGlossary<object?>(Logger, Address, GlossaryPageName, GlossaryPage, new byte[] { x }));
         }
     }
 }

@@ -13,10 +13,9 @@ namespace GameHook.WebAPI.Controllers
             {
                 Path = path,
                 Type = x.Type,
-                StartingAddress = x.StartingAddress,
+                Address = x.Address,
                 Length = x.Length,
-                Index = x.Fields.Index,
-                Bit = x.Fields.Bit,
+                Index = x.Fields.Position,
                 Reference = x.Fields.Reference,
                 Value = x.Value,
                 Frozen = x.Frozen,
@@ -35,7 +34,7 @@ namespace GameHook.WebAPI.Controllers
 
         public string Type { get; init; } = string.Empty;
 
-        public int StartingAddress { get; init; }
+        public int Address { get; init; }
 
         public int Length { get; init; }
 

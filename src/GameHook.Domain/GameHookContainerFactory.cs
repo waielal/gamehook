@@ -1,7 +1,5 @@
-using GameHook.Domain.DTOs;
 using GameHook.Domain.GameHookProperties;
 using GameHook.Domain.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using YamlDotNet.Serialization;
@@ -27,7 +25,7 @@ namespace GameHook.Domain
     record MacroEntry
     {
         public string type { get; init; }
-        public int? startingAddress { get; init; }
+        public int? address { get; init; }
         public string macro { get; init; }
         public string? reference { get; init; }
         public int? length { get; init; }
@@ -52,12 +50,12 @@ namespace GameHook.Domain
 
         private class MacroPointer
         {
-            public MacroPointer(int startingAddress)
+            public MacroPointer(int address)
             {
-                StartingAddress = startingAddress;
+                address = address;
             }
 
-            public int StartingAddress { get; }
+            public int address { get; }
         }
 
         private void TransverseProperties(GameHookContainer container, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
@@ -66,7 +64,7 @@ namespace GameHook.Domain
             {
                 var insideMacro = macroPointer != null;
 
-                if ((insideMacro == false && source.ContainsKey("type") && source.ContainsKey("startingAddress")) || (insideMacro == true && source.ContainsKey("type")))
+                if ((insideMacro == false && source.ContainsKey("type") && source.ContainsKey("address")) || (insideMacro == true && source.ContainsKey("type")))
                 {
                     if (string.IsNullOrEmpty(key))
                         throw new Exception("Key cannot be null.");
@@ -74,34 +72,34 @@ namespace GameHook.Domain
                     // Convert the property object into an IGameHookProperty.
                     var type = source["type"].ToString() ?? throw new Exception("Type is required.");
                     var length = (source.ContainsKey("length") ? int.Parse(source["length"].ToString() ?? string.Empty) : 1);
-                    var index = (source.ContainsKey("index") ? int.Parse(source["index"].ToString() ?? string.Empty) : 1);
+                    var position = (source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? string.Empty) : 1);
                     var note = source.ContainsKey("note") ? source["note"].ToString() : null;
                     var reference = source.ContainsKey("reference") ? source["reference"].ToString() : null;
                     var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
                     var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
 
-                    int startingAddress;
+                    int address;
                     if (macroPointer != null)
                     {
                         if (source.ContainsKey("offset") == false || string.IsNullOrEmpty(source["offset"].ToString()))
                             throw new Exception($"Property {key} is missing a required field: offset.");
 
-                        startingAddress = macroPointer.StartingAddress + offset ?? 0;
+                        address = macroPointer.address + offset ?? 0;
                     }
                     else
                     {
-                        if (source.ContainsKey("startingAddress") == false || string.IsNullOrEmpty(source["startingAddress"].ToString()))
-                            throw new Exception($"Property {key} is missing a required field: startingAddress.");
+                        if (source.ContainsKey("address") == false || string.IsNullOrEmpty(source["address"].ToString()))
+                            throw new Exception($"Property {key} is missing a required field: address.");
 
-                        startingAddress = (source["startingAddress"]?.ToString() ?? string.Empty).FromHexdecimalStringToInt();
+                        address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToInt();
                     }
 
                     var fields = new PropertyFields()
                     {
                         Type = type,
-                        StartingAddress = startingAddress,
-                        Length = length,
-                        Index = index,
+                        Address = address,
+                        Size = length,
+                        Position = position,
                         Reference = reference,
                         Note = note
                     };
@@ -145,7 +143,7 @@ namespace GameHook.Domain
                     else if (type == "macro")
                     {
                         var nextLevel = container.Macros[macro ?? throw new Exception($"Property {key} is missing a required field: macro.")];
-                        TransverseProperties(container, nextLevel, key, new MacroPointer(startingAddress));
+                        TransverseProperties(container, nextLevel, key, new MacroPointer(address));
                     }
                     else
                     {

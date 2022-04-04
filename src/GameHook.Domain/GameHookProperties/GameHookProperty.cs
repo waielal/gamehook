@@ -6,10 +6,9 @@ namespace GameHook.Domain.GameHookProperties
     public record PropertyFields
     {
         public string Type { get; init; } = string.Empty;
-        public MemoryAddress StartingAddress { get; init; }
-        public int Length { get; init; } = 1;
-        public int? Index { get; init; }
-        public int? Bit { get; init; }
+        public MemoryAddress Address { get; init; }
+        public int Size { get; init; } = 1;
+        public int? Position { get; init; }
         public string? Reference { get; init; }
         public string? Note { get; init; }
     }
@@ -33,8 +32,8 @@ namespace GameHook.Domain.GameHookProperties
         public string Identifier { get; private set; }
         public PropertyFields Fields { get; private set; }
         public string Type => Fields.Type;
-        public MemoryAddress StartingAddress => Fields.StartingAddress;
-        public int Length => Fields.Length;
+        public MemoryAddress Address => Fields.Address;
+        public int Length => Fields.Size;
 
         public T? Value { get; private set; }
         object? IGameHookProperty.Value => Value;
@@ -73,9 +72,9 @@ namespace GameHook.Domain.GameHookProperties
         
         public async Task WriteBytes(byte[] values, bool? freeze)
         {
-            if (values.Length > Fields.Length)
+            if (values.Length > Fields.Size)
             {
-                throw new InvalidOperationException($"Attempted to write past the property length of {Fields.Length} the values '{string.Join(' ', values.Select(x => x.ToHexdecimalString()))}'.");
+                throw new InvalidOperationException($"Attempted to write past the property length of {Fields.Size} the values '{string.Join(' ', values.Select(x => x.ToHexdecimalString()))}'.");
             }
 
             if (freeze == true)
@@ -87,7 +86,7 @@ namespace GameHook.Domain.GameHookProperties
                 FreezeToBytes = null;
             }
 
-            await Driver.WriteBytes(Fields.StartingAddress, values);
+            await Driver.WriteBytes(Fields.Address, values);
         }
 
         public void Unfreeze()
