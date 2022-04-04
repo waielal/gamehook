@@ -10,7 +10,7 @@ namespace GameHook.Domain.GameHookProperties
         public int Size { get; init; } = 1;
         public int? Position { get; init; }
         public string? Reference { get; init; }
-        public string? Note { get; init; }
+        public string? Description { get; init; }
     }
 
     public abstract class GameHookProperty<T> : IGameHookProperty

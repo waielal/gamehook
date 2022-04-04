@@ -1,7 +1,6 @@
 using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -12,11 +11,11 @@ namespace GameHook.Domain.Drivers
     {
         public MemoryAddressRange(MemoryAddress address, byte[] bytes)
         {
-            address = address;
+            Address = address;
             Bytes = bytes;
         }
 
-        public MemoryAddress address { get; private set; }
+        public MemoryAddress Address { get; private set; }
         public byte[] Bytes { get; private set; }
     }
 
@@ -24,12 +23,12 @@ namespace GameHook.Domain.Drivers
     {
         public WatchMemoryAddress(MemoryAddress memoryAddress, int length)
         {
-            MemoryAddress = memoryAddress;
+            Address = memoryAddress;
             Length = length;
             OldBytes = null;
         }
 
-        public MemoryAddress MemoryAddress { get; }
+        public MemoryAddress Address { get; }
         public int Length { get; }
         public byte[]? OldBytes { get; set; }
     }
@@ -126,7 +125,7 @@ namespace GameHook.Domain.Drivers
 
         public void AddAddressToWatch(MemoryAddress memoryAddress, int length)
         {
-            if (AddressesToWatch.Any(x => x.MemoryAddress.Equals(memoryAddress) && x.Length == length) == false)
+            if (AddressesToWatch.Any(x => x.Address.Equals(memoryAddress) && x.Length == length) == false)
             {
                 AddressesToWatch.Add(new WatchMemoryAddress(memoryAddress, length));
             }
@@ -136,7 +135,7 @@ namespace GameHook.Domain.Drivers
         {
             foreach (var range in ranges)
             {
-                if (address >= range.address && address <= range.address + range.Bytes.Length)
+                if (address >= range.Address && address <= range.Address + range.Bytes.Length)
                 {
                     return range;
                 }
@@ -176,8 +175,8 @@ namespace GameHook.Domain.Drivers
                                 token.ThrowIfCancellationRequested();
 
                                 // Read the entire address range into memory.
-                                var length = range.EndingAddress - range.address;
-                                var packet = await ReadMemoryAddress(range.address, length);
+                                var length = range.EndingAddress - range.StartingAddress;
+                                var packet = await ReadMemoryAddress(range.StartingAddress, length);
 
                                 ranges.Add(new MemoryAddressRange(packet.MemoryAddress, packet.Value));
                                 AddressNumberOfTimeouts[packet.MemoryAddress] = 0;
@@ -187,15 +186,15 @@ namespace GameHook.Domain.Drivers
                             {
                                 token.ThrowIfCancellationRequested();
 
-                                var range = GetRangeForAddress(watch.MemoryAddress, ranges);
+                                var range = GetRangeForAddress(watch.Address, ranges);
                                 if (range == null)
                                 {
                                     // We cannot read from this section of memory, since we did not pull it.
-                                    Logger.LogWarning($"Cannot access memory address {watch.MemoryAddress.ToHexdecimalString()} because it outside of the range platform addresses provided. Skipping translation for this property.");
+                                    Logger.LogWarning($"Cannot access memory address {watch.Address.ToHexdecimalString()} because it outside of the range platform addresses provided. Skipping translation for this property.");
                                     return;
                                 }
 
-                                var offsetaddress = watch.MemoryAddress - range.address;
+                                var offsetaddress = watch.Address - range.Address;
                                 var totalOffset = offsetaddress + watch.Length;
                                 var result = range.Bytes.Skip(offsetaddress).Take(watch.Length).ToArray();
 
@@ -203,7 +202,7 @@ namespace GameHook.Domain.Drivers
                                 {
                                     if (Container != null)
                                     {
-                                        await Container.OnDriverMemoryChanged(watch.MemoryAddress, watch.Length, result);
+                                        await Container.OnDriverMemoryChanged(watch.Address, watch.Length, result);
                                     }
 
                                     watch.OldBytes = result;

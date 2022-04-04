@@ -170,8 +170,11 @@ public class Program
 
             logger.LogInformation($"Starting GameHook version {BuildEnvironment.AssemblyProductVersion}.");
 
-            var mapperUpdateManager = app.Services.GetRequiredService<IMapperUpdateManager>();
-            await mapperUpdateManager.CheckForUpdates();
+            if (BuildEnvironment.IsReleaseBuild)
+            {
+                var mapperUpdateManager = app.Services.GetRequiredService<IMapperUpdateManager>();
+                await mapperUpdateManager.CheckForUpdates();
+            }
 
             await app.StartAsync();
 

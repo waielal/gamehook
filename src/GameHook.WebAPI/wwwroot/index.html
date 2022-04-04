@@ -123,7 +123,7 @@
                                     <td class="pt-1 bytes-td displayPropertyBytes">{{ displayBytes(property.bytes) }}</td>
                                     <td class="pt-1">{{ displayPropertyValue(property) }}</td>
                                     <td class="pt-1 has-text-centered commands-td">
-                                        <note-btn :property="property"></note-btn>
+                                        <description-btn :property="property"></description-btn>
                                         <freeze-property-btn :property="property"></freeze-property-btn>
                                         <pin-property-btn :property="property"></pin-property-btn>
                                         <edit-property-btn :property="property"></edit-property-btn>
@@ -148,7 +148,7 @@
                                     <td class="pt-1 displayPropertyBytes">{{ displayBytes(property.bytes) }}</td>
                                     <td class="pt-1">{{ displayPropertyValue(property) }}</td>
                                     <td class="pt-1 has-text-centered commands-td">
-                                        <note-btn :property="property"></note-btn>
+                                        <description-btn :property="property"></description-btn>
                                         <freeze-property-btn :property="property"></freeze-property-btn>
                                         <pin-property-btn :property="property"></pin-property-btn>
                                         <edit-property-btn :property="property"></edit-property-btn>
@@ -195,9 +195,9 @@
                                     <td>Value</td>
                                     <td>{{ editingProperty.value }}</td>
                                 </tr>
-                                <tr v-if="editingProperty.note">
-                                    <td>Note</td>
-                                    <td>{{ editingProperty.note }}</td>
+                                <tr v-if="editingProperty.description">
+                                    <td>Description</td>
+                                    <td>{{ editingProperty.description }}</td>
                                 </tr>
                             </table>
 
@@ -296,7 +296,7 @@
             <path d="M5 12l5 5l10 -10"></path>
         </svg>
 
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-help" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="#e0e0e0" fill="none" stroke-linecap="round" stroke-linejoin="round" id="note">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-help" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="#e0e0e0" fill="none" stroke-linecap="round" stroke-linejoin="round" id="description">
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <circle cx="12" cy="12" r="9" />
             <line x1="12" y1="17" x2="12" y2="17.01" />
@@ -320,10 +320,10 @@
             template: `<template v-if="err"><slot></slot><div v-if="err">{{ err.detail }}</div><div v-else>An unknown application error has occurred.</div><div>Please refer to the server logs if you need more information.</div></template>`
         }
 
-        const noteBtnComponent = {
+        const descriptionBtnComponent = {
             props: ['property'],
-            template: ` <div class="cmd-button" v-if="property.note">
-                            <svg class="sprite"><use xlink:href="#note"></use></svg>
+            template: ` <div class="cmd-button" v-if="property.description">
+                            <svg class="sprite"><use xlink:href="#description"></use></svg>
                         </div>
                         <div class="cmd-button" v-else>
                         </div>`
@@ -412,7 +412,7 @@
                             <span class="has-text-weight-normal">{{ key }}:</span> <span class="has-text-weight-light">{{ displayPropertyValue(obj[key]) }}</span>
 
                             <div class="commands">
-                                <note-btn :property="obj[key]"></note-btn>
+                                <description-btn :property="obj[key]"></description-btn>
                                 <freeze-property-btn :property="obj[key]" />
                                 <pin-property-btn :property="obj[key]" />
                                 <edit-property-btn :property="obj[key]" />
@@ -667,7 +667,7 @@
         })
 
         app.component('tree-view-item', treeViewItemComponent)
-        app.component('note-btn', noteBtnComponent)
+        app.component('description-btn', descriptionBtnComponent)
         app.component('freeze-property-btn', freezePropertyBtnComponent)
         app.component('pin-property-btn', pinPropertyBtnComponent)
         app.component('edit-property-btn', editPropertyBtnComponent)

@@ -52,18 +52,18 @@ namespace GameHook.Domain
         {
             public MacroPointer(int address)
             {
-                address = address;
+                Address = address;
             }
 
-            public int address { get; }
+            public int Address { get; }
         }
 
         private void TransverseProperties(GameHookContainer container, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
         {
+            var insideMacro = macroPointer != null;
+
             try
             {
-                var insideMacro = macroPointer != null;
-
                 if ((insideMacro == false && source.ContainsKey("type") && source.ContainsKey("address")) || (insideMacro == true && source.ContainsKey("type")))
                 {
                     if (string.IsNullOrEmpty(key))
@@ -71,9 +71,9 @@ namespace GameHook.Domain
 
                     // Convert the property object into an IGameHookProperty.
                     var type = source["type"].ToString() ?? throw new Exception("Type is required.");
-                    var length = (source.ContainsKey("length") ? int.Parse(source["length"].ToString() ?? string.Empty) : 1);
+                    var size = (source.ContainsKey("size") ? int.Parse(source["size"].ToString() ?? string.Empty) : 1);
                     var position = (source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? string.Empty) : 1);
-                    var note = source.ContainsKey("note") ? source["note"].ToString() : null;
+                    var description = source.ContainsKey("description") ? source["description"].ToString() : null;
                     var reference = source.ContainsKey("reference") ? source["reference"].ToString() : null;
                     var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
                     var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
@@ -84,7 +84,7 @@ namespace GameHook.Domain
                         if (source.ContainsKey("offset") == false || string.IsNullOrEmpty(source["offset"].ToString()))
                             throw new Exception($"Property {key} is missing a required field: offset.");
 
-                        address = macroPointer.address + offset ?? 0;
+                        address = macroPointer.Address + offset ?? 0;
                     }
                     else
                     {
@@ -98,10 +98,10 @@ namespace GameHook.Domain
                     {
                         Type = type,
                         Address = address,
-                        Size = length,
+                        Size = size,
                         Position = position,
                         Reference = reference,
-                        Note = note
+                        Description = description
                     };
 
                     if (type == "binaryCodedDecimal")
@@ -165,7 +165,7 @@ namespace GameHook.Domain
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not parse at {key}.", ex);
+                throw new Exception($"Could not parse at {key}. (inside macro? {insideMacro})", ex);
             }
         }
 

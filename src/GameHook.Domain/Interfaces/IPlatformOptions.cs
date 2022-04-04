@@ -1,6 +1,6 @@
 ﻿namespace GameHook.Domain.Interfaces
 {
-    public record PlatformRange(string Name, MemoryAddress address, MemoryAddress EndingAddress);
+    public record PlatformRange(string Name, MemoryAddress StartingAddress, MemoryAddress EndingAddress);
 
     public interface IPlatformOptions
     {

@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<Version>0.0.0+dev</Version>
+		<Product>GameHook</Product>
 		<ProductVersion>0.0.0+dev</ProductVersion>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<TargetFramework>net6.0</TargetFramework>
@@ -19,7 +20,6 @@
 	<ItemGroup>
 		<Content Remove="appsettings.json" />
 		<Content Remove="wwwroot\dist\gameHookMapperClient.js" />
-		<Content Remove="wwwroot\favicon.ico" />
 		<Content Remove="wwwroot\index.html" />
 		<Content Remove="wwwroot\site.css" />
 	</ItemGroup>
@@ -27,7 +27,6 @@
 	<ItemGroup>
 		<EmbeddedResource Include="appsettings.json" />
 		<EmbeddedResource Include="wwwroot\dist\gameHookMapperClient.js" />
-		<EmbeddedResource Include="wwwroot\favicon.ico" />
 		<EmbeddedResource Include="wwwroot\index.html" />
 		<EmbeddedResource Include="wwwroot\site.css" />
 	</ItemGroup>
@@ -51,6 +50,5 @@
 
 	<ItemGroup>
 		<Resource Include="wwwroot\dist\gameHookMapperClient.js" />
-		<Resource Include="wwwroot\favicon.ico" />
 	</ItemGroup>
 </Project>
