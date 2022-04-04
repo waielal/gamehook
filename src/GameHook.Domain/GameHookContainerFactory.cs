@@ -50,12 +50,12 @@ namespace GameHook.Domain
 
         private class MacroPointer
         {
-            public MacroPointer(int address)
+            public MacroPointer(MemoryAddress address)
             {
                 Address = address;
             }
 
-            public int Address { get; }
+            public MemoryAddress Address { get; }
         }
 
         private void TransverseProperties(GameHookContainer container, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
@@ -78,7 +78,7 @@ namespace GameHook.Domain
                     var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
                     var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
 
-                    int address;
+                    long address;
                     if (macroPointer != null)
                     {
                         if (source.ContainsKey("offset") == false || string.IsNullOrEmpty(source["offset"].ToString()))
@@ -91,13 +91,13 @@ namespace GameHook.Domain
                         if (source.ContainsKey("address") == false || string.IsNullOrEmpty(source["address"].ToString()))
                             throw new Exception($"Property {key} is missing a required field: address.");
 
-                        address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToInt();
+                        address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToUint();
                     }
 
                     var fields = new PropertyFields()
                     {
                         Type = type,
-                        Address = address,
+                        Address = (MemoryAddress)address,
                         Size = size,
                         Position = position,
                         Reference = reference,
@@ -143,7 +143,7 @@ namespace GameHook.Domain
                     else if (type == "macro")
                     {
                         var nextLevel = container.Macros[macro ?? throw new Exception($"Property {key} is missing a required field: macro.")];
-                        TransverseProperties(container, nextLevel, key, new MacroPointer(address));
+                        TransverseProperties(container, nextLevel, key, new MacroPointer((MemoryAddress) address));
                     }
                     else
                     {

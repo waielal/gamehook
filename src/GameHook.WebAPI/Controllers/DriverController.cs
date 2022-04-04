@@ -4,7 +4,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace GameHook.WebAPI.Controllers
 {
-    public record UpdateMemoryModel(int Address, byte[] Bytes);
+    public record UpdateMemoryModel(uint Address, byte[] Bytes);
 
     [ApiController]
     [Produces("application/json")]

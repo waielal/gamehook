@@ -22,4 +22,25 @@ namespace GameHook.Domain
             new PlatformRange("WRAM1", 0xD000, 0xDFFF)
         };
     }
+
+    // All known N64 cores do not have a memory map defined.
+    public class N64_PlatformOptions : IPlatformOptions
+    {
+        public EndianTypeEnum EndianType { get; } = EndianTypeEnum.BigEndian;
+
+        public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
+        {
+            new PlatformRange("KSEG0", 0x80000000, 0x9FFFFFFF)
+        };
+    }
+
+    // All known PSX cores do not have a memory map defined.
+    public class PSX_PlatformOptions : IPlatformOptions
+    {
+        public EndianTypeEnum EndianType { get; } = EndianTypeEnum.BigEndian;
+
+        public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
+        {
+        };
+    }
 }

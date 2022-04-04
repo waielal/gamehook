@@ -1,6 +1,7 @@
 using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -196,7 +197,7 @@ namespace GameHook.Domain.Drivers
 
                                 var offsetaddress = watch.Address - range.Address;
                                 var totalOffset = offsetaddress + watch.Length;
-                                var result = range.Bytes.Skip(offsetaddress).Take(watch.Length).ToArray();
+                                var result = range.Bytes.Skip((int)offsetaddress).Take(watch.Length).ToArray();
 
                                 if (watch.OldBytes == null || result.SequenceEqual(watch.OldBytes) == false)
                                 {
@@ -249,7 +250,7 @@ namespace GameHook.Domain.Drivers
             Responses.Clear();
         }
 
-        private string ToRetroArchHexdecimalString(int value)
+        private string ToRetroArchHexdecimalString(uint value)
         {
             // TODO: This is somewhat of a hack because
             // RetroArch returns the request 00 as 0.
@@ -288,7 +289,7 @@ namespace GameHook.Domain.Drivers
             Logger.LogTrace($"[Outgoing Packet] {outgoingPayload}");
         }
 
-        private async Task<ReceivedPacket> ReadMemoryAddress(MemoryAddress memoryAddress, int length)
+        private async Task<ReceivedPacket> ReadMemoryAddress(MemoryAddress memoryAddress, uint length)
         {
             var command = $"READ_CORE_MEMORY {ToRetroArchHexdecimalString(memoryAddress)}";
             await SendPacket(command, $"{length}");
@@ -332,7 +333,7 @@ namespace GameHook.Domain.Drivers
                     return;
                 }
 
-                var memoryAddress = Convert.ToInt32(memoryAddressString, 16);
+                var memoryAddress = Convert.ToUInt32(memoryAddressString, 16);
                 var value = valueStringArray.Select(x => Convert.ToByte(x, 16)).ToArray();
 
                 var receiveKey = $"{command} {memoryAddressString} {valueStringArray.Length}";

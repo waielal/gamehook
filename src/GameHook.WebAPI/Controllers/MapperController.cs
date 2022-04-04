@@ -34,7 +34,7 @@ namespace GameHook.WebAPI.Controllers
 
         public string Type { get; init; } = string.Empty;
 
-        public int Address { get; init; }
+        public uint Address { get; init; }
 
         public int Length { get; init; }
 

@@ -92,7 +92,7 @@ namespace GameHook.Domain
             }
         }
 
-        public async Task OnDriverMemoryChanged(int memoryAddress, int length, byte[] value)
+        public async Task OnDriverMemoryChanged(MemoryAddress memoryAddress, int length, byte[] value)
         {
             var propertiesFrozen = Properties
                 .Where(x => x.Value.Address.Equals(memoryAddress) && x.Value.Length.Equals(length) && x.Value.FreezeToBytes != null)

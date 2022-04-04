@@ -4,15 +4,15 @@ namespace GameHook.Domain
 {
     public static class Extensions
     {
-        public static string ToHexdecimalString(this int value) => $"0x{value:X2}";
-        public static string ToHexdecimalString(this byte value) => ((int)value).ToHexdecimalString();
+        public static string ToHexdecimalString(this uint value) => $"0x{value:X2}";
+        public static string ToHexdecimalString(this byte value) => ((uint)value).ToHexdecimalString();
         public static string ToHexdecimalString(this byte[] bytes) => string.Join(", ", bytes.ToHexdecimalStringArray());
         public static string[] ToHexdecimalStringArray(this byte[] bytes) => bytes.Select(x => x.ToHexdecimalString()).ToArray();
 
         public static IEnumerable<int> ToIntegerArray(this byte[] bytes) => bytes.Select(x => (int)x).ToList();
 
         public static byte FromHexdecimalStringToByte(this string value) => Convert.ToByte(value, 16);
-        public static int FromHexdecimalStringToInt(this string value) => Convert.ToInt32(value, 16);
+        public static uint FromHexdecimalStringToUint(this string value) => Convert.ToUInt32(value, 16);
 
         public static string GetRequiredValue(this IConfiguration configuration, string key)
         {
