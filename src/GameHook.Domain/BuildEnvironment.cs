@@ -6,6 +6,7 @@ using System.Reflection;
 
 public static class BuildEnvironment
 {
+    // 0.0.0
     public static string AssemblyVersion
     {
         get
@@ -22,6 +23,7 @@ public static class BuildEnvironment
         }
     }
 
+    // 0.0.0+dev
     public static string AssemblyProductVersion
     {
         get

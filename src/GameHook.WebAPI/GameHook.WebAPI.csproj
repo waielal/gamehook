@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<Version>0.0.0+dev</Version>
+		<Version>0.0.0</Version>
 		<Product>GameHook</Product>
 		<ProductVersion>0.0.0+dev</ProductVersion>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
