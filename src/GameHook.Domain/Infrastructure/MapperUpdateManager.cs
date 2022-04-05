@@ -117,7 +117,7 @@ namespace GameHook.Domain.Infrastructure
                     Logger.LogInformation("Skipping update checks due to being disabled in configuration.");
                 }
                 else if (CheckForMapperUpdatesMinutes == 0 ||
-                         MapperData.LastCheckedDate.HasValue == false || MapperData.LastCheckedDate.HasValue && (DateTime.UtcNow - MapperData.LastCheckedDate.Value).Minutes > CheckForMapperUpdatesMinutes ||
+                         (MapperData.LastCheckedDate.HasValue == false || MapperData.LastCheckedDate.HasValue && (DateTime.UtcNow - MapperData.LastCheckedDate.Value).Minutes > CheckForMapperUpdatesMinutes) ||
                          MapperData.LastLocalVersion != BuildEnvironment.AssemblyProductVersion)
                 {
                     var httpClient = HttpClientFactory.CreateClient();
