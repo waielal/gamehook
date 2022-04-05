@@ -127,25 +127,18 @@ namespace GameHook.Domain.Infrastructure
                     var latestCommit = JsonSerializer.Deserialize<LatestCommit>(latestCommitJson)?.sha;
                     var latestVersion = BuildEnvironment.AssemblyProductVersion;
 
-                    if (MapperData.LastLocalCommit != latestCommit || MapperData.LastLocalVersion != latestVersion)
+                    if (MapperData.LastLocalCommit != latestCommit)
                     {
-                        if (MapperData.LastLocalCommit == null)
-                        {
-                            Logger.LogInformation($"Downloading mappers from our source repository {GithubMapperUrl}.");
-                        }
-                        else
-                        {
-                            Logger.LogInformation($"Downloading mappers updates from our source repository {GithubMapperUrl}.");
-                        }
+                        Logger.LogInformation($"Downloading mappers updates from our source repository {GithubMapperUrl}.");
 
                         await DownloadLatestMappers(httpClient);
 
                         MapperData.LastLocalCommit = latestCommit;
-                        MapperData.LastLocalVersion = latestVersion;
                     }
 
                     Logger.LogInformation("GameHook will periodically check for mapper updates and download them. If you do not want this, please disable it in the configuration.");
 
+                    MapperData.LastLocalVersion = latestVersion;
                     MapperData.LastCheckedDate = DateTime.UtcNow;
                 }
                 else
