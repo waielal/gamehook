@@ -6,9 +6,20 @@ namespace GameHook.Domain
     {
         public EndianTypeEnum EndianType { get; } = EndianTypeEnum.BigEndian;
 
+        // TODO: Why can I only get back 0x400 or 1024 from RetroArch? Is this FCEUmm memory mapping only returning the first 1024 blocks?
         public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
         {
-            new PlatformRange("WRAM", 0x0000, 0x0400)
+            new PlatformRange("Internal RAM", 0x0000, 0x0400) // 2kB Internal RAM, mirrored 4 times
+        };
+    }
+
+    public class SNES_PlatformOptions : IPlatformOptions
+    {
+        public EndianTypeEnum EndianType { get; } = EndianTypeEnum.LittleEndian;
+
+        public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
+        {
+            new PlatformRange("?", 0x7E6D00, 0x7E7FFF)
         };
     }
 
@@ -18,29 +29,8 @@ namespace GameHook.Domain
 
         public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
         {
-            new PlatformRange("WRAM0", 0xC000, 0xCFFF),
-            new PlatformRange("WRAM1", 0xD000, 0xDFFF)
-        };
-    }
-
-    // All known N64 cores do not have a memory map defined.
-    public class N64_PlatformOptions : IPlatformOptions
-    {
-        public EndianTypeEnum EndianType { get; } = EndianTypeEnum.BigEndian;
-
-        public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
-        {
-            new PlatformRange("KSEG0", 0x80000000, 0x9FFFFFFF)
-        };
-    }
-
-    // All known PSX cores do not have a memory map defined.
-    public class PSX_PlatformOptions : IPlatformOptions
-    {
-        public EndianTypeEnum EndianType { get; } = EndianTypeEnum.BigEndian;
-
-        public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
-        {
+            new PlatformRange("?", 0xC000, 0xCFFF),
+            new PlatformRange("?", 0xD000, 0xDFFF)
         };
     }
 }

@@ -3,9 +3,10 @@ using System.Collections;
 
 namespace GameHook.Domain.GameHookProperties
 {
-    public class BitArrayProperty : GameHookProperty<IEnumerable<bool>>
+    // TODO: Rename from bitArray to bitField in mapper files.
+    public class BitFieldProperty : GameHookProperty<IEnumerable<bool>>
     {
-        public BitArrayProperty(IGameHookContainer mapper, string identifier, PropertyFields fields)
+        public BitFieldProperty(IGameHookContainer mapper, string identifier, PropertyFields fields)
             : base(mapper, identifier, fields)
         {
         }

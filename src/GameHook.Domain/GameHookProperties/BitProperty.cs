@@ -20,11 +20,6 @@ namespace GameHook.Domain.GameHookProperties
 
         protected override bool ToValue(byte[] bytes)
         {
-            if (PlatformOptions.EndianType == EndianTypeEnum.LittleEndian)
-            {
-                Array.Reverse(bytes);
-            }
-
             return new BitArray(bytes).Get(Position - 1);
         }
     }

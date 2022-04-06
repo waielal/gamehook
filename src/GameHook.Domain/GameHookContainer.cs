@@ -39,6 +39,7 @@ namespace GameHook.Domain
             }
 
             if (meta.GamePlatform == "NES") { PlatformOptions = new NES_PlatformOptions(); }
+            else if (meta.GamePlatform == "SNES") { PlatformOptions = new SNES_PlatformOptions(); }
             else if (meta.GamePlatform == "GB") { PlatformOptions = new GB_PlatformOptions(); }
             else
             {

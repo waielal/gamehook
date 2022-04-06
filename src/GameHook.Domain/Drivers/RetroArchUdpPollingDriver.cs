@@ -156,8 +156,6 @@ namespace GameHook.Domain.Drivers
             Task.Run(async () =>
             {
                 var token = WatchingAddressesCancellationTokenSource.Token;
-                Logger.LogDebug($"RetroArchUdpDriver has started watching {AddressesToWatch.Count} memory addresses.");
-
                 while (true)
                 {
                     Responses.Clear();
@@ -318,7 +316,7 @@ namespace GameHook.Domain.Drivers
         private void ReceivePacket(byte[] receiveBytes)
         {
             string receiveString = Encoding.ASCII.GetString(receiveBytes).Replace("\n", string.Empty);
-            // Logger.LogDebug($"[Incoming Packet] {receiveString}");
+            Logger.LogTrace($"[Incoming Packet] {receiveString}");
 
             try
             {
@@ -337,6 +335,8 @@ namespace GameHook.Domain.Drivers
                 var value = valueStringArray.Select(x => Convert.ToByte(x, 16)).ToArray();
 
                 var receiveKey = $"{command} {memoryAddressString} {valueStringArray.Length}";
+
+                Logger.LogDebug($"[Incoming Packet] {receiveKey}");
                 Responses[receiveKey] = new ReceivedPacket(command, memoryAddress, value);
             }
             catch (Exception ex)

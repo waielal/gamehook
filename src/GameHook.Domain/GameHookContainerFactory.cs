@@ -118,7 +118,7 @@ namespace GameHook.Domain
                     }
                     else if (type == "bitArray")
                     {
-                        container.AddHookProperty(key, new BitArrayProperty(container, key, fields));
+                        container.AddHookProperty(key, new BitFieldProperty(container, key, fields));
                     }
                     else if (type == "int")
                     {
