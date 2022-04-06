@@ -34,7 +34,7 @@ jobs:
           # Variables
           commithash=$(git describe --long --always --dirty --exclude=* --abbrev=8)
           tag=$(git describe --tags --abbrev=0)
-          release_name="GameHook-${{ matrix.target }}-$tag-$commithash"
+          release_name="GameHook-${{ matrix.target }}-$tag"
           echo "commithash is $commithash"
           echo "tag is $tag"
           echo "release_name is $release_name"
