@@ -143,7 +143,7 @@ namespace GameHook.Domain
                     else if (type == "macro")
                     {
                         var nextLevel = container.Macros[macro ?? throw new Exception($"Property {key} is missing a required field: macro.")];
-                        TransverseProperties(container, nextLevel, key, new MacroPointer((MemoryAddress) address));
+                        TransverseProperties(container, nextLevel, key, new MacroPointer((MemoryAddress)address));
                     }
                     else
                     {
@@ -159,7 +159,21 @@ namespace GameHook.Domain
                         if (nextLevel == null)
                             continue;
 
-                        TransverseProperties(container, nextLevel, string.IsNullOrEmpty(key) ? childKey : key + "." + childKey, macroPointer);
+                        var definedChildKey = childKey;
+
+                        // Keys that contain only _ symbols are considered merge operators.
+                        if (childKey.All(x => x == '_'))
+                        {
+                            // Setting child key to empty will force it to merge
+                            // the transversed properties with it's parent.
+
+                            definedChildKey = string.Empty;
+                        }
+
+                        // Create a path based off of a combination of the key and child key.
+                        var path = string.Join(".", new string?[] { key, definedChildKey }.Where(s => string.IsNullOrEmpty(s) == false));
+
+                        TransverseProperties(container, nextLevel, path, macroPointer);
                     }
                 }
             }
