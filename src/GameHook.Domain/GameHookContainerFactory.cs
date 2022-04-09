@@ -57,6 +57,92 @@ namespace GameHook.Domain
 
             public MemoryAddress Address { get; }
         }
+        private void ParseProperty(GameHookContainer container, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new Exception("Key cannot be null.");
+
+            // Convert the property object into an IGameHookProperty.
+            var type = source["type"].ToString() ?? throw new Exception("Type is required.");
+            var size = (source.ContainsKey("size") ? int.Parse(source["size"].ToString() ?? string.Empty) : 1);
+            var position = (source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? string.Empty) : 1);
+            var description = source.ContainsKey("description") ? source["description"].ToString() : null;
+            var reference = source.ContainsKey("reference") ? source["reference"].ToString() : null;
+            var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
+            var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
+
+            long address;
+            if (macroPointer != null)
+            {
+                if (source.ContainsKey("offset") == false || string.IsNullOrEmpty(source["offset"].ToString()))
+                    throw new Exception($"Property {key} is missing a required field: offset.");
+
+                address = macroPointer.Address + offset ?? 0;
+            }
+            else
+            {
+                if (source.ContainsKey("address") == false || string.IsNullOrEmpty(source["address"].ToString()))
+                    throw new Exception($"Property {key} is missing a required field: address.");
+
+                address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToUint();
+            }
+
+            var fields = new PropertyFields()
+            {
+                Type = type,
+                Address = (MemoryAddress)address,
+                Size = size,
+                Position = position,
+                Reference = reference,
+                Description = description
+            };
+
+            if (type == "binaryCodedDecimal")
+            {
+                container.AddHookProperty(key, new BinaryCodedDecimalProperty(container, key, fields));
+            }
+            else if (type == "bool")
+            {
+                container.AddHookProperty(key, new BooleanProperty(container, key, fields));
+            }
+            else if (type == "bit")
+            {
+                container.AddHookProperty(key, new BitProperty(container, key, fields));
+            }
+            else if (type == "bitArray")
+            {
+                container.AddHookProperty(key, new BitFieldProperty(container, key, fields));
+            }
+            else if (type == "int")
+            {
+                container.AddHookProperty(key, new IntegerProperty(container, key, fields));
+            }
+            else if (type == "uint")
+            {
+                container.AddHookProperty(key, new UnsignedIntegerProperty(container, key, fields));
+            }
+            else if (type == "reference")
+            {
+                container.AddHookProperty(key, new ReferenceProperty(container, key, fields));
+            }
+            else if (type == "referenceArray")
+            {
+                container.AddHookProperty(key, new ReferenceArrayProperty(container, key, fields));
+            }
+            else if (type == "string")
+            {
+                container.AddHookProperty(key, new StringProperty(container, key, fields));
+            }
+            else if (type == "macro")
+            {
+                var nextLevel = container.Macros[macro ?? throw new Exception($"Property {key} is missing a required field: macro.")];
+                TransverseProperties(container, nextLevel, key, new MacroPointer((MemoryAddress)address));
+            }
+            else
+            {
+                throw new Exception($"Unable to determine type '{type}' when parsing properties of {source}.");
+            }
+        }
 
         private void TransverseProperties(GameHookContainer container, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
         {
@@ -66,99 +152,12 @@ namespace GameHook.Domain
             {
                 if ((insideMacro == false && source.ContainsKey("type") && source.ContainsKey("address")) || (insideMacro == true && source.ContainsKey("type")))
                 {
-                    if (string.IsNullOrEmpty(key))
-                        throw new Exception("Key cannot be null.");
-
-                    // Convert the property object into an IGameHookProperty.
-                    var type = source["type"].ToString() ?? throw new Exception("Type is required.");
-                    var size = (source.ContainsKey("size") ? int.Parse(source["size"].ToString() ?? string.Empty) : 1);
-                    var position = (source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? string.Empty) : 1);
-                    var description = source.ContainsKey("description") ? source["description"].ToString() : null;
-                    var reference = source.ContainsKey("reference") ? source["reference"].ToString() : null;
-                    var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
-                    var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
-
-                    long address;
-                    if (macroPointer != null)
-                    {
-                        if (source.ContainsKey("offset") == false || string.IsNullOrEmpty(source["offset"].ToString()))
-                            throw new Exception($"Property {key} is missing a required field: offset.");
-
-                        address = macroPointer.Address + offset ?? 0;
-                    }
-                    else
-                    {
-                        if (source.ContainsKey("address") == false || string.IsNullOrEmpty(source["address"].ToString()))
-                            throw new Exception($"Property {key} is missing a required field: address.");
-
-                        address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToUint();
-                    }
-
-                    var fields = new PropertyFields()
-                    {
-                        Type = type,
-                        Address = (MemoryAddress)address,
-                        Size = size,
-                        Position = position,
-                        Reference = reference,
-                        Description = description
-                    };
-
-                    if (type == "binaryCodedDecimal")
-                    {
-                        container.AddHookProperty(key, new BinaryCodedDecimalProperty(container, key, fields));
-                    }
-                    else if (type == "bool")
-                    {
-                        container.AddHookProperty(key, new BooleanProperty(container, key, fields));
-                    }
-                    else if (type == "bit")
-                    {
-                        container.AddHookProperty(key, new BitProperty(container, key, fields));
-                    }
-                    else if (type == "bitArray")
-                    {
-                        container.AddHookProperty(key, new BitFieldProperty(container, key, fields));
-                    }
-                    else if (type == "int")
-                    {
-                        container.AddHookProperty(key, new IntegerProperty(container, key, fields));
-                    }
-                    else if (type == "uint")
-                    {
-                        container.AddHookProperty(key, new UnsignedIntegerProperty(container, key, fields));
-                    }
-                    else if (type == "reference")
-                    {
-                        container.AddHookProperty(key, new ReferenceProperty(container, key, fields));
-                    }
-                    else if (type == "referenceArray")
-                    {
-                        container.AddHookProperty(key, new ReferenceArrayProperty(container, key, fields));
-                    }
-                    else if (type == "string")
-                    {
-                        container.AddHookProperty(key, new StringProperty(container, key, fields));
-                    }
-                    else if (type == "macro")
-                    {
-                        var nextLevel = container.Macros[macro ?? throw new Exception($"Property {key} is missing a required field: macro.")];
-                        TransverseProperties(container, nextLevel, key, new MacroPointer((MemoryAddress)address));
-                    }
-                    else
-                    {
-                        throw new Exception($"Unable to determine type '{type}' when parsing properties of {source}.");
-                    }
+                    ParseProperty(container, source, key, macroPointer);
                 }
                 else
                 {
                     foreach (string childKey in source.Keys)
                     {
-                        var nextLevel = (IDictionary<object, object>?)source[childKey];
-
-                        if (nextLevel == null)
-                            continue;
-
                         var definedChildKey = childKey;
 
                         // Keys that contain only _ symbols are considered merge operators.
@@ -170,10 +169,33 @@ namespace GameHook.Domain
                             definedChildKey = string.Empty;
                         }
 
-                        // Create a path based off of a combination of the key and child key.
-                        var path = string.Join(".", new string?[] { key, definedChildKey }.Where(s => string.IsNullOrEmpty(s) == false));
+                        // If the next level is an object.
+                        var nextLevel = source[childKey] as IDictionary<object, object>;
+                        if (nextLevel != null)
+                        {
+                            // Create a path based off of a combination of the key and child key.
+                            var path = string.Join(".", new string?[] { key, definedChildKey }.Where(s => string.IsNullOrEmpty(s) == false));
 
-                        TransverseProperties(container, nextLevel, path, macroPointer);
+                            TransverseProperties(container, nextLevel, path, macroPointer);
+                        }
+
+                        // If the next level is an array.
+                        var nextLevelArray = source[childKey] as IEnumerable<object>;
+                        if (nextLevelArray != null)
+                        {
+                            foreach (var (obj, index) in nextLevelArray.Select((obj, index) => (obj, index)))
+                            {
+                                // Create a path based off of a combination of the key and child key.
+                                var path = string.Join(".", new string?[] { key, definedChildKey, index.ToString()}.Where(s => string.IsNullOrEmpty(s) == false));
+
+                                var nextLevelArrayChild = obj as IDictionary<object, object>;
+
+                                if (nextLevelArrayChild != null)
+                                {
+                                    TransverseProperties(container, nextLevelArrayChild, path, macroPointer);
+                                }
+                            }
+                        }
                     }
                 }
             }
