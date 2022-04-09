@@ -29,8 +29,11 @@ namespace GameHook.Domain
 
         public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
         {
-            new PlatformRange("?", 0xC000, 0xCFFF),
-            new PlatformRange("?", 0xD000, 0xDFFF)
+            // new PlatformRange("External RAM (Part 1)", 0xA000, 0xAFFF),
+            // new PlatformRange("External RAM (Part 2)", 0xB000, 0xBFFF),
+            new PlatformRange("Work RAM (Part 1)", 0xC000, 0xCFFF),
+            new PlatformRange("Work RAM (Part 2)", 0xD000, 0xDFFF),
+            new PlatformRange("High RAM", 0xFF80, 0xFFFF)
         };
     }
 }
