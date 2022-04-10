@@ -125,10 +125,6 @@ namespace GameHook.WPF
         #endregion
         #endregion WindowManagement
 
-        private void WindowControlButton_LogWindow_Click(object sender, EventArgs e)
-        {
-            ApplicationState.OpenLogWindow();
-        }
         private void WindowControlButton_Pin_Click(object sender, EventArgs e)
         {
             Topmost = !Topmost;

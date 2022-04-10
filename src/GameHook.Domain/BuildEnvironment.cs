@@ -48,6 +48,9 @@ public static class BuildEnvironment
         }
     }
 
+    public static string UserAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.user.json");
+    public static string DebugAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.debug.json");
+
 #if DEBUG
     public const bool IsDebugBuild = true;
     public const bool IsReleaseBuild = false;

@@ -37,6 +37,13 @@ public class Program
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
         }
 
+        // Clear existing default log file if it exists.
+        var defaultLogPath = "gamehook.log";
+        if (File.Exists(defaultLogPath))
+        {
+            File.WriteAllText(defaultLogPath, string.Empty);
+        }
+
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .CreateBootstrapLogger();
@@ -44,6 +51,7 @@ public class Program
         try
         {
             var builder = WebApplication.CreateBuilder();
+
             builder.Host.UseSerilog((context, services, configuration) => configuration
                 .ReadFrom.Configuration(context.Configuration)
                 .ReadFrom.Services(services)
@@ -58,7 +66,8 @@ public class Program
             // Add a custom appsettings.user.json file if
             // the user wants to override their settings.
             builder.Configuration.AddJsonStream(EmbededResources.appsettings_json);
-            builder.Configuration.AddJsonFile("appsettings.user.json", true, true);
+            builder.Configuration.AddJsonFile(BuildEnvironment.UserAppsettingsFilePath, true, false);
+            builder.Configuration.AddJsonFile(BuildEnvironment.DebugAppsettingsFilePath, true, false);
 
             builder.Services.AddHttpClient();
 
@@ -124,6 +133,15 @@ public class Program
             // Build and run.
             var app = builder.Build();
             var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+            // After the configuration is loaded, delete the appsettings.debug.json file
+            // if it is present, as it is already loaded into memory.
+            if (File.Exists(BuildEnvironment.DebugAppsettingsFilePath))
+            {
+                logger.LogInformation("Using debug appsettings file.");
+
+                File.Delete(BuildEnvironment.DebugAppsettingsFilePath);
+            }
 
             app.UseCors(x =>
             {

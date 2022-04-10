@@ -1,7 +1,6 @@
 using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
