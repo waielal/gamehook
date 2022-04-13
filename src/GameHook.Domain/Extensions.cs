@@ -35,5 +35,10 @@ namespace GameHook.Domain
 
             return value;
         }
+
+        public static bool Between(this uint value, uint min, uint max)
+        {
+            return value >= min && value <= max;
+        }
     }
 }

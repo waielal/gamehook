@@ -149,17 +149,26 @@ namespace GameHook.Domain.Drivers
             WatchingAddressesCancellationTokenSource = new CancellationTokenSource();
             Container = handler;
 
-            var platformOptions = Container.PlatformOptions;
+            var addressesToWatch = AddressesToWatch.ToList();
+            if (addressesToWatch.Any() == false) { return true; }
+
+            // Calculate which platform ranges are required by the mapper.
+            var requestRanges = Container.PlatformOptions.Ranges
+                                    .Where(x => addressesToWatch.Any(y => y.Address.Between(x.StartingAddress, x.EndingAddress)))
+                                    .ToList();
+
+            Logger.LogDebug($"Requested {requestRanges.Count}/{Container.PlatformOptions.Ranges.Count()} ranges of memory.");
+            Logger.LogDebug($"Requested ranges: {string.Join(", ", requestRanges.Select(x => x.Name))}");
+
             var ranSuccessfullyOnce = false;
 
             Task.Run(async () =>
             {
                 var token = WatchingAddressesCancellationTokenSource.Token;
+
                 while (true)
                 {
                     Responses.Clear();
-
-                    var addressesToWatch = AddressesToWatch.ToList();
 
                     if (addressesToWatch.Any())
                     {
@@ -168,7 +177,7 @@ namespace GameHook.Domain.Drivers
                             token.ThrowIfCancellationRequested();
 
                             var ranges = new List<MemoryAddressRange>();
-                            foreach (var range in platformOptions.Ranges)
+                            foreach (var range in requestRanges)
                             {
                                 token.ThrowIfCancellationRequested();
 
