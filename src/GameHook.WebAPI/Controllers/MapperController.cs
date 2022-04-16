@@ -72,7 +72,7 @@ namespace GameHook.WebAPI.Controllers
 
         [HttpGet]
         [SwaggerOperation("Returns the mapper that was loaded, with all properties (populated with data).")]
-        public ActionResult GetMapper()
+        public ActionResult<MapperModel> GetMapper()
         {
             if (GameMapperFactory.LoadedMapper == null)
                 return ApiHelper.MapperNotLoaded();

@@ -173,7 +173,7 @@
                                 </tr>
                                 <tr>
                                     <td>Address</td>
-                                    <td>{{ decimalToHexdecimal(editingProperty.address) }}</td>
+                                    <td>{{ integerToHexdecimalString(editingProperty.address) }}</td>
                                 </tr>
                                 <tr>
                                     <td>Size</td>
@@ -372,7 +372,7 @@
                 onBlur(event, index) {
                     let value = event.target.value
 
-                    this.bytes[index] = GameHookMapperClient.hexdecimalToDecimal(value)
+                    this.bytes[index] = GameHookMapperClient.hexdecimalStringToInteger(value)
                     this.bytesDisplay = this.$root.displayBytesEditor(this.bytes).split(' ')
                 }
             },
@@ -494,7 +494,7 @@
                 this.loadData()
             },
             methods: {
-                decimalToHexdecimal: GameHookMapperClient.decimalToHexdecimal,
+                integerToHexdecimalString: GameHookMapperClient.integerToHexdecimalString,
 
                 displayBytes: function (bytes, forceMode) {
                     const mode = forceMode ?? this.userSettings.displayBytesMode
@@ -502,9 +502,9 @@
                     if (mode === 'decimal') {
                         return bytes.join(' ')
                     } else if (mode === 'hexdecimalLower') {
-                        return bytes.map(x => GameHookMapperClient.decimalToHexdecimal(x, false)).join(' ')
+                        return bytes.map(x => GameHookMapperClient.integerToHexdecimalString(x, false)).join(' ')
                     } else if (mode === 'hexdecimalUpper') {
-                        return bytes.map(x => GameHookMapperClient.decimalToHexdecimal(x, true)).join(' ')
+                        return bytes.map(x => GameHookMapperClient.integerToHexdecimalString(x, true)).join(' ')
                     } else {
                         throw new Error(`Invalid user setting found for displayBytesMode: ${mode}.`)
                     }
@@ -651,8 +651,8 @@
                     // Take the integer representation of the dropdown.
                     const key = parseInt(event.target.value)
 
-                    const hexdecimal = GameHookMapperClient.decimalToHexdecimal(key)
-                    const bytes = hexdecimal.split(' ').map(x => GameHookMapperClient.hexdecimalToDecimal(x))
+                    const hexdecimal = GameHookMapperClient.integerToHexdecimalString(key)
+                    const bytes = hexdecimal.split(' ').map(x => GameHookMapperClient.hexdecimalStringToInteger(x))
 
                     this.editingProperty.bytes = bytes
                 },

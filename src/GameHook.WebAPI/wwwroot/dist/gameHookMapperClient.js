@@ -59,7 +59,7 @@ class GameHookMapperClient {
     _change = []
     _once = []
 
-    static decimalToHexdecimal(x, uppercase = true) {
+    static integerToHexdecimalString(x, uppercase = true) {
         if (x == null) return null
 
         let stringValue = x.toString(16)
@@ -77,7 +77,7 @@ class GameHookMapperClient {
         else return stringValue
     }
 
-    static hexdecimalToDecimal(x) {
+    static hexdecimalStringToInteger(x) {
         if (x == null) return null
 
         return parseInt(x.replace(' ', ''), 16)

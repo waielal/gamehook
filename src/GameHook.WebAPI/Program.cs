@@ -8,6 +8,8 @@ using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 static class EmbededResources
@@ -81,6 +83,12 @@ public class Program
                 x.DocumentFilter<DefaultSwashbuckleFilter>();
 
                 x.EnableAnnotations();
+
+                // Use method name as operationId
+                x.CustomOperationIds(apiDesc =>
+                {
+                    return apiDesc.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null;
+                });
 
                 x.SwaggerDoc("v1", new OpenApiInfo
                 {
