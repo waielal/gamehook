@@ -222,7 +222,7 @@ namespace GameHook.Domain
 
             if (File.Exists(mapperFile.AbsolutePath) == false)
             {
-                throw new FileNotFoundException($"File was not found in the {mapperFile.Type} mapper folder.", mapperFile.RelativePath);
+                throw new FileNotFoundException($"File was not found in the {mapperFile.Type} mapper folder.", mapperFile.DisplayName);
             }
 
             var contents = await File.ReadAllTextAsync(mapperFile.AbsolutePath);
@@ -243,7 +243,7 @@ namespace GameHook.Domain
                 }
                 catch (Exception ex)
                 {
-                    throw new MapperParsingException(mapperFile.RelativePath, ex);
+                    throw new MapperParsingException(mapperFile.DisplayName, ex);
                 }
 
                 await mapper.Initialize();

@@ -58,6 +58,11 @@ namespace GameHook.Domain.Infrastructure
             return builder.ToString();
         }
 
+        private string GetRelativePath(string filePath)
+        {
+            return filePath.Replace(OfficialMapperFolder, string.Empty);
+        }
+
         /// <summary>
         /// We replace the base path with an empty string
         /// as to not expose the absolute path of the filesystem.
@@ -72,8 +77,7 @@ namespace GameHook.Domain.Infrastructure
                     Id = MD5(x.FullName),
                     Type = MapperFilesystemTypes.Official,
                     AbsolutePath = x.FullName,
-                    RelativePath = x.FullName.Replace(OfficialMapperFolder, string.Empty),
-                    DisplayName = x.Name
+                    DisplayName = $"official:\\{GetRelativePath(x.FullName)}"
                 })
                 .ToList();
 
@@ -86,8 +90,7 @@ namespace GameHook.Domain.Infrastructure
                         Id = MD5(x.FullName),
                         Type = MapperFilesystemTypes.Official,
                         AbsolutePath = x.FullName,
-                        RelativePath = x.FullName.Replace(OfficialMapperFolder, string.Empty),
-                        DisplayName = $"[Custom] {x.Name}"
+                        DisplayName = $"custom:\\{GetRelativePath(x.FullName)}"
                     })
                     .ToList();
 

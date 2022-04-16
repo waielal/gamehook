@@ -65,7 +65,7 @@
             </div>
 
             <div class="columns mt-3" v-if="loadingMapperWindowOpen">
-                <div class="column is-3 is-offset-4">
+                <div class="column is-6 is-offset-3">
                     <div class="m-3">
                         <p class="my-3">Please select the mapper file you would like to load.</p>
 
@@ -173,7 +173,7 @@
                                 </tr>
                                 <tr>
                                     <td>Address</td>
-                                    <td>{{ integerToHexdecimalString(editingProperty.address) }}</td>
+                                    <td>0x{{ integerToHexdecimalString(editingProperty.address).replace(' ', '') }}</td>
                                 </tr>
                                 <tr>
                                     <td>Size</td>
