@@ -9,7 +9,7 @@ namespace GameHook.Domain.Interfaces
         PropertyFields Fields { get; }
         string Type { get; }
         MemoryAddress Address { get; }
-        int Length { get; }
+        int Size { get; }
 
         object? Value { get; }
         byte[] Bytes { get; }

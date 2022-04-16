@@ -33,7 +33,7 @@ namespace GameHook.Domain.GameHookProperties
         public PropertyFields Fields { get; private set; }
         public string Type => Fields.Type;
         public MemoryAddress Address => Fields.Address;
-        public int Length => Fields.Size;
+        public int Size => Fields.Size;
 
         public T? Value { get; private set; }
         object? IGameHookProperty.Value => Value;

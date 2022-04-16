@@ -11,7 +11,7 @@ namespace GameHook.Domain.GameHookProperties
             : base(mapper, identifier, fields)
         {
             GlossaryPageName = fields.Reference ?? "defaultCharacterMap";
-            GlossaryPage = mapper.Glossary[GlossaryPageName] ?? new Dictionary<byte, dynamic>();
+            GlossaryPage = mapper.Glossary[GlossaryPageName] ?? new Dictionary<uint, dynamic>();
         }
 
         protected override byte[] FromValue(string? value)
@@ -25,7 +25,7 @@ namespace GameHook.Domain.GameHookProperties
         {
             var results = new List<string?>();
 
-            var values = ReferenceArrayHelper.GetFromGlossary<string?>(Logger, Address, GlossaryPageName, GlossaryPage, bytes, true);
+            var values = bytes.Select(b => ReferenceArrayHelper.GetFromGlossary<string?>(Logger, Address, GlossaryPageName, GlossaryPage, new byte[] { b }));
 
             // If the returned values array is empty,
             // then there's nothing to do, return an empty string.

@@ -14,7 +14,7 @@ namespace GameHook.WebAPI.Controllers
                 Path = path,
                 Type = x.Type,
                 Address = x.Address,
-                Length = x.Length,
+                Size = x.Size,
                 Index = x.Fields.Position,
                 Reference = x.Fields.Reference,
                 Value = x.Value,
@@ -24,7 +24,7 @@ namespace GameHook.WebAPI.Controllers
             };
     }
 
-    public record MapperModel(MapperMetaModel Meta, IEnumerable<PropertyModel> Properties, IDictionary<string, IDictionary<byte, dynamic>> Glossary);
+    public record MapperModel(MapperMetaModel Meta, IEnumerable<PropertyModel> Properties, IDictionary<string, IDictionary<uint, dynamic>> Glossary);
     public record MapperMetaModel(int SchemaVersion, Guid Id, string GameName, string GamePlatform);
     public record MapperReplaceModel(string? Id);
 
@@ -36,7 +36,7 @@ namespace GameHook.WebAPI.Controllers
 
         public uint Address { get; init; }
 
-        public int Length { get; init; }
+        public int Size { get; init; }
 
         public int? Index { get; init; }
 

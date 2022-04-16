@@ -55,13 +55,13 @@ namespace GameHook.Domain
             Driver.StopWatchingAndReset();
 
             var addressesToWatch = Properties.Values
-                .GroupBy(x => new { x.Address, x.Length })
+                .GroupBy(x => new { x.Address, x.Size })
                 .Select(x => x.Key)
                 .ToList();
 
             foreach (var address in addressesToWatch)
             {
-                Driver.AddAddressToWatch(address.Address, address.Length);
+                Driver.AddAddressToWatch(address.Address, address.Size);
             }
 
             // Wait for the driver to populate the container.
@@ -85,7 +85,7 @@ namespace GameHook.Domain
 
         public void AddHookProperty(string path, IGameHookProperty property)
         {
-            Driver.AddAddressToWatch(property.Address, property.Length);
+            Driver.AddAddressToWatch(property.Address, property.Size);
 
             if (Properties.ContainsKey(path) == false)
             {
@@ -96,7 +96,7 @@ namespace GameHook.Domain
         public async Task OnDriverMemoryChanged(MemoryAddress memoryAddress, int length, byte[] value)
         {
             var propertiesFrozen = Properties
-                .Where(x => x.Value.Address.Equals(memoryAddress) && x.Value.Length.Equals(length) && x.Value.FreezeToBytes != null)
+                .Where(x => x.Value.Address.Equals(memoryAddress) && x.Value.Size.Equals(length) && x.Value.FreezeToBytes != null)
                 .ToList();
 
             foreach (var keyValuePair in propertiesFrozen)
@@ -105,7 +105,7 @@ namespace GameHook.Domain
             }
 
             var propertiesToUpdate = Properties
-                .Where(x => x.Value.Address.Equals(memoryAddress) && x.Value.Length.Equals(length))
+                .Where(x => x.Value.Address.Equals(memoryAddress) && x.Value.Size.Equals(length))
                 .ToList();
 
             foreach (var keyValuePair in propertiesToUpdate)

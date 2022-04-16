@@ -12,7 +12,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.WebAPI", "GameHook
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.WPF", "GameHook.WPF\GameHook.WPF.csproj", "{3BACB562-5D99-41FA-8E58-7E3F1E59D349}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHook.Application", "GameHook.Application\GameHook.Application.csproj", "{0B0903C2-7564-4DC0-88A4-80B9BDD7EBA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.Application", "GameHook.Application\GameHook.Application.csproj", "{0B0903C2-7564-4DC0-88A4-80B9BDD7EBA8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{273B00BF-3D40-4A1D-B38A-C707E0B79C8A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHook.Utility.ScanRanges", "GameHook.Utility.ScanRanges\GameHook.Utility.ScanRanges.csproj", "{5CAB9559-88FF-4695-A4AF-B2172B54B0B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +40,10 @@ Global
 		{0B0903C2-7564-4DC0-88A4-80B9BDD7EBA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B0903C2-7564-4DC0-88A4-80B9BDD7EBA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B0903C2-7564-4DC0-88A4-80B9BDD7EBA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CAB9559-88FF-4695-A4AF-B2172B54B0B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CAB9559-88FF-4695-A4AF-B2172B54B0B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CAB9559-88FF-4695-A4AF-B2172B54B0B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CAB9559-88FF-4695-A4AF-B2172B54B0B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +53,7 @@ Global
 		{5C10057D-621F-4750-AE42-8C2DADBFFB24} = {652E9253-C266-4861-B770-BD5268A6822D}
 		{3BACB562-5D99-41FA-8E58-7E3F1E59D349} = {652E9253-C266-4861-B770-BD5268A6822D}
 		{0B0903C2-7564-4DC0-88A4-80B9BDD7EBA8} = {E5684EF8-81FB-46A0-ADBE-96DFDF572469}
+		{5CAB9559-88FF-4695-A4AF-B2172B54B0B8} = {273B00BF-3D40-4A1D-B38A-C707E0B79C8A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {856C15D5-5EB2-49C8-A5C3-7A81D3FC2D78}

@@ -11,7 +11,7 @@ namespace GameHook.Domain
         public YamlMeta meta { get; init; }
         public IDictionary<object, object> properties { get; init; }
         public IDictionary<string, IDictionary<object, dynamic>> macros { get; init; }
-        public IDictionary<string, IDictionary<byte, dynamic>> glossary { get; init; }
+        public IDictionary<string, IDictionary<uint, dynamic>> glossary { get; init; }
     }
 
     record YamlMeta

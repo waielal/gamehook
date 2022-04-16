@@ -76,7 +76,7 @@
                             </option>
                         </select>
 
-                        <button type="button" class="button" :disabled="!loadingMapperSelectedId || loadingMapperSaving" v-on:click="replaceMapper(loadingMapperSelectedId)">Load Mapper</button>
+                        <button type="button" class="button" :disabled="!loadingMapperSelectedId || loadingMapper" v-on:click="replaceMapper(loadingMapperSelectedId)">Load Mapper</button>
 
                         <div class="my-3">
                             <error-hint :err="loadingMapperError">
@@ -177,7 +177,7 @@
                                 </tr>
                                 <tr>
                                     <td>Size</td>
-                                    <td>{{ editingProperty.length }}</td>
+                                    <td>{{ editingProperty.size }}</td>
                                 </tr>
                                 <tr v-if="editingProperty.index">
                                     <td>Index</td>
@@ -205,9 +205,8 @@
                                 <div v-if="editingProperty.type === 'reference'">
                                     <div for="value">Value</div>
 
-                                    <select class="input is-dark" v-model="editingProperty.bytes">
-                                        <option v-for="option in getGlossaryByReferenceKey(editingProperty.reference)"
-                                                :value="[ option.key ]">
+                                    <select class="input is-dark" :value="editingProperty.bytes" @change="editingPropertyValueDropdownSelected($event)">
+                                        <option v-for="option in getGlossaryByReferenceKey(editingProperty.reference)" v-bind:value="option.key">
                                             {{ option.value }}
                                         </option>
                                     </select>
@@ -647,6 +646,15 @@
 
                     this.editingProperty = JSON.parse(JSON.stringify(property, ignoreKeys))
                     this.editingPropertyError = null
+                },
+                editingPropertyValueDropdownSelected: function (e, value) {
+                    // Take the integer representation of the dropdown.
+                    const key = parseInt(event.target.value)
+
+                    const hexdecimal = GameHookMapperClient.decimalToHexdecimal(key)
+                    const bytes = hexdecimal.split(' ').map(x => GameHookMapperClient.hexdecimalToDecimal(x))
+
+                    this.editingProperty.bytes = bytes
                 },
                 cancelEditingProperty: function () {
                     this.editingProperty = null

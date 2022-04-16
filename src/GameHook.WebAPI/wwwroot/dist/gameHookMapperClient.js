@@ -62,40 +62,25 @@ class GameHookMapperClient {
     static decimalToHexdecimal(x, uppercase = true) {
         if (x == null) return null
 
-        var dec = x.toString().split(''),
-            sum = [],
-            hex = [],
-            i, s
+        let stringValue = x.toString(16)
 
-        if (x === 0) return '00'
-
-        while (dec.length) {
-            s = 1 * dec.shift()
-            for (i = 0; s || i < sum.length; i++) {
-                s += (sum[i] || 0) * 10
-                sum[i] = s % 16
-                s = (s - sum[i]) / 16
-            }
+        // If the string is of odd length, we
+        // need to introduce a leading zero.
+        if (stringValue.length % 2) {
+            stringValue = '0' + stringValue
         }
 
-        while (sum.length) {
-            const value = sum.pop().toString(16)
+        // Add a space after every 2 characters.
+        stringValue = stringValue.replace(/.{1,2}(?=(.{2})+$)/g, '$& ')
 
-            if (uppercase == true) {
-                hex.push(value.toUpperCase())
-            } else if (uppercase == false) {
-                hex.push(value.toLowerCase())
-            }
-        }
-
-        if (hex.length == 1) return `0${hex[0]}`
-        else return hex.join('')
+        if (uppercase) return stringValue.toUpperCase()
+        else return stringValue
     }
 
     static hexdecimalToDecimal(x) {
         if (x == null) return null
 
-        return parseInt(x.substr(0, 2), 16)
+        return parseInt(x.replace(' ', ''), 16)
     }
 
     constructor(connectionString = 'http://localhost:8085') {
