@@ -4,28 +4,32 @@ namespace GameHook.Domain.GameHookProperties
 {
     public class StringProperty : GameHookProperty<string>
     {
-        private string GlossaryPageName { get; }
-        private GameHookGlossaryPage GlossaryPage { get; }
+        private string GlossaryName { get; }
+        private IEnumerable<GlossaryItem> GlossaryItems { get; }
 
         public StringProperty(IGameHookContainer mapper, string identifier, PropertyFields fields)
             : base(mapper, identifier, fields)
         {
-            GlossaryPageName = fields.Reference ?? "defaultCharacterMap";
-            GlossaryPage = mapper.Glossary[GlossaryPageName] ?? new Dictionary<uint, dynamic>();
+            GlossaryName = fields.Reference ?? "defaultCharacterMap";
+            GlossaryItems = mapper.Glossary[GlossaryName] ?? throw new Exception($"Could not load glossary items for {GlossaryName}.");
         }
 
         protected override byte[] FromValue(string? value)
         {
-            if (value == null) { return Array.Empty<byte>(); }
+            if (value == null) { return Enumerable.Repeat((byte)0x00, Size).ToArray(); }
 
-            throw new NotImplementedException();
+            var uints = value.ToCharArray()
+                .Select(x => ReferenceArrayHelper.FirstOrDefaultByValue(Logger, GlossaryName, GlossaryItems, x.ToString()))
+                .Select(x => x.Key);
+
+            return uints.Select(x => x.ToHexdecimalString().FromHexdecimalStringToByte()).ToArray();
         }
 
         protected override string ToValue(byte[] bytes)
         {
             var results = new List<string?>();
 
-            var values = bytes.Select(b => ReferenceArrayHelper.GetFromGlossary<string?>(Logger, Address, GlossaryPageName, GlossaryPage, new byte[] { b }));
+            var values = bytes.Select(b => ReferenceArrayHelper.SingleOrDefaultByKey(Logger, Address, GlossaryName, GlossaryItems, new byte[] { b })?.Value as string);
 
             // If the returned values array is empty,
             // then there's nothing to do, return an empty string.

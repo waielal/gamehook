@@ -41,7 +41,7 @@ namespace GameHook.Domain.GameHookProperties
         public bool Frozen => FreezeToBytes != null;
         public byte[]? FreezeToBytes { get; private set; }
 
-        protected abstract byte[] FromValue(T? value);
+        protected abstract byte[]? FromValue(T? value);
         protected abstract T? ToValue(byte[] bytes);
 
         public void OnDriverMemoryChanged(byte[] bytes)
@@ -57,7 +57,7 @@ namespace GameHook.Domain.GameHookProperties
             }
         }
 
-        public async Task WriteValue(T? value, bool freeze)
+        public async Task WriteValue(T? value, bool? freeze)
         {
             var fromValue = FromValue(value);
             if (fromValue == null)
@@ -69,7 +69,7 @@ namespace GameHook.Domain.GameHookProperties
                 await WriteBytes(fromValue, freeze);
             }
         }
-        
+
         public async Task WriteBytes(byte[] values, bool? freeze)
         {
             if (values.Length > Fields.Size)
@@ -86,7 +86,10 @@ namespace GameHook.Domain.GameHookProperties
                 FreezeToBytes = null;
             }
 
-            await Driver.WriteBytes(Fields.Address, values);
+            if (values.Length != 0)
+            {
+                await Driver.WriteBytes(Fields.Address, values);
+            }
         }
 
         public void Unfreeze()

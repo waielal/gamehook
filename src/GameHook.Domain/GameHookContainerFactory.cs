@@ -2,6 +2,7 @@ using GameHook.Domain.GameHookProperties;
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using YamlDotNet.Serialization;
 
 namespace GameHook.Domain
@@ -186,7 +187,7 @@ namespace GameHook.Domain
                             foreach (var (obj, index) in nextLevelArray.Select((obj, index) => (obj, index)))
                             {
                                 // Create a path based off of a combination of the key and child key.
-                                var path = string.Join(".", new string?[] { key, definedChildKey, index.ToString()}.Where(s => string.IsNullOrEmpty(s) == false));
+                                var path = string.Join(".", new string?[] { key, definedChildKey, index.ToString() }.Where(s => string.IsNullOrEmpty(s) == false));
 
                                 var nextLevelArrayChild = obj as IDictionary<object, object>;
 
@@ -235,7 +236,21 @@ namespace GameHook.Domain
             {
                 var meta = new GameHookMapperMeta(SchemaVersion: data.meta.schemaVersion, Id: data.meta.id, GameName: data.meta.gameName, GamePlatform: data.meta.gamePlatform);
                 var properties = new Dictionary<string, IGameHookProperty>();
-                var mapper = new GameHookContainer(Logger, UpdateTransmitter, Driver, meta, data.macros, data.glossary);
+
+                var glossary = new Dictionary<string, IEnumerable<GlossaryItem>>();
+                foreach (var x in data.glossary)
+                {
+                    var list = new List<GlossaryItem>();
+
+                    foreach (var y in x.Value)
+                    {
+                        list.Add(new GlossaryItem(y.Key, y.Value));
+                    }
+
+                    glossary.Add(x.Key, list);
+                }
+
+                var mapper = new GameHookContainer(Logger, UpdateTransmitter, Driver, meta, data.macros, glossary);
 
                 try
                 {

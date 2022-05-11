@@ -22,7 +22,7 @@ namespace GameHook.IntegrationTests
                 A.AreEqual((long)expected, (long)actual);
             }
 
-            throw new System.Exception($"Unknown type of actual {actual.GetType()}.");
+            throw new Exception($"Unknown type of actual {actual.GetType()}.");
         }
 
         public static void AreValueArraysEqual(List<bool> expected, JArray actual)

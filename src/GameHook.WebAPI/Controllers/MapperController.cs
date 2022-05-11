@@ -1,7 +1,10 @@
 using GameHook.Domain;
+using GameHook.Domain.GameHookProperties;
 using GameHook.Domain.Interfaces;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace GameHook.WebAPI.Controllers
@@ -15,7 +18,7 @@ namespace GameHook.WebAPI.Controllers
                 Type = x.Type,
                 Address = x.Address,
                 Size = x.Size,
-                Index = x.Fields.Position,
+                Position = x.Fields.Position,
                 Reference = x.Fields.Reference,
                 Value = x.Value,
                 Frozen = x.Frozen,
@@ -24,8 +27,14 @@ namespace GameHook.WebAPI.Controllers
             };
     }
 
-    public record MapperModel(MapperMetaModel Meta, IEnumerable<PropertyModel> Properties, IDictionary<string, IDictionary<uint, dynamic>> Glossary);
+    public record MapperModel(MapperMetaModel Meta, IEnumerable<PropertyModel> Properties, Dictionary<string, IEnumerable<GlossaryItemModel>> Glossary);
     public record MapperMetaModel(int SchemaVersion, Guid Id, string GameName, string GamePlatform);
+    public class GlossaryItemModel
+    {
+        public uint Key { get; init; }
+        public object? Value { get; init; }
+    }
+
     public record MapperReplaceModel(string? Id);
 
     public class PropertyModel
@@ -38,9 +47,7 @@ namespace GameHook.WebAPI.Controllers
 
         public int Size { get; init; }
 
-        public int? Index { get; init; }
-
-        public int? Bit { get; init; }
+        public int? Position { get; init; }
 
         public string? Reference { get; init; }
 
@@ -54,7 +61,12 @@ namespace GameHook.WebAPI.Controllers
         public string? Description { get; init; }
     }
 
-    public record UpdatePropertyModel(object? Value, int[]? Bytes, bool? Freeze);
+    public class UpdatePropertyModel
+    {
+        public JsonElement? Value { get; init; }
+        public int[]? Bytes { get; init; }
+        public bool? Freeze { get; init; }
+    }
 
     [ApiController]
     [Produces("application/json")]
@@ -77,10 +89,7 @@ namespace GameHook.WebAPI.Controllers
             if (GameMapperFactory.LoadedMapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            var meta = GameMapperFactory.LoadedMapper.Meta;
-            var properties = GameMapperFactory.LoadedMapper.Properties.Select(x => x.Value.MapToPropertyModel(x.Key));
-            var model = new MapperModel(new MapperMetaModel(meta.SchemaVersion, meta.Id, meta.GameName, meta.GamePlatform), properties, GameMapperFactory.LoadedMapper.Glossary);
-
+            var model = GameMapperFactory.LoadedMapper.Adapt<MapperModel>();
             return Ok(model);
         }
 
@@ -155,12 +164,49 @@ namespace GameHook.WebAPI.Controllers
             if (model.Value == null && model.Bytes == null && model.Freeze == null)
                 return BadRequest("Invalid arguments.");
 
-            if (model.Value != null || model.Bytes != null)
+            if (model.Value != null)
             {
-                if (model.Value != null)
+                if (prop.Type == "bcd")
+                {
+                    var prop2 = (BinaryCodedDecimalProperty)prop;
+                    await prop2.WriteValue(model.Value.Value.GetInt32(), model.Freeze);
+                }
+                else if (prop.Type == "bit")
+                {
                     throw new NotImplementedException();
-                else if (model.Bytes != null)
-                    await prop.WriteBytes(model.Bytes.Select(x => (byte)x).ToArray(), model.Freeze);
+                }
+                else if (prop.Type == "boolean")
+                {
+                    var prop2 = (BooleanProperty)prop;
+                    await prop2.WriteValue(model.Value.Value.GetBoolean(), model.Freeze);
+                }
+                else if (prop.Type == "int")
+                {
+                    var prop2 = (IntegerProperty)prop;
+                    await prop2.WriteValue(model.Value.Value.GetInt32(), model.Freeze);
+                }
+                else if (prop.Type == "reference")
+                {
+                    throw new NotImplementedException();
+                }
+                else if (prop.Type == "string")
+                {
+                    var prop2 = (StringProperty)prop;
+                    await prop2.WriteValue(model.Value.Value.GetString(), model.Freeze);
+                }
+                else if (prop.Type == "uint")
+                {
+                    var prop2 = (UnsignedIntegerProperty)prop;
+                    await prop2.WriteValue(model.Value.Value.GetUInt32(), model.Freeze);
+                }
+                else
+                {
+                    return BadRequest("Invalid value.");
+                }
+            }
+            else if (model.Bytes != null)
+            {
+                await prop.WriteBytes(model.Bytes.Select(x => (byte)x).ToArray(), model.Freeze);
             }
             else if (model.Freeze == false)
             {

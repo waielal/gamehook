@@ -9,9 +9,19 @@ namespace GameHook.Domain.GameHookProperties
         {
         }
 
-        protected override byte[] FromValue(int? value)
+        protected override byte[]? FromValue(int? value)
         {
-            throw new NotImplementedException();
+            if (value == null)
+            {
+                return null;
+            }
+
+            var bytes = BitConverter.GetBytes(value ?? 0);
+
+            if (PlatformOptions.EndianType == EndianTypeEnum.BigEndian)
+                Array.Reverse(bytes);
+
+            return bytes;
         }
 
         protected override int? ToValue(byte[] bytes)

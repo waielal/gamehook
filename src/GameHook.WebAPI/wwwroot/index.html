@@ -191,10 +191,6 @@
                                     <td>Reference</td>
                                     <td>{{ editingProperty.reference }}</td>
                                 </tr>
-                                <tr v-if="editingProperty.type != 'reference'">
-                                    <td>Value</td>
-                                    <td>{{ editingProperty.value }}</td>
-                                </tr>
                                 <tr v-if="editingProperty.description">
                                     <td>Description</td>
                                     <td>{{ editingProperty.description }}</td>
@@ -212,10 +208,21 @@
                                     </select>
                                 </div>
 
+                                <div v-if="editingProperty.type === 'string'">
+                                    <div for="value">Value:</div>
+
+                                    <input v-model="editingProperty.valueEdit" />
+                                </div>
+                                <div v-else>
+                                    <div for="value">Value:</div>
+
+                                    <input v-model="editingProperty.valueEdit" readonly />
+                                </div>
+
                                 <div class="my-4">
                                     <div for="bytes">Bytes:</div>
 
-                                    <bytes-editor v-bind.sync="{ bytes: editingProperty.bytes }">
+                                    <bytes-editor v-bind.sync="{ property: editingProperty }">
                                     </bytes-editor>
                                 </div>
                             </div>
@@ -227,8 +234,15 @@
                                 </label>
                             </div>
 
-                            <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingProperty">Save</div>
-                            <div class="button is-secondary is-fullwidth my-2" v-on:click="cancelEditingProperty">Cancel</div>
+                            <template v-if="editingProperty.value != editingProperty.valueEdit">
+                                <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingPropertyValue">Save Value</div>
+                                <div class="button is-secondary is-fullwidth my-2" v-on:click="cancelEditingPropertyValue">Cancel Value</div>
+                            </template>
+
+                            <template v-if="editingProperty.bytes != editingProperty.bytesEdit">
+                                <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingPropertyBytes">Save Bytes</div>
+                                <div class="button is-secondary is-fullwidth my-2" v-on:click="cancelEditingPropertyBytes">Cancel Bytes</div>
+                            </template>
 
                             <error-hint :err="editingPropertyError">
                                 Updating the property failed.
@@ -355,10 +369,7 @@
         }
 
         const bytesEditorComponent = {
-            props: ['bytes'],
-            computed: {
-                bytesDisplay() { return this.$root.displayBytesEditor(this.bytes).split(' ') }
-            },
+            props: ['property'],
             methods: {
                 onKeypress(event) {
                     const keysAllowed = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'];
@@ -372,11 +383,10 @@
                 onBlur(event, index) {
                     let value = event.target.value
 
-                    this.bytes[index] = GameHookMapperClient.hexdecimalStringToInteger(value)
-                    this.bytesDisplay = this.$root.displayBytesEditor(this.bytes).split(' ')
+                    this.property.bytesEdit[index] = value
                 }
             },
-            template: `<div class="hex-editor"><input class="hex-editor-item" type="text" v-for="(x, index) in bytesDisplay" v-model="bytesDisplay[index]" @focus="$event.target.select()" @keypress="onKeypress($event)" @blur="onBlur($event, index)" /></div>`
+            template: `<div class="hex-editor"><input class="hex-editor-item" type="text" v-for="(x, index) in property.bytesEdit" v-model="property.bytesEdit[index]" @focus="$event.target.select()" @keypress="onKeypress($event)" @blur="onBlur($event, index)" /></div>`
         }
 
         const treeViewItemComponent = {
@@ -645,26 +655,43 @@
                     }
 
                     this.editingProperty = JSON.parse(JSON.stringify(property, ignoreKeys))
+                    this.editingProperty.valueEdit = this.editingProperty.value
+                    this.editingProperty.bytesEdit = this.editingProperty.bytes.map(x => GameHookMapperClient.integerToHexdecimalString(x))
+                    this.editingProperty.bytesEdit2 = null // Used for dropdown.
+
                     this.editingPropertyError = null
                 },
                 editingPropertyValueDropdownSelected: function (e, value) {
-                    // Take the integer representation of the dropdown.
                     const key = parseInt(event.target.value)
 
-                    const hexdecimal = GameHookMapperClient.integerToHexdecimalString(key)
-                    const bytes = hexdecimal.split(' ').map(x => GameHookMapperClient.hexdecimalStringToInteger(x))
-
-                    this.editingProperty.bytes = bytes
+                    this.editingProperty.bytesEdit2 = GameHookMapperClient.integerToHexdecimalString(key).split(' ')
                 },
-                cancelEditingProperty: function () {
-                    this.editingProperty = null
-                    this.editingPropertyError = null
+                cancelEditingPropertyValue: function () {
+                    this.editingProperty.valueEdit = this.editingProperty.value
                 },
-                saveEditingProperty: async function () {
+                cancelEditingPropertyBytes: function () {
+                    this.editingProperty.bytesEdit = this.editingProperty.bytes.map(x => GameHookMapperClient.integerToHexdecimalString(x))
+                    this.editingProperty.bytesEdit2 = this.editingProperty.bytes.map(x => GameHookMapperClient.integerToHexdecimalString(x))
+                },
+                saveEditingPropertyValue: async function () {
                     this.editingPropertyError = null
 
                     try {
-                        await this.mapper._editProperty(this.editingProperty.path.replace('.', '/'), this.editingProperty.bytes, this.editingProperty.frozen)
+                        await this.mapper._editPropertyValue(this.editingProperty.path, this.editingProperty.valueEdit, this.editingProperty.frozen)
+                        this.editingProperty = null
+                    } catch (ex) {
+                        console.error(ex)
+                        this.editingPropertyError = ex
+                    }
+                },
+                saveEditingPropertyBytes: async function () {
+                    this.editingPropertyError = null
+
+                    try {
+                        const hexdecimalStringArray = (this.editingProperty.bytesEdit2 || this.editingProperty.bytesEdit)
+                        const bytes = hexdecimalStringArray.map(x => GameHookMapperClient.hexdecimalStringToInteger(x))
+
+                        await this.mapper._editPropertyBytes(this.editingProperty.path, bytes, this.editingProperty.frozen)
                         this.editingProperty = null
                     } catch (ex) {
                         console.error(ex)

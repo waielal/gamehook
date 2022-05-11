@@ -17,13 +17,13 @@ class GameHookProperty {
     }
 
     async set(value, freeze) { this._client._editPropertyValue(this.path, value, freeze) }
-    async setBytes(bytes, freeze) { this._client._editProperty(this.path, bytes, freeze) }
+    async setBytes(bytes, freeze) { this._client._editPropertyBytes(this.path, bytes, freeze) }
 
     async freeze(freeze = true) {
         if (freeze == true) {
-            this._client._editProperty(this.path, this.bytes, freeze)
+            this._client._editPropertyBytes(this.path, this.bytes, freeze)
         } else if (freeze == false) {
-            this._client._editProperty(this.path, null, false)
+            this._client._editPropertyBytes(this.path, null, false)
         }
     }
 
@@ -44,6 +44,8 @@ class GameHookProperty {
     }
 
     toString() {
+        if (this.value === undefined || this.value === null) { return null }
+
         return this.value.toString()
     }
 }
@@ -290,7 +292,29 @@ class GameHookMapperClient {
         return (await this._establishConnection())
     }
 
-    async _editProperty(path, bytes, freeze) {
+    async _editPropertyValue(path, value, freeze) {
+        path = path.replace('.', '/')
+
+        await fetch(`${this._connectionString}/mapper/properties/${path}/`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value: value, freeze: freeze })
+        })
+            .then(async (x) => { return { response: x } })
+            .then(x => {
+                if (x.response.status === 200) {
+                    return
+                } else {
+                    if (x.body) {
+                        throw new Error(x.body)
+                    } else {
+                        throw new Error('Unknown error')
+                    }
+                }
+            })
+    }
+
+    async _editPropertyBytes(path, bytes, freeze) {
         path = path.replace('.', '/')
 
         await fetch(`${this._connectionString}/mapper/properties/${path}/`, {
@@ -310,10 +334,6 @@ class GameHookMapperClient {
                     }
                 }
             })
-    }
-
-    async _editPropertyValue(path, value, freeze) {
-        throw new Error('Not yet implemented.')
     }
 
     onConnected() { /* Override this with your own function. */ }

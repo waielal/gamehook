@@ -52,6 +52,8 @@ public class Program
 
         try
         {
+            Mapping.Setup();
+
             var builder = WebApplication.CreateBuilder();
 
             builder.Host.UseSerilog((context, services, configuration) => configuration

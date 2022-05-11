@@ -5,7 +5,7 @@ namespace GameHook.Domain.GameHookProperties
 {
     public static class ReferenceArrayHelper
     {
-        public static T? GetFromGlossary<T>(ILogger logger, MemoryAddress? memoryAddress, string glossaryPageName, GameHookGlossaryPage glossaryPage, byte[] bytes) where T : class
+        public static GlossaryItem? SingleOrDefaultByKey(ILogger logger, MemoryAddress? memoryAddress, string glossaryName, IEnumerable<GlossaryItem> glossaryItems, byte[] bytes)
         {
             // Translate the byte array into references using
             // the dictionary passed in.
@@ -14,34 +14,64 @@ namespace GameHook.Domain.GameHookProperties
 
             var convertedValue = BitConverter.ToUInt32(value, 0);
 
-            if (glossaryPage.ContainsKey(convertedValue) == false)
+            var item = glossaryItems.SingleOrDefault(x => x.Key == convertedValue);
+
+            if (item == null)
             {
                 if (memoryAddress.HasValue)
                 {
-                    logger.LogWarning($"Could not translate byte {bytes.ToHexdecimalString()} at {memoryAddress.Value.ToHexdecimalString()}, no matching reference found in glossary {glossaryPageName}.");
+                    logger.LogWarning($"Could not get value for {bytes.ToHexdecimalString()} at {memoryAddress.Value.ToHexdecimalString()}, no matching key found in glossary {glossaryName}.");
                 }
                 else
                 {
-                    logger.LogWarning($"Could not translate byte {bytes.ToHexdecimalString()}, no matching reference found in glossary {glossaryPageName}.");
+                    logger.LogWarning($"Could not get value for {bytes.ToHexdecimalString()}, no matching key found in glossary {glossaryName}.");
                 }
 
                 return null;
             }
 
-            return glossaryPage[convertedValue];
+            return item;
+        }
+
+        public static GlossaryItem? SingleOrDefaultByValue(ILogger logger, string glossaryName, IEnumerable<GlossaryItem> glossaryItems, string? value)
+        {
+            var item = glossaryItems.SingleOrDefault(x => x.Value?.ToString() == value);
+
+            if (item == null)
+            {
+                logger.LogWarning($"Could not get key for {value}, no matching value found in glossary {glossaryName}.");
+
+                return null;
+            }
+
+            return item;
+        }
+
+        public static GlossaryItem? FirstOrDefaultByValue(ILogger logger, string glossaryName, IEnumerable<GlossaryItem> glossaryItems, string? value)
+        {
+            var item = glossaryItems.FirstOrDefault(x => x.Value?.ToString() == value);
+
+            if (item == null)
+            {
+                logger.LogWarning($"Could not get key for {value}, no matching value found in glossary {glossaryName}.");
+
+                return null;
+            }
+
+            return item;
         }
     }
 
     public class ReferenceProperty : GameHookProperty<object>
     {
-        private string GlossaryPageName { get; }
-        private GameHookGlossaryPage GlossaryPage { get; }
+        private string GlossaryName { get; }
+        private IEnumerable<GlossaryItem> GlossaryItems { get; }
 
         public ReferenceProperty(IGameHookContainer mapper, string identifier, PropertyFields fields)
             : base(mapper, identifier, fields)
         {
-            GlossaryPageName = fields.Reference ?? throw new NullReferenceException(nameof(fields.Reference));
-            GlossaryPage = mapper.Glossary[GlossaryPageName] ?? new Dictionary<uint, dynamic>();
+            GlossaryName = fields.Reference ?? throw new NullReferenceException(nameof(fields.Reference));
+            GlossaryItems = mapper.Glossary[GlossaryName] ?? throw new Exception($"Could not load glossary items for {GlossaryName}.");
         }
 
         protected override byte[] FromValue(object? value)
@@ -51,20 +81,20 @@ namespace GameHook.Domain.GameHookProperties
 
         protected override object? ToValue(byte[] bytes)
         {
-            return ReferenceArrayHelper.GetFromGlossary<object>(Logger, Address, GlossaryPageName, GlossaryPage, bytes);
+            return ReferenceArrayHelper.SingleOrDefaultByKey(Logger, Address, GlossaryName, GlossaryItems, bytes)?.Value;
         }
     }
 
     public class ReferenceArrayProperty : GameHookProperty<IEnumerable<object?>>
     {
-        private string GlossaryPageName { get; }
-        private GameHookGlossaryPage GlossaryPage { get; }
+        private string GlossaryName { get; }
+        private IEnumerable<GlossaryItem> GlossaryItems { get; }
 
         public ReferenceArrayProperty(IGameHookContainer mapper, string identifier, PropertyFields fields)
             : base(mapper, identifier, fields)
         {
-            GlossaryPageName = fields.Reference ?? throw new NullReferenceException(nameof(fields.Reference));
-            GlossaryPage = mapper.Glossary[GlossaryPageName];
+            GlossaryName = fields.Reference ?? throw new NullReferenceException(nameof(fields.Reference));
+            GlossaryItems = mapper.Glossary[GlossaryName] ?? throw new Exception($"Could not load glossary items for {GlossaryName}.");
         }
 
         protected override byte[] FromValue(IEnumerable<object?>? value)
@@ -74,7 +104,7 @@ namespace GameHook.Domain.GameHookProperties
 
         protected override IEnumerable<object?> ToValue(byte[] bytes)
         {
-            return bytes.Select(x => ReferenceArrayHelper.GetFromGlossary<object>(Logger, Address, GlossaryPageName, GlossaryPage, new byte[] { x }));
+            return bytes.Select(x => ReferenceArrayHelper.SingleOrDefaultByKey(Logger, Address, GlossaryName, GlossaryItems, new byte[] { x })?.Value);
         }
     }
 }
