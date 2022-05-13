@@ -122,6 +122,28 @@ namespace GameHook.WebAPI.Controllers
             return Ok(model);
         }
 
+        [HttpGet("values/{**path}/")]
+        [Produces("text/plain")]
+        [SwaggerOperation("Returns a specific property's value by it's path.")]
+        public ActionResult GetValueAsync(string path)
+        {
+            if (GameHookMapper == null)
+                return ApiHelper.MapperNotLoaded();
+
+            path = path.StripEndingRoute().FromRouteToPath();
+
+            var prop = GameHookMapper.GetPropertyByPath(path);
+            if (prop == null)
+                return NotFound();
+
+            if (prop.Value is object)
+            {
+                return BadRequest($"{prop.Identifier} is an object and cannot be converted to text.");
+            }
+
+            return Ok(prop.Value?.ToString() ?? string.Empty);
+        }
+
         [HttpGet("properties")]
         [SwaggerOperation("Returns all properties loaded from the mapper.")]
         public ActionResult<IEnumerable<PropertyModel>> GetProperties()
