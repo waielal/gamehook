@@ -216,7 +216,8 @@
                                 <div class="my-4">
                                     <div for="bytes">Bytes:</div>
 
-                                    <bytes-editor></bytes-editor>
+                                    <bytes-editor v-bind.sync="{ editingProperty: editingProperty }">
+                                    </bytes-editor>
                                 </div>
                             </div>
 
@@ -371,9 +372,10 @@
         }
 
         const bytesEditorComponent = {
-            data: function () {
-                return {
-                    bytesHexdecimal: this.$parent.displayBytes(this.$parent.editingProperty.bytes).split(' ')
+            props: ['editingProperty'],
+            computed: {
+                bytesHexdecimal() {
+                    return this.$parent.displayBytes(this.editingProperty.bytes).split(' ')
                 }
             },
             methods: {
@@ -388,7 +390,8 @@
                 },
                 onBlur(event, index) {
                     const valueInteger = GameHookMapperClient.hexdecimalStringToInteger(event.target.value)
-                    this.$parent.editingProperty.bytes[index] = valueInteger
+
+                    this.editingProperty.bytes[index] = valueInteger
                 }
             },
             template: `<div class="hex-editor"><input class="hex-editor-item" type="text" v-for="(x, index) in bytesHexdecimal" v-model="bytesHexdecimal[index]" @focus="$event.target.select()" @keypress="onKeypress($event)" @blur="onBlur($event, index)" /></div>`
