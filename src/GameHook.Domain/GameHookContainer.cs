@@ -54,6 +54,8 @@ namespace GameHook.Domain
 
             Driver.StopWatchingAndReset();
 
+            await ClientNotifier.SendMapperLoading();
+
             var addressesToWatch = Properties.Values
                 .GroupBy(x => new { x.Address, x.Size })
                 .Select(x => x.Key)

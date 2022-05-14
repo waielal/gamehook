@@ -5,6 +5,7 @@ namespace GameHook.Domain.Interfaces
     public interface IClientNotifier
     {
         Task SendGameHookError(ProblemDetailsForClientDTO details);
+        Task SendMapperLoading();
         Task SendMapperLoaded();
         Task SendDriverError(ProblemDetailsForClientDTO details);
         Task SendPropertyChanged(string key, object? value, IEnumerable<int> bytes, bool frozen);

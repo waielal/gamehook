@@ -13,7 +13,6 @@ namespace GameHook.WebAPI
             swaggerDoc.Paths["/favicon.ico"] = null;
             swaggerDoc.Paths["/site.css"] = null;
             swaggerDoc.Paths["/dist/gameHookMapperClient.js"] = null;
-
         }
     }
 }

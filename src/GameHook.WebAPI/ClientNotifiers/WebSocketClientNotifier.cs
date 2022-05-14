@@ -3,18 +3,21 @@ using GameHook.Domain.Interfaces;
 using GameHook.WebAPI.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
-namespace GameHook.WebAPI
+namespace GameHook.WebAPI.ClientNotifiers
 {
-    public class ClientNotifier : IClientNotifier
+    public class WebSocketClientNotifier : IClientNotifier
     {
         private readonly IHubContext<UpdateHub> _hubContext;
-        public ClientNotifier(IHubContext<UpdateHub> hubContext)
+        public WebSocketClientNotifier(IHubContext<UpdateHub> hubContext)
         {
             _hubContext = hubContext;
         }
 
         public Task SendGameHookError(ProblemDetailsForClientDTO problemDetails) =>
             _hubContext.Clients.All.SendAsync("GameHookError", problemDetails);
+
+        public Task SendMapperLoading() =>
+            _hubContext.Clients.All.SendAsync("MapperLoading");
 
         public Task SendMapperLoaded() =>
             _hubContext.Clients.All.SendAsync("MapperLoaded");

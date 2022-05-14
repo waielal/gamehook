@@ -3,6 +3,7 @@ using GameHook.Domain.Drivers;
 using GameHook.Domain.Infrastructure;
 using GameHook.Domain.Interfaces;
 using GameHook.WebAPI;
+using GameHook.WebAPI.ClientNotifiers;
 using GameHook.WebAPI.Hubs;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
@@ -19,7 +20,7 @@ static class EmbededResources
     public static Stream favicon_ico => ApiHelper.GetEmbeddedResourceStream("GameHook.WebAPI.wwwroot.favicon.ico");
     public static Stream site_css => ApiHelper.GetEmbeddedResourceStream("GameHook.WebAPI.wwwroot.site.css");
     public static Stream dist_gameHookMapperClient_js => ApiHelper.GetEmbeddedResourceStream("GameHook.WebAPI.wwwroot.dist.gameHookMapperClient.js");
-} 
+}
 
 public class Program
 {
@@ -72,6 +73,9 @@ public class Program
             builder.Configuration.AddJsonStream(EmbededResources.appsettings_json);
             builder.Configuration.AddJsonFile(BuildEnvironment.UserAppsettingsFilePath, true, false);
             builder.Configuration.AddJsonFile(BuildEnvironment.DebugAppsettingsFilePath, true, false);
+
+            var configuration = new AppConfiguration(builder.Configuration);
+            builder.Services.AddSingleton(configuration);
 
             builder.Services.AddHttpClient();
 
@@ -138,7 +142,12 @@ public class Program
             builder.Services.AddSingleton<IMapperUpdateManager, MapperUpdateManager>();
             builder.Services.AddSingleton<IGameHookDriver, RetroArchUdpPollingDriver>();
             builder.Services.AddSingleton<IGameHookContainerFactory, GameHookContainerFactory>();
-            builder.Services.AddSingleton<IClientNotifier, ClientNotifier>();
+            builder.Services.AddSingleton<IClientNotifier, WebSocketClientNotifier>();
+
+            if (configuration.OutputPropertyValuesToFilesystem)
+            {
+                builder.Services.AddSingleton<IClientNotifier, FilesystemClientNotifier>();
+            }
 
             // Build and run.
             var app = builder.Build();
@@ -202,6 +211,11 @@ public class Program
             {
                 var mapperUpdateManager = app.Services.GetRequiredService<IMapperUpdateManager>();
                 await mapperUpdateManager.CheckForUpdates();
+            }
+
+            if (configuration.OutputPropertyValuesToFilesystem)
+            {
+                logger.LogInformation("Outputting property values to filesystem.");
             }
 
             await app.StartAsync();

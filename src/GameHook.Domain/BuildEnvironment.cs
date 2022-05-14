@@ -59,6 +59,8 @@ public static class BuildEnvironment
         }
     }
 
+    public static string OutputPropertiesDirectory => Path.Combine(ConfigurationDirectory, "OutputProperties");
+
     public static string UserAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.user.json");
     public static string DebugAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.debug.json");
 
