@@ -10,7 +10,7 @@ namespace GameHook.Domain.Infrastructure
         private ILogger<MapperFilesystemProvider> Logger { get; }
         private const string Salt = "a1b3d4e8-81cc-4771-a564-f90c669d952e";
 
-        public string OfficialMapperFolder { get; } = Path.Combine(BuildEnvironment.ConfigurationDirectory, "mappers");
+        public string OfficialMapperFolder { get; } = Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
         public string? CustomMapperFolder { get; }
 
         public IEnumerable<MapperFilesystemDTO> MapperFiles { get; private set; } = new List<MapperFilesystemDTO>();
@@ -38,7 +38,7 @@ namespace GameHook.Domain.Infrastructure
                 return null;
             }
 
-            var folder = Path.Combine(processPath, "mappers");
+            var folder = Path.Combine(processPath, "Mappers");
             if (Directory.Exists(folder) == false)
             {
                 return null;
