@@ -177,25 +177,32 @@ public class Program
             app.UseSerilogRequestLogging();
             app.UseProblemDetails();
 
-            app.MapGet("/", () =>
+            if (BuildEnvironment.IsDebugBuild)
             {
-                return Results.File(EmbededResources.index_html, contentType: "text/html");
-            });
+                app.UseStaticFiles();
+            }
+            else
+            {
+                app.MapGet("/", () =>
+                {
+                    return Results.File(EmbededResources.index_html, contentType: "text/html");
+                });
 
-            app.MapGet("/favicon.ico", () =>
-            {
-                return Results.File(EmbededResources.favicon_ico, contentType: "image/x-icon");
-            });
+                app.MapGet("/favicon.ico", () =>
+                {
+                    return Results.File(EmbededResources.favicon_ico, contentType: "image/x-icon");
+                });
 
-            app.MapGet("/site.css", () =>
-            {
-                return Results.File(EmbededResources.site_css, contentType: "text/css");
-            });
+                app.MapGet("/site.css", () =>
+                {
+                    return Results.File(EmbededResources.site_css, contentType: "text/css");
+                });
 
-            app.MapGet("/dist/gameHookMapperClient.js", () =>
-            {
-                return Results.File(EmbededResources.dist_gameHookMapperClient_js, contentType: "application/javascript");
-            });
+                app.MapGet("/dist/gameHookMapperClient.js", () =>
+                {
+                    return Results.File(EmbededResources.dist_gameHookMapperClient_js, contentType: "application/javascript");
+                });
+            }
 
             app.MapControllers();
             app.MapHub<UpdateHub>("/updates");

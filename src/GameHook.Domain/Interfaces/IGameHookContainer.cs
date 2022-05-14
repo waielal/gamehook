@@ -8,7 +8,7 @@ namespace GameHook.Domain.Interfaces
     {
         ILogger Logger { get; }
         IGameHookDriver Driver { get; }
-        IClientNotifier ClientNotifier { get; }
+        IEnumerable<IClientNotifier> ClientNotifiers { get; }
         IPlatformOptions PlatformOptions { get; }
         GameHookMapperMeta Meta { get; }
         GameHookGlossary Glossary { get; }

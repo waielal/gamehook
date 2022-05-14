@@ -37,16 +37,16 @@ namespace GameHook.Domain
         private ILogger<GameHookContainerFactory> Logger { get; }
         private IMapperFilesystemProvider MapperFilesystemProvider { get; }
         private IGameHookDriver Driver { get; }
-        private IClientNotifier UpdateTransmitter { get; }
+        private IEnumerable<IClientNotifier> ClientNotifiers { get; }
         public IGameHookContainer? LoadedMapper { get; private set; }
         public string? LoadedMapperId { get; private set; }
 
-        public GameHookContainerFactory(ILogger<GameHookContainerFactory> logger, IMapperFilesystemProvider mapperFilesystemProvider, IGameHookDriver gameHookDriver, IClientNotifier updateTransmitter)
+        public GameHookContainerFactory(ILogger<GameHookContainerFactory> logger, IMapperFilesystemProvider mapperFilesystemProvider, IGameHookDriver gameHookDriver, IEnumerable<IClientNotifier> clientNotifiers)
         {
             Logger = logger;
             MapperFilesystemProvider = mapperFilesystemProvider;
             Driver = gameHookDriver;
-            UpdateTransmitter = updateTransmitter;
+            ClientNotifiers = clientNotifiers;
         }
 
         private class MacroPointer
@@ -250,7 +250,7 @@ namespace GameHook.Domain
                     glossary.Add(x.Key, list);
                 }
 
-                var mapper = new GameHookContainer(Logger, UpdateTransmitter, Driver, meta, data.macros, glossary);
+                var mapper = new GameHookContainer(Logger, ClientNotifiers, Driver, meta, data.macros, glossary);
 
                 try
                 {
@@ -266,7 +266,10 @@ namespace GameHook.Domain
                 LoadedMapper = mapper;
                 LoadedMapperId = mapperFile.Id;
 
-                await UpdateTransmitter.SendMapperLoaded();
+                foreach (var notifier in ClientNotifiers)
+                {
+                    await notifier.SendMapperLoaded();
+                }
             }
             catch
             {

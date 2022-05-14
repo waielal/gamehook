@@ -8,7 +8,7 @@ namespace GameHook.Domain
     {
         public ILogger Logger { get; }
         public IGameHookDriver Driver { get; }
-        public IClientNotifier ClientNotifier { get; }
+        public IEnumerable<IClientNotifier> ClientNotifiers { get; }
         public IPlatformOptions PlatformOptions { get; }
         public GameHookMapperMeta Meta { get; }
         public GameHookGlossary Glossary { get; }
@@ -16,10 +16,10 @@ namespace GameHook.Domain
         public IDictionary<string, IGameHookProperty> Properties { get; } = new Dictionary<string, IGameHookProperty>();
         public const string PropertyPathDelimiter = ".";
 
-        public GameHookContainer(ILogger logger, IClientNotifier updateTransmitter, IGameHookDriver driver, GameHookMapperMeta meta, GameHookMacros macros, GameHookGlossary glossary)
+        public GameHookContainer(ILogger logger, IEnumerable<IClientNotifier> clientNotifiers, IGameHookDriver driver, GameHookMapperMeta meta, GameHookMacros macros, GameHookGlossary glossary)
         {
             Logger = logger;
-            ClientNotifier = updateTransmitter;
+            ClientNotifiers = clientNotifiers;
             Driver = driver;
             Meta = meta;
             Glossary = glossary;
@@ -54,7 +54,10 @@ namespace GameHook.Domain
 
             Driver.StopWatchingAndReset();
 
-            await ClientNotifier.SendMapperLoading();
+            foreach (var notifier in ClientNotifiers)
+            {
+                await notifier.SendMapperLoading();
+            }
 
             var addressesToWatch = Properties.Values
                 .GroupBy(x => new { x.Address, x.Size })
@@ -114,7 +117,10 @@ namespace GameHook.Domain
             {
                 keyValuePair.Value.OnDriverMemoryChanged(value);
 
-                await ClientNotifier.SendPropertyChanged(keyValuePair.Key, keyValuePair.Value.Value, keyValuePair.Value.Bytes.ToIntegerArray(), keyValuePair.Value.Frozen);
+                foreach (var notifier in ClientNotifiers)
+                {
+                    await notifier.SendPropertyChanged(keyValuePair.Key, keyValuePair.Value.Value, keyValuePair.Value.Bytes.ToIntegerArray(), keyValuePair.Value.Frozen);
+                }
             }
         }
 
@@ -122,14 +128,20 @@ namespace GameHook.Domain
         {
             Logger.LogWarning(ex.Message);
 
-            await ClientNotifier.SendDriverError(new ProblemDetailsForClientDTO() { Title = "DRIVER_TIMEOUT", Detail = $"{Driver.ProperName} timed out when reading memory address {ex.MemoryAddress.ToHexdecimalString()}." });
+            foreach (var notifier in ClientNotifiers)
+            {
+                await notifier.SendDriverError(new ProblemDetailsForClientDTO() { Title = "DRIVER_TIMEOUT", Detail = $"{Driver.ProperName} timed out when reading memory address {ex.MemoryAddress.ToHexdecimalString()}." });
+            }
         }
 
         public async Task OnDriverError(ProblemDetailsForClientDTO problemDetails, Exception ex)
         {
             Logger.LogError(ex, ex.Message);
 
-            await ClientNotifier.SendDriverError(problemDetails);
+            foreach (var notifier in ClientNotifiers)
+            {
+                await notifier.SendDriverError(problemDetails);
+            }
         }
     }
 }

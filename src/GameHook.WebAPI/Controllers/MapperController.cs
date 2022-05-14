@@ -235,8 +235,11 @@ namespace GameHook.WebAPI.Controllers
                 prop.Unfreeze();
             }
 
-            if (model.Freeze == true) { await GameHookMapper.ClientNotifier.SendPropertyFrozen(path); }
-            else { await GameHookMapper.ClientNotifier.SendPropertyUnfrozen(path); }
+            foreach (var notifier in GameHookMapper.ClientNotifiers)
+            {
+                if (model.Freeze == true) { await notifier.SendPropertyFrozen(path); }
+                else { await notifier.SendPropertyUnfrozen(path); }
+            }
 
             return Ok();
         }

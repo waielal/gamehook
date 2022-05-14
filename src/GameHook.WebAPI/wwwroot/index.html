@@ -231,13 +231,8 @@
                                 <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingPropertyValue">Save Value</div>
                             </template>
 
-                            <template v-if="editingProperty.didBytesChange() || editingProperty.didReferenceBytesChange()">
-                                <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingPropertyBytes">Save Bytes</div>
-                            </template>
-
-                            <template v-if="editingProperty.didPropertyChange()">
-                                <div class="button is-secondary is-fullwidth my-2" v-on:click="resetEditingProperty">Cancel Changes</div>
-                            </template>
+                            <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingPropertyBytes">Save Changes</div>
+                            <div class="button is-secondary is-fullwidth my-2" v-on:click="cancelEditingProperty">Cancel Changes</div>
 
                             <error-hint :err="editingPropertyError">
                                 Updating the property failed.
@@ -664,12 +659,14 @@
                         property: property,
                         bytes: [...copy.bytes],
                         value: copy.value,
-                        referenceBytes: copy.value,
+                        referenceBytes: null,
                         frozen: copy.frozen,
                         didBytesChange: function () {
                             return arraysEqual(this.bytes, this.property.bytes) == false || this.frozen != this.property.frozen
                         },
                         didReferenceBytesChange: function () {
+                            if (this.referenceBytes == null) return false
+
                             return arraysEqual(this.referenceBytes, this.property.bytes) == false || this.frozen != this.property.frozen
                         },
                         didValueChange: function () {
@@ -685,14 +682,16 @@
                 editingPropertyReferenceDropdownSelected: function (e, value) {
                     this.editingProperty.referenceBytes = [event.target.value]
                 },
-                resetEditingProperty: function () {
-                    const oldEditingProperty = this.editingProperty.property
-
+                cancelEditingProperty: function () {
                     this.editingProperty = null
-                    this.beginEditProperty(oldEditingProperty)
                 },
                 saveEditingPropertyValue: async function () {
                     this.editingPropertyError = null
+
+                    if (this.editingProperty.didValueChange() == false) {
+                        this.editingProperty = null
+                        return
+                    }
 
                     try {
                         await this.mapper._editPropertyValue(this.editingProperty.property.path, this.editingProperty.value, this.editingProperty.frozen)
@@ -704,6 +703,11 @@
                 },
                 saveEditingPropertyBytes: async function () {
                     this.editingPropertyError = null
+
+                    if (this.editingProperty.didBytesChange() == false) {
+                        this.editingProperty = null
+                        return
+                    }
 
                     try {
                         const actualBytes = this.editingProperty.referenceBytes || this.editingProperty.bytes
