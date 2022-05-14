@@ -202,8 +202,8 @@
                                     <div for="value">Value</div>
 
                                     <select class="input is-dark" :value="editingProperty.bytes" @change="editingPropertyReferenceDropdownSelected($event)">
-                                        <option v-for="option in getGlossaryByReferenceKey(editingProperty.property.reference)" v-bind:value="option.key">
-                                            {{ option.value }}
+                                        <option v-for="option in getGlossaryByReferenceKey(editingProperty.property.reference)" v-bind:value="option.value.key">
+                                            {{ option.value.value }}
                                         </option>
                                     </select>
                                 </div>
@@ -679,8 +679,8 @@
 
                     this.editingPropertyError = null
                 },
-                editingPropertyReferenceDropdownSelected: function (e, value) {
-                    this.editingProperty.referenceBytes = [event.target.value]
+                editingPropertyReferenceDropdownSelected: function (e) {
+                    this.editingProperty.referenceBytes = [parseInt(e.target.value)]
                 },
                 cancelEditingProperty: function () {
                     this.editingProperty = null
@@ -704,7 +704,7 @@
                 saveEditingPropertyBytes: async function () {
                     this.editingPropertyError = null
 
-                    if (this.editingProperty.didBytesChange() == false) {
+                    if (this.editingProperty.didBytesChange() == false && this.editingProperty.didReferenceBytesChange() == false) {
                         this.editingProperty = null
                         return
                     }
