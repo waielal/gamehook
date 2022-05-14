@@ -62,7 +62,7 @@ namespace GameHook.Domain.Infrastructure
         private async Task WriteMapperData() => await File.WriteAllTextAsync(MapperDataFilepath, JsonSerializer.Serialize(MapperData));
 
         private string MapperDataFilepath => Path.Combine(BuildEnvironment.ConfigurationDirectory, "mappers.json");
-        private string MapperLocalDirectory => Path.Combine(BuildEnvironment.ConfigurationDirectory, "mappers");
+        private string MapperLocalDirectory => Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
 
         private string MapperZipTemporaryFilepath => Path.Combine(BuildEnvironment.ConfigurationDirectory, $"gamehook_mappers_main_temp.zip");
         private string MapperTemporaryExtractionDirectory => Path.Combine(BuildEnvironment.ConfigurationDirectory, $"gamehook_mappers_temp\\");
