@@ -20,10 +20,9 @@ namespace GameHook.IntegrationTests
             var bcdValue_3 = await GameHookClient.GetPropertyAsync("player.money");
 
             Assert.AreEqual(bcdValue_1.Address, 0xD346);
-            Assert.IsNull(bcdValue_1.Bit);
             Assert.AreBytesEqual(bcdValue_1.Bytes, new List<int>() { 0x03, 0x42, 0x07 });
             Assert.IsNull(bcdValue_1.Description);
-            Assert.AreEqual(1, bcdValue_1.Index);
+            Assert.AreEqual(1, bcdValue_1.Position);
             Assert.AreEqual(bcdValue_1.Path, "player.money");
             Assert.IsNull(bcdValue_1.Reference);
             Assert.AreEqual(bcdValue_1.Size, 3);
@@ -45,10 +44,9 @@ namespace GameHook.IntegrationTests
             var bcdValue_3 = await GameHookClient.GetPropertyAsync("player.pokedexSeen");
 
             Assert.AreEqual(bcdValue_1.Address, 0xD309);
-            Assert.IsNull(bcdValue_1.Bit);
             Assert.AreBytesEqual(bcdValue_1.Bytes, new List<int>() { 0x4B, 0xB6, 0xFC, 0xDE, 0x33, 0xAF, 0x9F, 0xC6, 0x3F, 0xF6, 0xC8, 0xFE, 0xA9, 0xF7, 0xA2, 0x89, 0x56, 0x61, 0x18 });
             Assert.IsNull(bcdValue_1.Description);
-            Assert.AreEqual(1, bcdValue_1.Index);
+            Assert.AreEqual(1, bcdValue_1.Position);
             Assert.AreEqual(bcdValue_1.Path, "player.pokedexSeen");
             Assert.IsNull(bcdValue_1.Reference);
             Assert.AreEqual(bcdValue_1.Size, 19);
@@ -61,6 +59,24 @@ namespace GameHook.IntegrationTests
         [TestMethod]
         public async Task Property_OK_BitProperty()
         {
+            await Load_GB_PokemonYellow();
+
+            var mapper = await GameHookClient.GetMapperAsync();
+            var bitValue_1 = mapper.Properties.Single(x => x.Path == "settings.battleStyle");
+            var bitValue_2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "settings.battleStyle");
+            var bitValue_3 = await GameHookClient.GetPropertyAsync("settings.battleStyle");
+
+            Assert.AreEqual(bitValue_1.Address, 0xD354);
+            Assert.AreBytesEqual(bitValue_1.Bytes, new List<int>() { 0x41 });
+            Assert.IsNull(bitValue_1.Description);
+            Assert.AreEqual(6, bitValue_1.Position);
+            Assert.AreEqual(bitValue_1.Path, "settings.battleStyle");
+            Assert.IsNull(bitValue_1.Reference);
+            Assert.AreEqual(bitValue_1.Size, 1);
+            Assert.AreEqual(bitValue_1.Type, "bit");
+            Assert.AreValuesEqual(true, bitValue_1.Value);
+            Assert.ArePropertiesEqual(bitValue_1, bitValue_2);
+            Assert.ArePropertiesEqual(bitValue_1, bitValue_3);
         }
 
         [TestMethod]

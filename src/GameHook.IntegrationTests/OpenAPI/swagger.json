@@ -127,6 +127,30 @@
         }
       }
     },
+    "/mapper/values/{path}": {
+      "get": {
+        "tags": [
+          "Mapper"
+        ],
+        "summary": "Returns a specific property's value by it's path.",
+        "operationId": "GetValueAsync",
+        "parameters": [
+          {
+            "name": "path",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/mapper/properties": {
       "get": {
         "tags": [
@@ -273,6 +297,19 @@
   },
   "components": {
     "schemas": {
+      "GlossaryItemModel": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "value": {
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "MapperMetaModel": {
         "type": "object",
         "properties": {
@@ -311,8 +348,10 @@
           "glossary": {
             "type": "object",
             "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {}
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/GlossaryItemModel"
+              }
             },
             "nullable": true
           }
@@ -348,12 +387,7 @@
             "type": "integer",
             "format": "int32"
           },
-          "index": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "bit": {
+          "position": {
             "type": "integer",
             "format": "int32",
             "nullable": true

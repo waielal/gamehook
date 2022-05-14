@@ -15,14 +15,9 @@ namespace GameHook.IntegrationTests
             A.AreEqual(expected, (long)actual);
         }
 
-        public static void AreValuesEqual(object expected, object actual)
+        public static void AreValuesEqual(bool expected, object actual)
         {
-            if (expected is long)
-            {
-                A.AreEqual((long)expected, (long)actual);
-            }
-
-            throw new Exception($"Unknown type of actual {actual.GetType()}.");
+            A.AreEqual(expected, (bool)actual);
         }
 
         public static void AreValueArraysEqual(List<bool> expected, JArray actual)
@@ -34,12 +29,11 @@ namespace GameHook.IntegrationTests
         public static void ArePropertiesEqual(PropertyModel expected, PropertyModel actual)
         {
             A.AreEqual(expected.Address, actual.Address);
-            A.AreEqual(expected.Bit, actual.Bit);
             AreBytesEqual(expected.Bytes, actual.Bytes);
             A.AreEqual(expected.Description, actual.Description);
             A.AreEqual(expected.Frozen, actual.Frozen);
-            A.AreEqual(expected.Index, actual.Index);
             A.AreEqual(expected.Path, actual.Path);
+            A.AreEqual(expected.Position, actual.Position);
             A.AreEqual(expected.Reference, actual.Reference);
             A.AreEqual(expected.Size, actual.Size);
             A.AreEqual(expected.Type, actual.Type);
