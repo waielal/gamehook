@@ -38,4 +38,16 @@ namespace GameHook.Domain
             new PlatformRange("High RAM", 0xFF80, 0xFFFF)
         };
     }
+
+    public class GBA_PlatformOptions : IPlatformOptions
+    {
+        public EndianTypeEnum EndianType { get; } = EndianTypeEnum.LittleEndian;
+
+        public IEnumerable<PlatformRange> Ranges { get; } = new List<PlatformRange>()
+        {
+            // new PlatformRange("BIOS",  0x00000000, 0x00003FF0),
+            new PlatformRange("Partial EWRAM", 0x02024280, 0x02024280 + 9999),
+            // new PlatformRange("IWRAM", 0x03000000, 0x03007FF0),
+        };
+    }
 }

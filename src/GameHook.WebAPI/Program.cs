@@ -31,7 +31,7 @@ public class Program
 
     public static async Task Start()
     {
-        if (BuildEnvironment.IsReleaseBuild)
+        if (BuildEnvironment.IsPublicBuild)
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
         }
@@ -73,6 +73,11 @@ public class Program
             builder.Configuration.AddJsonStream(EmbededResources.appsettings_json);
             builder.Configuration.AddJsonFile(BuildEnvironment.UserAppsettingsFilePath, true, false);
             builder.Configuration.AddJsonFile(BuildEnvironment.DebugAppsettingsFilePath, true, false);
+            
+            if (BuildEnvironment.IsTestingBuild)
+            {
+                builder.Configuration.AddJsonFile("appsettings.Development.json", true);
+            }
 
             var configuration = new AppConfiguration(builder.Configuration);
             builder.Services.AddSingleton(configuration);
@@ -177,9 +182,10 @@ public class Program
             app.UseSerilogRequestLogging();
             app.UseProblemDetails();
 
-            if (BuildEnvironment.IsDebugBuild)
+            if (BuildEnvironment.IsDebug)
             {
                 app.UseStaticFiles();
+                app.UseDefaultFiles();
             }
             else
             {
@@ -207,14 +213,14 @@ public class Program
             app.MapControllers();
             app.MapHub<UpdateHub>("/updates");
 
-            if (BuildEnvironment.IsReleaseBuild == false)
+            if (BuildEnvironment.IsTestingBuild)
             {
-                logger.LogWarning($"Running build in release mode: {BuildEnvironment.ReleaseMode}");
+                logger.LogWarning($"This is a test build for development purposes. Please upgrade to the latest stable release when possible.");
             }
 
             logger.LogInformation($"Starting GameHook version {BuildEnvironment.AssemblyProductVersion}.");
 
-            if (BuildEnvironment.IsReleaseBuild)
+            if (BuildEnvironment.IsPublicBuild)
             {
                 var mapperUpdateManager = app.Services.GetRequiredService<IMapperUpdateManager>();
                 await mapperUpdateManager.CheckForUpdates();

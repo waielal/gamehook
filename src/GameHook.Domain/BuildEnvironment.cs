@@ -30,7 +30,7 @@ public static class BuildEnvironment
                 return ((AssemblyFileVersionAttribute)attributes[0]).Version;
             }
 
-            return "";
+            throw new Exception("Cannot determine application AssemblyVersion.");
         }
     }
 
@@ -47,7 +47,7 @@ public static class BuildEnvironment
                 return ((AssemblyInformationalVersionAttribute)attributes[0]).InformationalVersion;
             }
 
-            return "";
+            throw new Exception("Cannot determine application AssemblyProductVersion.");
         }
     }
 
@@ -60,17 +60,16 @@ public static class BuildEnvironment
     }
 
     public static string OutputPropertiesDirectory => Path.Combine(ConfigurationDirectory, "OutputProperties");
-
     public static string UserAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.user.json");
     public static string DebugAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.debug.json");
 
 #if DEBUG
-    public const bool IsDebugBuild = true;
-    public const bool IsReleaseBuild = false;
-    public const string ReleaseMode = "DEBUG";
+    public static bool IsDebug = true;
+    public static bool IsTestingBuild => true;
+    public static bool IsPublicBuild => false;
 #else
-    public const bool IsDebugBuild = false;
-    public const bool IsReleaseBuild = true;
-    public const string ReleaseMode = "RELEASE";
+    public static bool IsDebug = false;
+    public static bool IsTestingBuild => AssemblyVersion == "0.0.0.0";
+    public static bool IsPublicBuild => AssemblyVersion != "0.0.0.0";
 #endif
 }

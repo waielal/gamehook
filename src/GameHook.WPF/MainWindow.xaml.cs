@@ -169,7 +169,7 @@ namespace GameHook.WPF
 
         public MainWindow()
         {
-            if (BuildEnvironment.IsReleaseBuild)
+            if (BuildEnvironment.IsPublicBuild)
             {
                 AutoUpdater.AppTitle = "GameHook";
 

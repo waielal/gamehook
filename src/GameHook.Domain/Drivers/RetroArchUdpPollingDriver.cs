@@ -69,7 +69,7 @@ namespace GameHook.Domain.Drivers
         private CancellationTokenSource? WatchingAddressesCancellationTokenSource { get; set; }
         private const int DELAY_BETWEEN_RECEIVE_MS = 2;
         private const int DELAY_BETWEEN_WATCHES_MS = 1;
-        private const int READ_PACKET_TIMEOUT_MS = 35;
+        private const int READ_PACKET_TIMEOUT_MS = 75;
         public string ProperName { get; } = "RetroArch";
 
         void CreateUdpClient()
@@ -318,7 +318,7 @@ namespace GameHook.Domain.Drivers
 
             if (readCoreMemoryResult == null)
             {
-                Logger.LogDebug($"A timeout occurred when waiting for ReadMemoryAddress reply from RetroArch. (command: {command} {length})");
+                Logger.LogDebug($"A timeout occurred when waiting for ReadMemoryAddress reply from RetroArch. ({responsesKey})");
 
                 throw new DriverTimeoutException(memoryAddress, "RetroArch", null);
             }
@@ -349,8 +349,8 @@ namespace GameHook.Domain.Drivers
 
                 var receiveKey = $"{command} {memoryAddressString} {valueStringArray.Length}";
 
-                Logger.LogDebug($"[Incoming Packet] {receiveKey}");
                 Responses[receiveKey] = new ReceivedPacket(command, memoryAddress, value);
+                Logger.LogDebug($"[Incoming Packet] Set response {receiveKey}");
             }
             catch (Exception ex)
             {

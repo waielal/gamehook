@@ -53,10 +53,12 @@ class GameHookProperty {
 class GameHookMapperClient {
     _connectionString
     _signalrClient
-    meta
     _properties
+    meta
     properties
     glossary
+
+    connected = false
 
     _change = []
     _once = []
@@ -163,8 +165,9 @@ class GameHookMapperClient {
             // Load the data from the server.
             await this.loadMapper()
 
-            console.debug('[GameHook Client] GameHook is now connected.')
+            this.connected = true
             this.onConnected()
+            console.debug('[GameHook Client] GameHook is now connected.')
 
             return true
         } catch (err) {
@@ -191,7 +194,10 @@ class GameHookMapperClient {
             console.debug('[GameHook Client] SignalR connection lost. Attempting to reconnect...')
 
             this._deconstructMapper()
+
             this.onDisconnected()
+            this.connected = false
+
             await this._establishConnection()
         })
 

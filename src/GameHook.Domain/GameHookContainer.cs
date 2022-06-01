@@ -41,6 +41,7 @@ namespace GameHook.Domain
             if (meta.GamePlatform == "NES") { PlatformOptions = new NES_PlatformOptions(); }
             else if (meta.GamePlatform == "SNES") { PlatformOptions = new SNES_PlatformOptions(); }
             else if (meta.GamePlatform == "GB") { PlatformOptions = new GB_PlatformOptions(); }
+            else if (meta.GamePlatform == "GBA") { PlatformOptions = new GBA_PlatformOptions(); }
             else
             {
                 throw new GenericUserPresentableException($"Platform {meta.GamePlatform} is not supported.\nPlease check the mapper file for errors.");
