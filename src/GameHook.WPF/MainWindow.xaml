@@ -159,7 +159,22 @@
                     </DockPanel>
                 </Grid>
             </Grid>
-            <Grid Margin="0,32,0,0">
+
+            <Grid Name="GridInstallWebView2" Visibility="Hidden" Margin="0,32,0,0">
+                <DockPanel Margin="1 1">
+                    <TextBlock Background="#232323" FontSize="16" TextAlignment="Center" VerticalAlignment="Stretch" Margin="50 50">
+                        Microsoft WebView2 framework is not installed.<LineBreak /><LineBreak />
+                        Please install it using the installer link below, then restart GameHook.
+                        
+                        <LineBreak />
+                        <Hyperlink Click="NavigateInstallWebView2">
+                            https://go.microsoft.com/fwlink/p/?LinkId=2124703
+                        </Hyperlink>
+                    </TextBlock>
+                </DockPanel>
+            </Grid>
+
+            <Grid Name="GridWebView" Visibility="Hidden" Margin="0,32,0,0">
                 <DockPanel Margin="1 1">
                     <wv2:WebView2 Name="WebView" DefaultBackgroundColor="#232323" />
                 </DockPanel>

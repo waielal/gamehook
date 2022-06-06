@@ -15,6 +15,8 @@ namespace GameHook.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool? isWebView2Installed = null;
+
         #region WindowManagement
         bool IsClosing = false;
         bool CanClose = false;
@@ -191,6 +193,17 @@ namespace GameHook.WPF
                 AutoUpdater.Start("https://cdn.gamehook.io/GameHookWpf_AutoUpdater.xml");
             }
 
+            // Determine if WebView2 is installed.
+            try
+            {
+                _ = CoreWebView2Environment.GetAvailableBrowserVersionString();
+                isWebView2Installed = true;
+            }
+            catch (WebView2RuntimeNotFoundException)
+            {
+                isWebView2Installed = false;
+            }
+
             InitializeComponent();
 
             WindowControlButton_Maximize_Refresh();
@@ -205,6 +218,17 @@ namespace GameHook.WPF
 
             WindowBorderTitle.Text = $"GameHook {BuildEnvironment.AssemblyVersion}";
 
+            if (isWebView2Installed == false)
+            {
+                GridInstallWebView2.Visibility = Visibility.Visible;
+                return;
+            }
+
+            if (isWebView2Installed == true)
+            {
+                GridWebView.Visibility = Visibility.Visible;
+            }
+
             Task.Run(async () => await Program.Start());
         }
 
@@ -212,11 +236,14 @@ namespace GameHook.WPF
         {
             base.OnContentRendered(e);
 
-            var env = await CoreWebView2Environment.CreateAsync(null, Path.Combine(BuildEnvironment.ConfigurationDirectory, "WebView2"));
-            await WebView.EnsureCoreWebView2Async(env);
+            if (isWebView2Installed == true)
+            {
+                var env = await CoreWebView2Environment.CreateAsync(null, Path.Combine(BuildEnvironment.ConfigurationDirectory, "WebView2"));
+                await WebView.EnsureCoreWebView2Async(env);
 
-            WebView.Source = new Uri("http://localhost:8085");
-            WebView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+                WebView.Source = new Uri("http://localhost:8085");
+                WebView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+            }
         }
 
         private void CoreWebView2_NewWindowRequested(object sender, CoreWebView2NewWindowRequestedEventArgs e)
@@ -228,10 +255,20 @@ namespace GameHook.WPF
             {
                 UseShellExecute = true,
             };
-            
+
             System.Diagnostics.Process.Start(sInfo);
 
             e.Handled = true;
+        }
+
+        protected void NavigateInstallWebView2(object sender, RoutedEventArgs e)
+        {
+            var sInfo = new System.Diagnostics.ProcessStartInfo("https://go.microsoft.com/fwlink/p/?LinkId=2124703")
+            {
+                UseShellExecute = true,
+            };
+
+            System.Diagnostics.Process.Start(sInfo);
         }
     }
 }
