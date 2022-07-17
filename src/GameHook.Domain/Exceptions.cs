@@ -26,6 +26,11 @@ namespace GameHook.Domain
         }
     }
 
+    public class DriverErrorException :Exception
+    {
+        public DriverErrorException(string message) : base(message) { }
+    }
+
     public class GenericUserPresentableException : UserPresentableException
     {
         public GenericUserPresentableException(string message) : base(message, null) { }

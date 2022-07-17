@@ -1,11 +1,9 @@
 ﻿namespace GameHook.Domain.Interfaces
 {
-    public record PlatformRange(string Name, MemoryAddress StartingAddress, MemoryAddress EndingAddress);
-
     public interface IPlatformOptions
     {
-        public EndianTypeEnum EndianType { get; }
+        public EndianTypes EndianType { get; }
 
-        public IEnumerable<PlatformRange> Ranges { get; }
+        public MemoryAddressBlock[] Ranges { get; }
     }
 }

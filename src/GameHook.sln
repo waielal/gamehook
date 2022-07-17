@@ -22,7 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E21E34D5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.IntegrationTests", "GameHook.IntegrationTests\GameHook.IntegrationTests.csproj", "{ED38E792-3262-4885-970E-CA4B0AC62265}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHook.Utility.OffsetYml", "GameHook.Utility.OffsetYml\GameHook.Utility.OffsetYml.csproj", "{D3F22731-B70C-4936-9DAA-B397250EDBD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.Utility.OffsetYml", "GameHook.Utility.OffsetYml\GameHook.Utility.OffsetYml.csproj", "{D3F22731-B70C-4936-9DAA-B397250EDBD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

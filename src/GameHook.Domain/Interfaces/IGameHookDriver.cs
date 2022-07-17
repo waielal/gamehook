@@ -1,19 +1,5 @@
-using GameHook.Domain.DTOs;
-
 namespace GameHook.Domain.Interfaces
 {
-    public record UpdatedMemoryAddressEvent
-    {
-        public UpdatedMemoryAddressEvent(MemoryAddress memoryAddress, byte[] value)
-        {
-            MemoryAddress = memoryAddress;
-            Value = value;
-        }
-
-        public MemoryAddress MemoryAddress { get; }
-        public byte[] Value { get; }
-    }
-
     /// <summary>
     /// Driver interface for interacting with a emulator.
     /// 
@@ -24,12 +10,8 @@ namespace GameHook.Domain.Interfaces
     {
         string ProperName { get; }
 
-        Task WriteBytes(MemoryAddress memoryAddress, byte[] values);
+        Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks);
 
-        void AddAddressToWatch(MemoryAddress memoryAddress, int length);
-
-        bool StartWatching(IContainerForDriver handler);
-
-        void StopWatchingAndReset();
+        Task WriteBytes(MemoryAddress startingMemoryAddress, byte[] values);
     }
 }
