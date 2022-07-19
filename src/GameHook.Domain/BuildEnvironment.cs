@@ -1,4 +1,3 @@
-global using MemoryAddress = System.UInt32;
 using System.Reflection;
 
 public static class BuildEnvironment
