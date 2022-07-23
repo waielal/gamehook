@@ -8,7 +8,21 @@ namespace GameHook.Domain
         LittleEndian
     }
 
-    public record MemoryAddressBlock(int Index, string Name, MemoryAddress StartingAddress, MemoryAddress EndingAddress);
+    public record MemoryAddressBlock
+    {
+        public MemoryAddressBlock(int index, string name, MemoryAddress startingAddress, MemoryAddress endingAddress)
+        {
+            Index = index;
+            Name = name;
+            StartingAddress = startingAddress;
+            EndingAddress = endingAddress;
+        }
+
+        public int Index { get; init; }
+        public string Name { get; init; }
+        public MemoryAddress StartingAddress { get; init; }
+        public MemoryAddress EndingAddress { get; init; }
+    }
     public record MemoryAddressBlockResult(int Index, string Name, MemoryAddress StartingAddress, MemoryAddress EndingAddress, byte[] Data);
 
     public class DriverOptions

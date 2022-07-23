@@ -110,11 +110,9 @@ namespace GameHook.Application
             }
 
             // Determine if we need to reset a frozen property.
-            // If this is the case, return early.
-            if (bytes != Bytes && IsFrozen)
+            if (Bytes?.SequenceEqual(bytes) == false && IsFrozen)
             {
                 await GameHookInstance.GetDriver().WriteBytes(address ?? 0, BytesFrozen ?? throw new Exception("Attempted to force a frozen bytes, but BytesFrozen was NULL."));
-                return result;
             }
 
             object? value;
