@@ -401,7 +401,7 @@
             props: [ 'depth', 'key', 'obj' ],
             data() {
                 return {
-                    open: (this.depth == 0 || this.depth == 1) ? true : false,
+                    open: (this.depth == 0) ? true : false,
                     cssPropsChildren: {
                         marginLeft: this.depth == 0 ? '' : 16 + 'px'
                     }
