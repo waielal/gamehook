@@ -17,11 +17,12 @@ namespace GameHook.WebAPI.ClientNotifiers
         public Task SendGameHookError(ProblemDetailsForClientDTO problemDetails) =>
             _hubContext.Clients.All.SendAsync("GameHookError", problemDetails);
 
-        public Task SendMapperLoading() =>
-            _hubContext.Clients.All.SendAsync("MapperLoading");
+        public Task SendInstanceReset() => Task.CompletedTask;
 
-        public Task SendMapperLoaded() =>
+        public Task SendMapperLoaded(IGameHookMapper mapper) =>
             _hubContext.Clients.All.SendAsync("MapperLoaded");
+
+        public Task SendMapperLoadError() => Task.CompletedTask;
 
         public Task SendDriverError(ProblemDetailsForClientDTO problemDetails) =>
             _hubContext.Clients.All.SendAsync("DriverError", problemDetails);

@@ -1,30 +1,11 @@
 ﻿using GameHook.Domain;
+using GameHook.Domain.Interfaces;
 using GameHook.Domain.Preprocessors;
 using GameHook.Domain.ValueTransformers;
 
 namespace GameHook.Application
 {
-    public class GameHookMapperVariables
-    {
-        public string Path { get; init; } = string.Empty;
-
-        public string Type { get; init; } = string.Empty;
-        public MemoryAddress? Address { get; init; }
-        public int Size { get; init; } = 1;
-        public int? Position { get; init; }
-        public string? Reference { get; init; }
-        public string? Description { get; init; }
-
-        public string? Expression { get; init; }
-        public string? Preprocessor { get; init; }
-    }
-
-    public class GameHookPropertyProcessResult
-    {
-        public List<string> FieldsChanged { get; init; } = new List<string>();
-    }
-
-    public class GameHookProperty
+    public class GameHookProperty : IGameHookProperty
     {
         public GameHookProperty(GameHookInstance gameHookInstance, GameHookMapperVariables mapperVariables)
         {
@@ -41,10 +22,16 @@ namespace GameHook.Application
         public uint? Address { get; private set; }
         public bool IsDynamicAddress => MapperVariables.Address == null;
 
+        public int? Position => MapperVariables.Position;
+        public string? Reference => MapperVariables.Reference;
+
         public object? Value { get; private set; }
         public byte[]? Bytes { get; private set; }
         public byte[]? BytesFrozen { get; private set; }
-        public bool IsFrozen => BytesFrozen != null;
+
+        public bool Frozen => BytesFrozen != null;
+
+        public string? Description => MapperVariables.Description;
 
         public bool IsReadOnly
         {
@@ -110,7 +97,7 @@ namespace GameHook.Application
             }
 
             // Determine if we need to reset a frozen property.
-            if (Bytes?.SequenceEqual(bytes) == false && IsFrozen)
+            if (Bytes?.SequenceEqual(bytes) == false && Frozen)
             {
                 await GameHookInstance.GetDriver().WriteBytes(address ?? 0, BytesFrozen ?? throw new Exception("Attempted to force a frozen bytes, but BytesFrozen was NULL."));
             }
@@ -176,7 +163,7 @@ namespace GameHook.Application
             {
                 foreach (var notifier in GameHookInstance.ClientNotifiers)
                 {
-                    _ = notifier.SendPropertyChanged(Path, Address, Value, Bytes, IsFrozen, result.FieldsChanged.ToArray());
+                    _ = notifier.SendPropertyChanged(Path, Address, Value, Bytes, Frozen, result.FieldsChanged.ToArray());
                 }
             }
 
@@ -219,7 +206,7 @@ namespace GameHook.Application
 
             foreach (var notifier in GameHookInstance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(Path, Address, Value, Bytes, IsFrozen, new string[] { "frozen" });
+                await notifier.SendPropertyChanged(Path, Address, Value, Bytes, Frozen, new string[] { "frozen" });
             }
         }
 
@@ -229,7 +216,7 @@ namespace GameHook.Application
 
             foreach (var notifier in GameHookInstance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(Path, Address, Value, Bytes, IsFrozen, new string[] { "frozen" });
+                await notifier.SendPropertyChanged(Path, Address, Value, Bytes, Frozen, new string[] { "frozen" });
             }
         }
 

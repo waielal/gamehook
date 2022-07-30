@@ -35,9 +35,9 @@ namespace GameHook.Application
         public MemoryAddress Address { get; set; }
     }
 
-    public static class MapperFactory
+    public static class GameHookMapperFactory
     {
-        public static Mapper ReadMapper(GameHookInstance instance, IMapperFilesystemProvider provider, string filesystemId)
+        public static GameHookMapper ReadMapper(GameHookInstance instance, IMapperFilesystemProvider provider, string filesystemId)
         {
             if (string.IsNullOrEmpty(filesystemId))
             {
@@ -93,7 +93,7 @@ namespace GameHook.Application
                 glossary.Add(x.Key, list);
             }
 
-            return new Mapper(filesystemId, metadata, properties, glossary);
+            return new GameHookMapper(filesystemId, metadata, properties, glossary);
         }
 
         private static void TranserveMapperFile(GameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)

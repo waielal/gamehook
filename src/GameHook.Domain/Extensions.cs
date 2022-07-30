@@ -60,5 +60,13 @@ namespace GameHook.Domain
             FinalString = str.Substring(Pos1, Pos2 - Pos1);
             return FinalString;
         }
+
+        public static async Task ForEachAsync<T>(this List<T> list, Func<T, Task> func)
+        {
+            foreach (var value in list)
+            {
+                await func(value);
+            }
+        }
     }
 }

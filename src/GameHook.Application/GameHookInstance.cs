@@ -5,27 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace GameHook.Application
 {
-    public class Mapper
-    {
-        public Mapper(string filesystemId, MapperMetadata metadata, IEnumerable<GameHookProperty> properties, IDictionary<string, IEnumerable<GlossaryItem>> glossary)
-        {
-            FilesystemId = filesystemId;
-            Metadata = metadata;
-            Properties = properties;
-            Glossary = glossary;
-        }
-
-        public string FilesystemId { get; init; }
-        public MapperMetadata Metadata { get; init; }
-        public IEnumerable<GameHookProperty> Properties { get; init; }
-        public IDictionary<string, IEnumerable<GlossaryItem>> Glossary { get; init; }
-
-        public GameHookProperty GetPropertyByPath(string path)
-        {
-            return Properties.Single(x => x.Path == path);
-        }
-    }
-
     public class MapperMetadata
     {
         public int SchemaVersion { get; init; } = 0;
@@ -34,20 +13,15 @@ namespace GameHook.Application
         public string GamePlatform { get; init; } = string.Empty;
     }
 
-    public class PreprocessorCache
-    {
-        public Dictionary<MemoryAddress, DataBlock_a245dcac>? data_block_a245dcac { get; set; }
-    }
-
     public class GameHookInstance
     {
         private ILogger<GameHookInstance> Logger { get; }
         private IMapperFilesystemProvider MapperFilesystemProvider { get; }
-        public IEnumerable<IClientNotifier> ClientNotifiers { get; }
+        public List<IClientNotifier> ClientNotifiers { get; }
         public bool Initalized { get; private set; } = false;
         private CancellationTokenSource? ReadLoopToken { get; set; }
         public IGameHookDriver? Driver { get; private set; }
-        public Mapper? Mapper { get; private set; }
+        public GameHookMapper? Mapper { get; private set; }
         public IPlatformOptions? PlatformOptions { get; private set; }
         public IEnumerable<MemoryAddressBlock>? BlocksToRead { get; private set; }
         public const int DELAY_MS_BETWEEN_READS = 25;
@@ -56,14 +30,14 @@ namespace GameHook.Application
         {
             Logger = logger;
             MapperFilesystemProvider = provider;
-            ClientNotifiers = clientNotifiers;
+            ClientNotifiers = clientNotifiers.ToList();
         }
 
         public IPlatformOptions GetPlatformOptions() => PlatformOptions ?? throw new Exception("PlatformOptions is null.");
         public IGameHookDriver GetDriver() => Driver ?? throw new Exception("Driver is null.");
-        public Mapper GetMapper() => Mapper ?? throw new Exception("Mapper is null.");
+        public GameHookMapper GetMapper() => Mapper ?? throw new Exception("Mapper is null.");
 
-        public void ResetState()
+        public async Task ResetState()
         {
             if (ReadLoopToken != null && ReadLoopToken.Token.CanBeCanceled)
             {
@@ -77,18 +51,20 @@ namespace GameHook.Application
             Mapper = null;
             PlatformOptions = null;
             BlocksToRead = null;
+
+            await ClientNotifiers.ForEachAsync(async x => await x.SendInstanceReset());
         }
 
         public async void Load(IGameHookDriver driver, string mapperId)
         {
-            ResetState();
+            await ResetState();
 
             try
             {
                 Logger.LogDebug("Creating GameHook mapper instance...");
 
                 Driver = driver;
-                Mapper = MapperFactory.ReadMapper(this, MapperFilesystemProvider, mapperId);
+                Mapper = GameHookMapperFactory.ReadMapper(this, MapperFilesystemProvider, mapperId);
                 PlatformOptions = Mapper.Metadata.GamePlatform switch
                 {
                     "NES" => new NES_PlatformOptions(),
@@ -111,6 +87,8 @@ namespace GameHook.Application
 
                 Initalized = true;
 
+                await ClientNotifiers.ForEachAsync(async x => await x.SendMapperLoaded(Mapper));
+
                 // Start the read loop once successfully running once.
                 ReadLoopToken = new CancellationTokenSource();
                 _ = Task.Run(ReadLoop, ReadLoopToken.Token);
@@ -119,9 +97,10 @@ namespace GameHook.Application
             }
             catch (Exception ex)
             {
+                await ClientNotifiers.ForEachAsync(async x => await x.SendMapperLoadError());
                 Logger.LogError(ex, "An error occured when loading the mapper.");
 
-                ResetState();
+                await ResetState();
             }
         }
 

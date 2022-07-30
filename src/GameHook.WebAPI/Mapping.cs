@@ -12,7 +12,7 @@ namespace GameHook.WebAPI
 
             TypeAdapterConfig.GlobalSettings.RequireDestinationMemberSource = true;
 
-            TypeAdapterConfig<Mapper, MapperModel>.NewConfig()
+            TypeAdapterConfig<GameHookMapper, MapperModel>.NewConfig()
                 .Map(dest => dest.Meta, src => src.Metadata);
 
             TypeAdapterConfig<GameHookProperty, PropertyModel>.NewConfig()
@@ -24,7 +24,7 @@ namespace GameHook.WebAPI
                 .Map(dest => dest.Reference, src => src.MapperVariables.Reference)
                 .Map(dest => dest.Value, src => src.Value)
                 .Map(dest => dest.Bytes, src => src.Bytes)
-                .Map(dest => dest.Frozen, src => src.IsFrozen)
+                .Map(dest => dest.Frozen, src => src.Frozen)
                 .Map(dest => dest.Description, src => src.MapperVariables.Description);
         }
     }

@@ -1,4 +1,5 @@
-﻿using GameHook.Domain.DTOs;
+﻿using GameHook.Application;
+using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 
 namespace GameHook.WebAPI.ClientNotifiers
@@ -7,7 +8,7 @@ namespace GameHook.WebAPI.ClientNotifiers
     {
         public Task SendGameHookError(ProblemDetailsForClientDTO _) => Task.CompletedTask;
 
-        public async Task SendMapperLoading()
+        public async Task SendInstanceReset()
         {
             if (Directory.Exists(BuildEnvironment.OutputPropertiesDirectory))
             {
@@ -19,7 +20,18 @@ namespace GameHook.WebAPI.ClientNotifiers
             await Task.CompletedTask;
         }
 
-        public Task SendMapperLoaded() => Task.CompletedTask;
+        public async Task SendMapperLoaded(IGameHookMapper mapper)
+        {
+            foreach (var property in mapper.Properties)
+            {
+                var key = property.Path;
+                var value = property.Value;
+
+                await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, $"{key}.txt"), value?.ToString());
+            }
+        }
+
+        public Task SendMapperLoadError() => Task.CompletedTask;
 
         public Task SendDriverError(ProblemDetailsForClientDTO _) => Task.CompletedTask;
 

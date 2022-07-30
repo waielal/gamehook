@@ -11,7 +11,7 @@ namespace GameHook.WebAPI.Controllers
 {
     static class MapperHelper
     {
-        public static PropertyModel MapToPropertyModel(this GameHookProperty x, string path) =>
+        public static PropertyModel MapToPropertyModel(this IGameHookProperty x, string path) =>
             new PropertyModel
             {
                 Path = path,
@@ -21,7 +21,7 @@ namespace GameHook.WebAPI.Controllers
                 Position = x.MapperVariables.Position,
                 Reference = x.MapperVariables.Reference,
                 Value = x.Value,
-                Frozen = x.IsFrozen,
+                Frozen = x.Frozen,
                 Bytes = x.Bytes?.ToIntegerArray(),
                 Description = x.MapperVariables.Description
             };
@@ -56,9 +56,9 @@ namespace GameHook.WebAPI.Controllers
 
         public string Type { get; init; } = string.Empty;
 
-        public uint? Address { get; init; }
-
         public int Size { get; init; }
+
+        public uint? Address { get; init; }
 
         public int? Position { get; init; }
 
