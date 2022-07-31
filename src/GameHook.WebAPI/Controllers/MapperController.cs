@@ -109,19 +109,30 @@ namespace GameHook.WebAPI.Controllers
 
         [HttpPut]
         [SwaggerOperation("Changes the active mapper.")]
-        public ActionResult ChangeMapper(MapperReplaceModel model)
+        public async Task<ActionResult> ChangeMapper(MapperReplaceModel model)
         {
-            if (string.IsNullOrEmpty(model.Id))
+            try
             {
-                // Reload the existing mapper from the filesystem.
-                Instance.Load(Driver, Instance.Mapper?.FilesystemId ?? string.Empty);
-            }
-            else
-            {
-                Instance.Load(Driver, model.Id);
-            }
+                if (string.IsNullOrEmpty(model.Id))
+                {
+                    // Reload the existing mapper from the filesystem.
+                    await Instance.Load(Driver, Instance.Mapper?.FilesystemId ?? string.Empty);
+                }
+                else
+                {
+                    await Instance.Load(Driver, model.Id);
+                }
 
-            return Ok();
+                return Ok();
+            }
+            catch (PropertyProcessException ex)
+            {
+                return StatusCode(500, new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper.", Detail = ex.Message });
+            }
+            catch
+            {
+                return StatusCode(500, new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper." });
+            }
         }
 
         [HttpGet("meta")]

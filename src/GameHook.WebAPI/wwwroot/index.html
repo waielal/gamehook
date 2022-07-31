@@ -333,7 +333,7 @@
 
         const errorHintComponent = {
             props: ['err'],
-            template: `<template v-if="err"><slot></slot><div v-if="err">{{ err.detail }}</div><div v-else>An unknown application error has occurred.</div><div>Please refer to the server logs if you need more information.</div></template>`
+            template: `<template v-if="err"><slot></slot><div v-if="err && err.title">{{ err.title }}</div><div v-if="err && err.detail">{{ err.detail }}</div><div>Please refer to the server logs if you need more information.</div></template>`
         }
 
         const descriptionBtnComponent = {

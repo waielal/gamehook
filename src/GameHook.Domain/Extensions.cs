@@ -31,7 +31,7 @@ namespace GameHook.Domain
 
         public static MemoryAddressBlockResult? GetResultWithinRange(this IEnumerable<MemoryAddressBlockResult> blocks, uint address)
         {
-            return blocks.SingleOrDefault(x => address > x.StartingAddress && address < x.EndingAddress);
+            return blocks.SingleOrDefault(x => address >= x.StartingAddress && address <= x.EndingAddress);
         }
 
         public static byte[] GetRelativeAddress(this MemoryAddressBlockResult block, MemoryAddress memoryAddress, int length)

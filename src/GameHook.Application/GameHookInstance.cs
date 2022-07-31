@@ -55,7 +55,7 @@ namespace GameHook.Application
             await ClientNotifiers.ForEachAsync(async x => await x.SendInstanceReset());
         }
 
-        public async void Load(IGameHookDriver driver, string mapperId)
+        public async Task Load(IGameHookDriver driver, string mapperId)
         {
             await ResetState();
 
@@ -97,10 +97,11 @@ namespace GameHook.Application
             }
             catch (Exception ex)
             {
-                await ClientNotifiers.ForEachAsync(async x => await x.SendMapperLoadError());
                 Logger.LogError(ex, "An error occured when loading the mapper.");
 
                 await ResetState();
+
+                throw;
             }
         }
 
@@ -108,8 +109,17 @@ namespace GameHook.Application
         {
             while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
             {
-                await Read();
-                await Task.Delay(DELAY_MS_BETWEEN_READS);
+                try
+                {
+                    await Read();
+                    await Task.Delay(DELAY_MS_BETWEEN_READS);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "An error occured when read looping the mapper.");
+
+                    await ResetState();
+                }
             }
         }
 
@@ -145,17 +155,17 @@ namespace GameHook.Application
             }
 
             // Processor
-            Parallel.ForEach(Mapper.Properties, async x =>
+            Task.WaitAll(Mapper.Properties.Select(async x =>
             {
                 try
                 {
                     await x.Process(driverResult, preprocessorCache);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    throw;
+                    throw new PropertyProcessException($"Failed to process propery {x.Path}.", ex);
                 }
-            });
+            }).ToArray());
         }
     }
 }

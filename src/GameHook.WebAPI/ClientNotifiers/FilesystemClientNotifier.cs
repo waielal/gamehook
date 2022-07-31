@@ -31,8 +31,6 @@ namespace GameHook.WebAPI.ClientNotifiers
             }
         }
 
-        public Task SendMapperLoadError() => Task.CompletedTask;
-
         public Task SendDriverError(ProblemDetailsForClientDTO _) => Task.CompletedTask;
 
         public async Task SendPropertyChanged(string key, uint? address, object? value, byte[]? bytes, bool frozen, string[] fieldsChanged)
