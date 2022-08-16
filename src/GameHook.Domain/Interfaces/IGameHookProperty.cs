@@ -7,6 +7,12 @@ namespace GameHook.Domain.Interfaces
         public Dictionary<MemoryAddress, DataBlock_a245dcac>? data_block_a245dcac { get; set; }
     }
 
+    public class PreprocessorPropertyResult
+    {
+        public MemoryAddress? Address { get; init; }
+        public byte[]? Bytes { get; init; }
+    }
+
     public class GameHookPropertyProcessResult
     {
         public List<string> FieldsChanged { get; init; } = new List<string>();

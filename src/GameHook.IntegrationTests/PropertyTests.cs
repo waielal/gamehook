@@ -1,8 +1,8 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace GameHook.IntegrationTests
 {
@@ -107,6 +107,35 @@ namespace GameHook.IntegrationTests
         public void Property_OK_UnsignedInteger()
         {
 
+        }
+
+        [TestMethod]
+        public async Task Preprocessor_OK_dma_967d10cc()
+        {
+            await Load_GBA_PokemonFireRed();
+
+            var gameTimeHours = await GameHookClient.GetPropertyAsync("gameTimeHours");
+            var gameTimeMinutes = await GameHookClient.GetPropertyAsync("gameTimeMinutes");
+
+            Assert.AreEqual(gameTimeHours.Address, 0x0202460F);
+            Assert.AreBytesEqual(gameTimeHours.Bytes, new List<int>() { 0x00 });
+            Assert.IsNull(gameTimeHours.Description);
+            Assert.IsNull(gameTimeHours.Position);
+            Assert.AreEqual(gameTimeHours.Path, "gameTimeHours");
+            Assert.IsNull(gameTimeHours.Reference);
+            Assert.AreEqual(gameTimeHours.Size, 1);
+            Assert.AreEqual(gameTimeHours.Type, "int");
+            Assert.AreValuesEqual(0, gameTimeHours.Value);
+
+            Assert.AreEqual(gameTimeMinutes.Address, 0x02024610);
+            Assert.AreBytesEqual(gameTimeMinutes.Bytes, new List<int>() { 0x0C });
+            Assert.IsNull(gameTimeMinutes.Description);
+            Assert.IsNull(gameTimeMinutes.Position);
+            Assert.AreEqual(gameTimeMinutes.Path, "gameTimeMinutes");
+            Assert.IsNull(gameTimeMinutes.Reference);
+            Assert.AreEqual(gameTimeMinutes.Size, 1);
+            Assert.AreEqual(gameTimeMinutes.Type, "int");
+            Assert.AreValuesEqual(12, gameTimeMinutes.Value);
         }
     }
 }

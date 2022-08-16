@@ -48,7 +48,7 @@ namespace GameHook.Application
         {
             // new PlatformRange("BIOS",  0x00000000, 0x00003FF0),
             new MemoryAddressBlock(0, "Partial EWRAM", 0x02023000, 0x02023000 + 9999),
-            // new PlatformRange("IWRAM", 0x03000000, 0x03007FF0),
+            new MemoryAddressBlock(1, "IWRAM", 0x03001000, 0x03005000 + 2000),
         }.ToArray();
     }
 }

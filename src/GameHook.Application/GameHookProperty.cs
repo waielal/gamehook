@@ -48,7 +48,7 @@ namespace GameHook.Application
         {
             if (bytes.Length == 1) { return bytes; }
 
-            var workingBytes = (byte[]) bytes.Clone();
+            var workingBytes = (byte[])bytes.Clone();
 
             // Little Endian has the least signifant byte first, so we need to reverse the byte array
             // when translating it to a value.
@@ -64,36 +64,58 @@ namespace GameHook.Application
             uint? address = null;
             byte[]? bytes = null;
 
-            // Preprocessors.
-            if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("data_block_a245dcac"))
+            // Fetch address and bytes.
+            if (MapperVariables.Address != null)
+            {
+                address = MapperVariables.Address;
+                bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
+            }
+            else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("data_block_a245dcac"))
             {
                 var baseAddress = MapperVariables.Address ?? throw new Exception($"Property {Path} does not have a base address.");
-                var decryptedDataBlock = preprocessorCache.data_block_a245dcac?[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address}.");
+                var decryptedDataBlock = preprocessorCache.data_block_a245dcac?[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address?.ToHexdecimalString()}.");
 
                 var structureIndex = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(0);
                 var offset = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(1);
 
                 var preprocessorResult = Preprocessors.data_block_a245dcac(structureIndex, offset, MapperVariables.Size, decryptedDataBlock);
+                if (preprocessorResult.Address == null || preprocessorResult.Bytes == null)
+                {
+                    throw new Exception($"Preprocessor data_block_a245dcac returned null on path '{Path}'.");
+                }
 
                 address = preprocessorResult.Address;
                 bytes = preprocessorResult.Bytes;
             }
-            else if (MapperVariables.Address != null)
+            else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("dma_967d10cc"))
             {
-                // Calculate the bytes from the driver range and address property.
-                address = MapperVariables.Address;
-                bytes = driverResult.GetAddress(MapperVariables.Address.Value, MapperVariables.Size);
+                var memoryAddress = MapperVariables.Preprocessor.GetHexdecimalParameterFromFunctionString(0);
+                var offset = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(1);
+
+                var memoryBlock = driverResult.GetResultWithinRange(memoryAddress);
+                if (memoryBlock == null)
+                {
+                    throw new Exception($"Unable to retrieve memory block for property {Path} at address {memoryAddress.ToHexdecimalString()}.");
+                }
+
+                var preprocessorResult = Preprocessors.dma_967d10cc(memoryAddress, size: 4, offset, memoryBlock);
+                if (preprocessorResult.Address == null)
+                {
+                    throw new Exception($"Preprocessor dma_967d10cc returned null on path '{Path}'.");
+                }
+
+                address = preprocessorResult.Address;
+                bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
             }
 
-            // Once preprocessors are ran, we can begin finding the value.
+            // Data validation.
             if (address == null)
             {
                 throw new Exception($"Unable to retrieve address for property '{Path}'");
             }
-
             if (bytes == null)
             {
-                throw new Exception($"Unable to retrieve bytes for property '{Path}' at address {address.Value.ToHexdecimalString()}. Is the address within the drivers' memory address block ranges?");
+                throw new Exception($"Unable to retrieve bytes for property '{Path}' at address {address?.ToHexdecimalString()}. Is the address within the drivers' memory address block ranges?");
             }
 
             // Determine if we need to reset a frozen property.

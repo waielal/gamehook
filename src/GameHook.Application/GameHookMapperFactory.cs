@@ -102,7 +102,7 @@ namespace GameHook.Application
 
             try
             {
-                if ((insideMacro == false && source.ContainsKey("type") && source.ContainsKey("address")) || (insideMacro == true && source.ContainsKey("type")))
+                if (insideMacro == false && source.ContainsKey("type") || (insideMacro == true && source.ContainsKey("type")))
                 {
                     ParseProperty(instance, root, properties, source, key, macroPointer);
                 }
@@ -165,7 +165,7 @@ namespace GameHook.Application
             // Convert the property object into an IGameHookProperty.
             var type = source["type"].ToString() ?? throw new Exception("Type is required.");
             var size = (source.ContainsKey("size") ? int.Parse(source["size"].ToString() ?? string.Empty) : 1);
-            var position = (source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? string.Empty) : 1);
+            var position = (int?)(source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? "1") : null);
             var description = source.ContainsKey("description") ? source["description"].ToString() : null;
             var reference = source.ContainsKey("reference") ? source["reference"].ToString() : null;
             var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
@@ -173,7 +173,7 @@ namespace GameHook.Application
             var preprocessor = source.ContainsKey("preprocessor") ? source["preprocessor"].ToString() : null;
             var expression = source.ContainsKey("expression") ? source["expression"].ToString() : null;
 
-            MemoryAddress address;
+            MemoryAddress? address = null;
             if (macroPointer != null)
             {
                 if (source.ContainsKey("offset") == false || string.IsNullOrEmpty(source["offset"].ToString()))
@@ -183,16 +183,26 @@ namespace GameHook.Application
             }
             else
             {
-                if (source.ContainsKey("address") == false || string.IsNullOrEmpty(source["address"].ToString()))
+                if ((source.ContainsKey("address") == false || string.IsNullOrEmpty(source["address"].ToString())) && source.ContainsKey("preprocessor") == false)
+                {
                     throw new Exception($"Property {key} is missing a required field: address.");
+                }
 
-                address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToUint();
+                if (source.ContainsKey("address"))
+                {
+                    address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToUint();
+                }
             }
 
             if (type == "macro")
             {
+                if (address == null)
+                {
+                    throw new Exception($"Property {key} is missing a required macro field: address.");
+                }
+
                 var nextLevel = root.macros[macro ?? throw new Exception($"Property {key} is missing a required field: macro.")];
-                TranserveMapperFile(instance, root, properties, nextLevel, key, new MacroPointer() {  Address = (MemoryAddress)address });
+                TranserveMapperFile(instance, root, properties, nextLevel, key, new MacroPointer() { Address = (MemoryAddress)address });
             }
             else
             {

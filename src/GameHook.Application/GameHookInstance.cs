@@ -75,7 +75,24 @@ namespace GameHook.Application
                 };
 
                 // Calculate the blocks to read from the mapper memory addresses.
-                var addressesToWatch = Mapper.Properties.Where(x => x.MapperVariables.Address != null).Select(x => (uint)x.MapperVariables.Address).ToList();
+                var addressesToWatch = Mapper.Properties
+                    .Where(x => x.MapperVariables.Address != null)
+                    .Select(x => x.MapperVariables.Address)
+                    .Cast<uint>()
+                    .ToList();
+
+                var addressesFromDma = Mapper.Properties
+                    .Where(x => x.MapperVariables.Preprocessor?.Contains("dma_967d10cc") ?? false)
+                    .Select(x => x.MapperVariables.Preprocessor?.GetHexdecimalParameterFromFunctionString(0))
+                    .Cast<uint>()
+                    .ToList();
+
+                addressesToWatch.AddRange(addressesFromDma);
+
+                addressesToWatch = addressesToWatch
+                    .Distinct()
+                    .ToList();
+
                 BlocksToRead = PlatformOptions.Ranges
                                 .Where(x => addressesToWatch.Any(y => y.Between(x.StartingAddress, x.EndingAddress)))
                                 .ToList();

@@ -1,4 +1,5 @@
-﻿using GameHook.Domain.ValueTransformers;
+﻿using GameHook.Domain.Interfaces;
+using GameHook.Domain.ValueTransformers;
 
 namespace GameHook.Domain.Preprocessors
 {
@@ -7,12 +8,6 @@ namespace GameHook.Domain.Preprocessors
         public MemoryAddress Address { get; init; }
         public int[] SubstructureOrdering { get; init; } = new int[0];
         public byte[] DecryptedData { get; init; } = new byte[0];
-    }
-
-    public class DataBlock_a245dcac_PropertyResult
-    {
-        public MemoryAddress Address { get; init; }
-        public byte[] Bytes { get; init; } = new byte[0];
     }
 
     public static partial class Preprocessors
@@ -79,13 +74,13 @@ namespace GameHook.Domain.Preprocessors
             };
         }
 
-        public static DataBlock_a245dcac_PropertyResult data_block_a245dcac(int structureIndex, int offset, int size, DataBlock_a245dcac decryptedDataBlock)
+        public static PreprocessorPropertyResult data_block_a245dcac(int structureIndex, int offset, int size, DataBlock_a245dcac decryptedDataBlock)
         {
             var structurePositionForProperty = decryptedDataBlock.SubstructureOrdering[structureIndex];
             var propertyStartingOffset = (structurePositionForProperty * 12) + offset;
             var propertyEndingOffset = propertyStartingOffset + size;
 
-            return new DataBlock_a245dcac_PropertyResult()
+            return new PreprocessorPropertyResult()
             {
                 Address = (MemoryAddress)(decryptedDataBlock.Address + propertyStartingOffset),
                 Bytes = decryptedDataBlock.DecryptedData[propertyStartingOffset..propertyEndingOffset]

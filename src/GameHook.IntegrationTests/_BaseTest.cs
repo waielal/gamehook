@@ -93,5 +93,13 @@ namespace GameHook.IntegrationTests
                 Id = "ff4d0e23c73b21068ef1f5deffb6b6ea"
             });
         }
+
+        public async Task Load_GBA_PokemonFireRed()
+        {
+            await GameHookClient.ChangeMapperAsync(new MapperReplaceModel()
+            {
+                Id = "e7b0c74604392f58774cd2d122f3d011"
+            });
+        }
     }
 }

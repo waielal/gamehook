@@ -52,6 +52,11 @@ namespace GameHook.Domain
             return int.Parse(function.Between("(", ")").Split(",")[position]);
         }
 
+        public static uint GetHexdecimalParameterFromFunctionString(this string function, int position)
+        {
+            return function.Between("(", ")").Split(",")[position].ToString().FromHexdecimalStringToUint();
+        }
+
         public static string Between(this string str, string firstString, string lastString)
         {
             string FinalString;
