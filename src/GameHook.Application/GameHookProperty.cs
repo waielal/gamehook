@@ -2,6 +2,7 @@
 using GameHook.Domain.Interfaces;
 using GameHook.Domain.Preprocessors;
 using GameHook.Domain.ValueTransformers;
+using NCalc;
 
 namespace GameHook.Application
 {
@@ -149,6 +150,15 @@ namespace GameHook.Application
                     "uint" => UnsignedIntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
+
+                if (string.IsNullOrEmpty(MapperVariables.Postprocessor) == false)
+                {
+                    var postprocessorExpression = new Expression(MapperVariables.Postprocessor);
+                    postprocessorExpression.Parameters["x"] = value;
+                    postprocessorExpression.Parameters["y"] = bytes;
+
+                    value = postprocessorExpression.Evaluate();
+                }
             }
 
             if (Address?.Equals(address) == false)

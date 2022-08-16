@@ -11,4 +11,8 @@
     <ProjectReference Include="..\GameHook.Domain\GameHook.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CoreCLR-NCalc" Version="2.2.110" />
+  </ItemGroup>
+
 </Project>

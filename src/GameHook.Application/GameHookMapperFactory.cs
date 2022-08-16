@@ -171,6 +171,7 @@ namespace GameHook.Application
             var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
             var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
             var preprocessor = source.ContainsKey("preprocessor") ? source["preprocessor"].ToString() : null;
+            var postprocessor = source.ContainsKey("postprocessor") ? source["postprocessor"].ToString() : null;
             var expression = source.ContainsKey("expression") ? source["expression"].ToString() : null;
 
             MemoryAddress? address = null;
@@ -211,6 +212,7 @@ namespace GameHook.Application
                     Path = key,
 
                     Preprocessor = preprocessor,
+                    Postprocessor = postprocessor,
                     Type = type,
                     Address = address,
                     Size = size,
