@@ -102,7 +102,7 @@ namespace GameHook.Application
 
             try
             {
-                if (insideMacro == false && source.ContainsKey("type") || (insideMacro == true && source.ContainsKey("type")))
+                if (insideMacro == false && source.ContainsKey("type") && (source.ContainsKey("address") || source.ContainsKey("preprocessor")) || (insideMacro == true && source.ContainsKey("type") && source.ContainsKey("offset")))
                 {
                     ParseProperty(instance, root, properties, source, key, macroPointer);
                 }
