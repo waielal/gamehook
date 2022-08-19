@@ -12,7 +12,7 @@ namespace GameHook.WebAPI.ClientNotifiers
                 throw new Exception($"Filename {filename} contains invalid characters.");
             }
 
-            return filename;
+            return filename.Replace(".", "_");
         }
 
         private string FormatProperty(string? format, object? value)
