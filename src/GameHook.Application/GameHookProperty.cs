@@ -1,4 +1,5 @@
 ﻿using GameHook.Domain;
+using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 using GameHook.Domain.Preprocessors;
 using GameHook.Domain.ValueTransformers;
@@ -15,6 +16,7 @@ namespace GameHook.Application
         }
 
         protected GameHookInstance GameHookInstance { get; }
+        protected MapperUserSettingsDTO? MapperUserSettings => GameHookInstance?.Mapper?.UserSettings;
         public GameHookMapperVariables MapperVariables { get; }
 
         public string Path => MapperVariables.Path;
@@ -195,7 +197,7 @@ namespace GameHook.Application
             {
                 foreach (var notifier in GameHookInstance.ClientNotifiers)
                 {
-                    _ = notifier.SendPropertyChanged(Path, Address, Value, Bytes, Frozen, result.FieldsChanged.ToArray());
+                    _ = notifier.SendPropertyChanged(this, result.FieldsChanged.ToArray(), MapperUserSettings);
                 }
             }
 
@@ -238,7 +240,7 @@ namespace GameHook.Application
 
             foreach (var notifier in GameHookInstance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(Path, Address, Value, Bytes, Frozen, new string[] { "frozen" });
+                await notifier.SendPropertyChanged(this, new string[] { "frozen" }, MapperUserSettings);
             }
         }
 
@@ -248,7 +250,7 @@ namespace GameHook.Application
 
             foreach (var notifier in GameHookInstance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(Path, Address, Value, Bytes, Frozen, new string[] { "frozen" });
+                await notifier.SendPropertyChanged(this, new string[] { "frozen" }, MapperUserSettings);
             }
         }
 

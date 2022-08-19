@@ -1,43 +1,77 @@
-﻿using GameHook.Application;
-using GameHook.Domain.DTOs;
+﻿using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 
 namespace GameHook.WebAPI.ClientNotifiers
 {
     public class FilesystemClientNotifier : IClientNotifier
     {
+        private string FormatFilename(string filename)
+        {
+            if (filename.Contains("..") || filename.Contains(":") || filename.Contains("\\"))
+            {
+                throw new Exception($"Filename {filename} contains invalid characters.");
+            }
+
+            return filename;
+        }
+
+        private string FormatProperty(string? format, object? value)
+        {
+            return string.Format(format ?? "{0}", value).Trim();
+        }
+
         public Task SendGameHookError(ProblemDetailsForClientDTO _) => Task.CompletedTask;
 
         public async Task SendInstanceReset()
         {
+            Directory.CreateDirectory(BuildEnvironment.MapperUserSettingsDirectory);
+
             if (Directory.Exists(BuildEnvironment.OutputPropertiesDirectory))
             {
                 Directory.Delete(BuildEnvironment.OutputPropertiesDirectory, true);
             }
-
-            Directory.CreateDirectory(BuildEnvironment.OutputPropertiesDirectory);
 
             await Task.CompletedTask;
         }
 
         public async Task SendMapperLoaded(IGameHookMapper mapper)
         {
-            foreach (var property in mapper.Properties)
+            if (mapper.UserSettings?.OutputPropertiesToFilesystem != null)
             {
-                var key = property.Path;
-                var value = property.Value;
+                Directory.CreateDirectory(BuildEnvironment.OutputPropertiesDirectory);
 
-                await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, $"{key}.txt"), value?.ToString());
+                foreach (var propertyGroup in mapper.UserSettings.OutputPropertiesToFilesystem.GroupBy(x => x.Path))
+                {
+                    var path = propertyGroup.Key;
+                    var value = mapper.Properties.Single(x => x.Path == path).Value;
+
+                    foreach (var item in propertyGroup)
+                    {
+                        var filename = FormatFilename(path);
+                        var writeValue = FormatProperty(item.Format, value);
+
+                        await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, $"{filename}.txt"), writeValue);
+                    }
+                }
             }
         }
 
         public Task SendDriverError(ProblemDetailsForClientDTO _) => Task.CompletedTask;
 
-        public async Task SendPropertyChanged(string key, uint? address, object? value, byte[]? bytes, bool frozen, string[] fieldsChanged)
+        public async Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged, MapperUserSettingsDTO? mapperUserConfig)
         {
-            if (fieldsChanged.Contains("value"))
+            if (mapperUserConfig?.OutputPropertiesToFilesystem != null)
             {
-                await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, $"{key}.txt"), value?.ToString());
+                if (mapperUserConfig.OutputPropertiesToFilesystem.Any(x => x.Path == property.Path) && fieldsChanged.Contains("value"))
+                {
+                    foreach (var item in mapperUserConfig.OutputPropertiesToFilesystem.Where(x => x.Path == property.Path))
+                    {
+                        var filename = FormatFilename(property.Path);
+                        var writeValue = FormatProperty(item.Format, property.Value);
+
+                        await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, $"{filename}.txt"), writeValue);
+                    }
+                }
             }
         }
     }

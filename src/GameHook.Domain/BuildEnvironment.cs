@@ -36,17 +36,18 @@ public static class BuildEnvironment
         }
     }
 
-    public static string ConfigurationDirectory
-    {
-        get
-        {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameHook");
-        }
-    }
+    public static string BinaryDirectory =>
+        Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new Exception("Could not determine the binary directory.");
+
+    public static string ConfigurationDirectory =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameHook");
+
+    public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
 
     public static string OutputPropertiesDirectory => Path.Combine(ConfigurationDirectory, "OutputProperties");
-    public static string UserAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.user.json");
-    public static string DebugAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.debug.json");
+    public static string AppsettingsFilePath => Path.Combine(ConfigurationDirectory, "GameHook.json");
+    public static string AppsettingsFilePath2 => Path.Combine(BinaryDirectory, "GameHook.json");
+    public static string DebugAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "GameHook.debug.json");
 
 #if DEBUG
     public static bool IsDebug = true;

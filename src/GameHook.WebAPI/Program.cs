@@ -72,16 +72,14 @@ public class Program
             // Add a custom appsettings.user.json file if
             // the user wants to override their settings.
             builder.Configuration.AddJsonStream(EmbededResources.appsettings_json);
-            builder.Configuration.AddJsonFile(BuildEnvironment.UserAppsettingsFilePath, true, false);
+            builder.Configuration.AddJsonFile(BuildEnvironment.AppsettingsFilePath, true, false);
+            builder.Configuration.AddJsonFile(BuildEnvironment.AppsettingsFilePath2, true, false);
             builder.Configuration.AddJsonFile(BuildEnvironment.DebugAppsettingsFilePath, true, false);
-            
+
             if (BuildEnvironment.IsTestingBuild)
             {
                 builder.Configuration.AddJsonFile("appsettings.Development.json", true);
             }
-
-            var configuration = new AppConfiguration(builder.Configuration);
-            builder.Services.AddSingleton(configuration);
 
             builder.Services.AddHttpClient();
 
@@ -149,11 +147,7 @@ public class Program
             builder.Services.AddSingleton<IGameHookDriver, RetroArchUdpPollingDriver>();
             builder.Services.AddSingleton<GameHookInstance>();
             builder.Services.AddSingleton<IClientNotifier, WebSocketClientNotifier>();
-
-            if (configuration.OutputPropertyValuesToFilesystem)
-            {
-                builder.Services.AddSingleton<IClientNotifier, FilesystemClientNotifier>();
-            }
+            builder.Services.AddSingleton<IClientNotifier, FilesystemClientNotifier>();
 
             // Build and run.
             var app = builder.Build();
@@ -185,8 +179,12 @@ public class Program
 
             if (BuildEnvironment.IsDebug)
             {
+                app.MapGet("/", () =>
+                {
+                    return Results.Redirect("index.html", false);
+                });
+
                 app.UseStaticFiles();
-                app.UseDefaultFiles();
             }
             else
             {
@@ -225,11 +223,6 @@ public class Program
             {
                 var mapperUpdateManager = app.Services.GetRequiredService<IMapperUpdateManager>();
                 await mapperUpdateManager.CheckForUpdates();
-            }
-
-            if (configuration.OutputPropertyValuesToFilesystem)
-            {
-                logger.LogInformation("Outputting property values to filesystem.");
             }
 
             await app.StartAsync();

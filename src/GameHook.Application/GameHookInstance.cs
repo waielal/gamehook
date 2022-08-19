@@ -111,6 +111,11 @@ namespace GameHook.Application
                 _ = Task.Run(ReadLoop, ReadLoopToken.Token);
 
                 Logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName}.");
+
+                if (Mapper.UserSettings?.OutputPropertiesToFilesystem?.Any() ?? false)
+                {
+                    Logger.LogInformation("Outputting property values to filesystem.");
+                }
             }
             catch (Exception ex)
             {

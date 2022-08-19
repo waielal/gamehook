@@ -1,6 +1,8 @@
 ﻿using GameHook.Domain;
+using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using YamlDotNet.Serialization;
 
 namespace GameHook.Application
@@ -37,6 +39,9 @@ namespace GameHook.Application
 
     public static class GameHookMapperFactory
     {
+        private static string? GetMapperUserSettingsPath(Guid id) =>
+            Path.Combine(BuildEnvironment.MapperUserSettingsDirectory, $"{id}.json");
+
         public static GameHookMapper ReadMapper(GameHookInstance instance, IMapperFilesystemProvider provider, string filesystemId)
         {
             if (string.IsNullOrEmpty(filesystemId))
@@ -71,6 +76,22 @@ namespace GameHook.Application
                 GamePlatform = data.meta.gamePlatform
             };
 
+            // Load user settings.
+            MapperUserSettingsDTO? mapperUserSettings = null;
+            var mapperUserSettingsPath = GetMapperUserSettingsPath(metadata.Id);
+
+            if (File.Exists(mapperUserSettingsPath))
+            {
+                var mapperUserSettingsContents = File.ReadAllText(mapperUserSettingsPath);
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                mapperUserSettings = JsonSerializer.Deserialize<MapperUserSettingsDTO>(mapperUserSettingsContents, options);
+            }
+
             // Load properties.
             var properties = new List<GameHookProperty>();
 
@@ -93,7 +114,7 @@ namespace GameHook.Application
                 glossary.Add(x.Key, list);
             }
 
-            return new GameHookMapper(filesystemId, metadata, properties, glossary);
+            return new GameHookMapper(filesystemId, metadata, properties, glossary, mapperUserSettings);
         }
 
         private static void TranserveMapperFile(GameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)

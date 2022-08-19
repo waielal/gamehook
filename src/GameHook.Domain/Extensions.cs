@@ -24,6 +24,11 @@ namespace GameHook.Domain
             return value;
         }
 
+        public static string GetValue(this IConfiguration configuration, string key)
+        {
+            return configuration[key];
+        }
+
         public static bool Between(this uint value, uint min, uint max)
         {
             return value >= min && value <= max;
