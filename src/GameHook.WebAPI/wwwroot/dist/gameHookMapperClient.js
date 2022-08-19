@@ -243,7 +243,7 @@ class GameHookMapperClient {
 
                 // Trigger the global property changed event.
                 if (that.onPropertyChanged) {
-                    that.onPropertyChanged(property, oldProperty)
+                    that.onPropertyChanged(property, oldProperty, fieldsChanged)
                 }
             } else {
                 console.debug(`[GameHook Client] Mapper is not loaded, throwing away event. PropertyUpdated ${path} ${value} ${bytes} ${frozen}`)
@@ -309,5 +309,5 @@ class GameHookMapperClient {
     onMapperLoaded() { /* Override this with your own function. */ }
     onMapperLoadError(err) { /* Override this with your own function. */ }
     onDriverError(err) { /* Override this with your own function. */ }
-    onPropertyChanged(property) { /* Override this with your own function. */ }
+    onPropertyChanged(property, oldProperty, fieldsChanged) { /* Override this with your own function. */ }
 }
