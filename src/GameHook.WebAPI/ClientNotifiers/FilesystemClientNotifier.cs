@@ -1,4 +1,5 @@
 ﻿using GameHook.Domain.DTOs;
+using GameHook.Domain.Infrastructure;
 using GameHook.Domain.Interfaces;
 
 namespace GameHook.WebAPI.ClientNotifiers
@@ -19,7 +20,7 @@ namespace GameHook.WebAPI.ClientNotifiers
         {
             if (value == null) return string.Empty;
 
-            return string.Format(format ?? "{0}", value).Trim();
+            return string.Format(new CustomStringFormat(), format ?? "{0}", value);
         }
 
         public Task SendGameHookError(ProblemDetailsForClientDTO _) => Task.CompletedTask;
