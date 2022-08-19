@@ -17,6 +17,8 @@ namespace GameHook.WebAPI.ClientNotifiers
 
         private string FormatProperty(string? format, object? value)
         {
+            if (value == null) return string.Empty;
+
             return string.Format(format ?? "{0}", value).Trim();
         }
 
