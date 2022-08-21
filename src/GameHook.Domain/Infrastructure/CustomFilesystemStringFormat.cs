@@ -1,4 +1,6 @@
-﻿namespace GameHook.Domain.Infrastructure
+﻿using System.Globalization;
+
+namespace GameHook.Domain.Infrastructure
 {
     public class CustomStringFormat : IFormatProvider, ICustomFormatter
     {
@@ -16,6 +18,7 @@
             {
                 case "TOUPPER": return result?.ToUpper() ?? string.Empty;
                 case "TOLOWER": return result?.ToLower() ?? string.Empty;
+                case "TOTITLECASE": return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(result ?? string.Empty);
                 case "TRIM": return result?.Trim() ?? string.Empty;
                 default: return result ?? string.Empty;
             }
