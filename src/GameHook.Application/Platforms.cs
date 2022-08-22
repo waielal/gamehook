@@ -47,8 +47,10 @@ namespace GameHook.Application
         public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
         {
             // new PlatformRange("BIOS",  0x00000000, 0x00003FF0),
-            new MemoryAddressBlock(0, "Partial EWRAM", 0x02023000, 0x02023000 + 9999),
-            new MemoryAddressBlock(1, "IWRAM", 0x03001000, 0x03005000 + 2000),
+            new MemoryAddressBlock(0, "Partial EWRAM", 0x02023000, 0x02023000 + 14999),
+            new MemoryAddressBlock(1, "Partial EWRAM 2", 0x02037000, 0x02039999),
+            new MemoryAddressBlock(2, "Partial EWRAM 3", 0x0203A000, 0x0203AFFF),
+            new MemoryAddressBlock(3, "IWRAM", 0x03001000, 0x03005000 + 2000),
         }.ToArray();
     }
 }
