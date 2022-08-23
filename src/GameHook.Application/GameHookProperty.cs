@@ -183,7 +183,11 @@ namespace GameHook.Application
             }
             else
             {
-                if (Value?.Equals(value) == false)
+                if (Value == null && value != null)
+                {
+                    result.FieldsChanged.Add("value");
+                }
+                else if (Value?.Equals(value) == false)
                 {
                     result.FieldsChanged.Add("value");
                 }
