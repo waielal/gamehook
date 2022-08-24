@@ -20,6 +20,7 @@ namespace GameHook.WebAPI.Controllers
                 Size = x.Size,
                 Position = x.MapperVariables.Position,
                 Reference = x.MapperVariables.Reference,
+                CharacterMap = x.MapperVariables.CharacterMap,
                 Value = x.Value,
                 Frozen = x.Frozen,
                 Bytes = x.Bytes?.ToIntegerArray(),
@@ -63,6 +64,8 @@ namespace GameHook.WebAPI.Controllers
         public int? Position { get; init; }
 
         public string? Reference { get; init; }
+
+        public string? CharacterMap { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public object? Value { get; init; }

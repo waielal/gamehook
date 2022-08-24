@@ -191,6 +191,10 @@
                                     <td>Reference</td>
                                     <td>{{ editingProperty.property.reference }}</td>
                                 </tr>
+                                <tr v-if="editingProperty.property.characterMap">
+                                    <td>Character Map</td>
+                                    <td>{{ editingProperty.property.characterMap }}</td>
+                                </tr>
                                 <tr v-if="editingProperty.property.description">
                                     <td>Description</td>
                                     <td>{{ editingProperty.property.description }}</td>
@@ -198,7 +202,7 @@
                             </table>
 
                             <div class="my-4">
-                                <div v-if="editingProperty.property.type === 'reference'">
+                                <div v-if="editingProperty.property.reference">
                                     <div for="value">Value</div>
 
                                     <select class="input is-dark" :value="editingProperty.bytes" @change="editingPropertyReferenceDropdownSelected($event)">
@@ -545,7 +549,7 @@
                 },
                 displayPropertyValue: function (prop, minimal) {
                     if (prop.value == null) return ''
-                    else if (prop.type === 'reference') {
+                    else if (prop.reference) {
                         if (typeof prop.value === 'object') return prop.value.name
                         else return prop.value
                     }

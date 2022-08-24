@@ -189,11 +189,18 @@ namespace GameHook.Application
             var position = (int?)(source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? "1") : null);
             var description = source.ContainsKey("description") ? source["description"].ToString() : null;
             var reference = source.ContainsKey("reference") ? source["reference"].ToString() : null;
+            var characterMap = source.ContainsKey("characterMap") ? source["characterMap"].ToString() : null;
             var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
             var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
             var preprocessor = source.ContainsKey("preprocessor") ? source["preprocessor"].ToString() : null;
             var postprocessor = source.ContainsKey("postprocessor") ? source["postprocessor"].ToString() : null;
             var expression = source.ContainsKey("expression") ? source["expression"].ToString() : null;
+
+            // TODO: 8/23/2022 Remove this in a future versions.
+            if (type == "reference")
+            {
+                type = "int";
+            }
 
             MemoryAddress? address = null;
             if (macroPointer != null)
@@ -214,6 +221,12 @@ namespace GameHook.Application
                 {
                     address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToUint();
                 }
+            }
+
+            // Validation rules.
+            if (type != "string" && string.IsNullOrEmpty(characterMap) == false)
+            {
+                throw new MapperParsingException($"Type {type} should not have the property characterMap.");
             }
 
             if (type == "macro")
@@ -239,6 +252,7 @@ namespace GameHook.Application
                     Size = size,
                     Position = position,
                     Reference = reference,
+                    CharacterMap = characterMap,
                     Expression = expression,
                     Description = description
                 };

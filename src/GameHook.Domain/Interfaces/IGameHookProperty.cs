@@ -27,6 +27,7 @@ namespace GameHook.Domain.Interfaces
         public int Size { get; init; } = 1;
         public int? Position { get; init; }
         public string? Reference { get; init; }
+        public string? CharacterMap { get; init; }
         public string? Description { get; init; }
 
         public string? Expression { get; init; }
@@ -55,6 +56,8 @@ namespace GameHook.Domain.Interfaces
         bool Frozen { get; }
 
         string? Description { get; }
+
+        string? CharacterMap { get; }
 
         Task<GameHookPropertyProcessResult> Process(IEnumerable<MemoryAddressBlockResult> driverResult, PreprocessorCache preprocessorCache);
         Task WriteValue(object value, bool? freeze);

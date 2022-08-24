@@ -46,10 +46,9 @@ namespace GameHook.Domain
         public GameHookContainerInitializationException(string message, Exception? innerException) : base(message, innerException) { }
     }
 
-    public class MapperParsingException : UserPresentableException
+    public class MapperParsingException : Exception
     {
-        public MapperParsingException(string filename, Exception innerException)
-            : base($"Could not parse {filename}.\nCheck the mapper to determine if there are any errors in the format of the file.", innerException) { }
+        public MapperParsingException(string message, Exception? innerException = null) : base(message, innerException) { }
     }
 
     public class DriverShutdownException : Exception

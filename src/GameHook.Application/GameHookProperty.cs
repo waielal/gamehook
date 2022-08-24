@@ -27,6 +27,7 @@ namespace GameHook.Application
 
         public int? Position => MapperVariables.Position;
         public string? Reference => MapperVariables.Reference;
+        public string? CharacterMap => MapperVariables.CharacterMap;
 
         public object? Value { get; private set; }
         public byte[]? Bytes { get; private set; }
@@ -145,8 +146,7 @@ namespace GameHook.Application
                     "bit" => BitTransformer.ToValue(bytes, MapperVariables.Position ?? throw new Exception("Missing property variable: Position")),
                     "bool" => BooleanTransformer.ToValue(bytes),
                     "int" => IntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
-                    "reference" => ReferenceTransformer.ToValue(ReverseBytesIfLE(bytes), GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]),
-                    "string" => StringTransformer.ToValue(bytes, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? "defaultCharacterMap"]),
+                    "string" => StringTransformer.ToValue(bytes, GameHookInstance.GetMapper().Glossary[MapperVariables.CharacterMap ?? "defaultCharacterMap"]),
                     "uint" => UnsignedIntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
@@ -158,6 +158,11 @@ namespace GameHook.Application
                     postprocessorExpression.Parameters["y"] = bytes;
 
                     value = postprocessorExpression.Evaluate();
+                }
+
+                if ((Type == "bit" || Type == "bool" || Type == "int" || Type == "uint") && string.IsNullOrEmpty(MapperVariables.Reference) == false)
+                {
+                    value = ReferenceTransformer.ToValue((int)value, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
                 }
             }
 
