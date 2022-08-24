@@ -98,13 +98,11 @@ namespace GameHook.Application
                 }
 
                 var preprocessorResult = Preprocessors.dma_967d10cc(memoryAddress, size: 4, offset, memoryBlock);
-                if (preprocessorResult.Address == null)
+                if (preprocessorResult.Address != null)
                 {
-                    throw new Exception($"Preprocessor dma_967d10cc returned null on path '{Path}'.");
+                    address = preprocessorResult.Address;
+                    bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
                 }
-
-                address = preprocessorResult.Address;
-                bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
             }
             else if (MapperVariables.Address != null)
             {
@@ -114,6 +112,13 @@ namespace GameHook.Application
             else
             {
                 throw new Exception("Unable to determine which code path to take for calculating address and bytes.");
+            }
+
+            // Check to see if neither returned a result.
+            // This can happen if the game is in the middle of a reset.
+            if (address == null && bytes == null)
+            {
+                return result;
             }
 
             // Data validation.
