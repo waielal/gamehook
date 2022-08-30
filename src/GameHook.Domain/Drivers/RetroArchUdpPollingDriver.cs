@@ -26,7 +26,7 @@ namespace GameHook.Domain.Drivers
         private DriverOptions DriverOptions { get; }
         private UdpClient UdpClient { get; set; }
         private Dictionary<string, ReceivedPacket> Responses { get; set; } = new Dictionary<string, ReceivedPacket>();
-        private const int DELAY_BETWEEN_RECEIVE_MS = 2;
+        private const int DELAY_BETWEEN_RECEIVE_MS = 0;
         private const int READ_PACKET_TIMEOUT_MS = 75;
         public string ProperName { get; } = "RetroArch";
 
