@@ -20,7 +20,7 @@ namespace GameHook.Domain.Infrastructure
                 case "TOLOWER": return result?.ToLower() ?? string.Empty;
                 case "TOTITLECASE": return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(result ?? string.Empty);
                 case "TRIM": return result?.Trim() ?? string.Empty;
-                default: return result ?? string.Empty;
+                default: return string.Format($"{{0:{format}}}" ?? string.Empty, result) ?? string.Empty;
             }
         }
     }

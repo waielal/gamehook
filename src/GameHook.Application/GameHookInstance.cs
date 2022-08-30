@@ -112,7 +112,7 @@ namespace GameHook.Application
 
                 Logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName}.");
 
-                if (Mapper.UserSettings?.OutputPropertiesToFilesystem?.Any() ?? false)
+                if (Mapper.UserSettings?.OutputAllPropertiesToFilesystem == true)
                 {
                     Logger.LogInformation("Outputting property values to filesystem.");
                 }

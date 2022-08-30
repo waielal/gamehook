@@ -1,19 +1,10 @@
 ﻿using GameHook.Domain.DTOs;
-using GameHook.Domain.Infrastructure;
 using GameHook.Domain.Interfaces;
 
 namespace GameHook.WebAPI.ClientNotifiers
 {
     static class FilesystemHelper
     {
-        public static string AddFileSuffix(this string filename, string suffix)
-        {
-            string fDir = Path.GetDirectoryName(filename) ?? string.Empty;
-            string fName = Path.GetFileNameWithoutExtension(filename);
-            string fExt = Path.GetExtension(filename);
-            return Path.Combine(fDir, string.Concat(fName, suffix, fExt));
-        }
-
         public static string? GetUrlFileExtension(this string? format)
         {
             return Path.GetExtension(format);
@@ -27,26 +18,24 @@ namespace GameHook.WebAPI.ClientNotifiers
             return $"{originalFilenameWithoutExtension}{extension}";
         }
 
-        public static string FormatFilename(this string filename, int index)
+        public static string FormatFilename(this string path, int index = 0)
         {
-            if (filename.Contains("..") || filename.Contains(":") || filename.Contains("\\"))
+            if (string.IsNullOrEmpty(path))
             {
-                throw new Exception($"Filename {filename} contains invalid characters.");
+                throw new Exception($"Filename output filename is NULL.");
+            }
+
+            if (path.Contains("..") || path.Contains(":") || path.Contains("\\"))
+            {
+                throw new Exception($"File name {path} contains invalid characters.");
             }
 
             if (index > 0)
             {
-                filename = filename.AddFileSuffix($"_{index}");
+                path += $"_{index}";
             }
 
-            return filename.Replace(".", "_");
-        }
-
-        public static string FormatProperty(this string? format, object? value)
-        {
-            if (value == null) return string.Empty;
-
-            return string.Format(new CustomStringFormat(), format ?? "{0}", value);
+            return path.Replace(".", "_");
         }
     }
 
@@ -83,36 +72,74 @@ namespace GameHook.WebAPI.ClientNotifiers
             }
         }
 
-        private async Task OutputPropertyToFilesystem(IGameHookProperty property, OutputPropertyToFilesystemItem item, int index)
+        private async Task OutputPropertyToFilesystem(IGameHookProperty property, IEnumerable<OutputPropertyOverrideItem> items)
         {
-            var filename = property.Path.FormatFilename(index);
-            var writeValue = item.Format.FormatProperty(property.Value);
+            bool outputDefaultFilenameAlready = false;
 
-            // This is a file we need to download
-            // from a remote source.
-            if (item.Format?.StartsWith("https://") ?? false)
+            var defaultFilename = property.Path.FormatFilename(0) + ".txt";
+            var defaultValue = property.Value;
+
+            // Convert special types.
+            if (property.Value != null && (property.Type == "bit" || property.Type == "bool"))
             {
-                if (item.Format?.GetUrlFileExtension() == null)
-                {
-                    _logger.LogWarning($"Could not determine the file extension for URL {item.Format}.");
-                }
-                else
-                {
-                    var urlFilename = filename.GetUrlFilename(item.Format);
+                defaultValue = (bool)property.Value == true ? 1 : 0;
+            }
 
-                    if (property.Value == null)
+            var i = 0;
+            foreach (var item in items)
+            {
+                var writeFilename = property.Path.FormatFilename(i) + ".txt";
+                var writeValue = string.Empty;
+
+                // Convert special types (required for formatting).
+                if (property.Value != null && (property.Type == "int" || property.Type == "uint"))
+                {
+                    defaultValue = int.Parse(defaultValue?.ToString() ?? "0");
+                }
+
+                if (defaultValue != null)
+                {
+                    writeValue = string.Format(item.Format ?? "{0}", defaultValue);
+                }
+
+                // This is a file we need to download
+                // from a remote source.
+                if (item?.Format?.StartsWith("https://") == true)
+                {
+                    if (item.Format?.GetUrlFileExtension() == null)
                     {
-                        await File.WriteAllBytesAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, urlFilename), PlaceholderImageBytes);
+                        _logger.LogWarning($"Could not determine the file extension for URL {item.Format}.");
                     }
                     else
                     {
-                        await WriteUrlContents(item.Path, writeValue, urlFilename);
+                        writeFilename = writeFilename.GetUrlFilename(item.Format);
+
+                        if (property.Value == null)
+                        {
+                            await File.WriteAllBytesAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, writeFilename), PlaceholderImageBytes);
+                        }
+                        else
+                        {
+                            await WriteUrlContents(item.Path, writeValue, writeFilename);
+                        }
                     }
                 }
+                else
+                {
+                    await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, writeFilename), writeValue);
+                }
+
+                if (writeFilename == defaultFilename)
+                {
+                    outputDefaultFilenameAlready = true;
+                }
+
+                i++;
             }
-            else
+
+            if (outputDefaultFilenameAlready == false)
             {
-                await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, $"{filename}.txt"), writeValue);
+                await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, defaultFilename), defaultValue?.ToString());
             }
         }
 
@@ -127,37 +154,21 @@ namespace GameHook.WebAPI.ClientNotifiers
                 Directory.Delete(BuildEnvironment.OutputPropertiesDirectory, true);
             }
 
+            Directory.CreateDirectory(BuildEnvironment.OutputPropertiesDirectory);
+
             await Task.CompletedTask;
         }
 
         public async Task SendMapperLoaded(IGameHookMapper mapper)
         {
-            if (mapper.UserSettings?.OutputPropertiesToFilesystem != null)
+            if (mapper.UserSettings?.OutputAllPropertiesToFilesystem == true)
             {
                 Directory.CreateDirectory(BuildEnvironment.OutputPropertiesDirectory);
 
-                foreach (var propertyGroup in mapper.UserSettings.OutputPropertiesToFilesystem.GroupBy(x => x.Path))
+                foreach (var property in mapper.Properties)
                 {
-                    var path = propertyGroup.Key;
-
-                    if (string.IsNullOrEmpty(path)) { continue; }
-
-                    if (mapper.Properties.Any(x => x.Path == path) == false)
-                    {
-                        _logger.LogWarning($"Cannot find path in mapper {path}.");
-
-                        continue;
-                    }
-
-                    var property = mapper.Properties.Single(x => x.Path == path);
-
-                    int i = 0;
-                    foreach (var item in propertyGroup)
-                    {
-                        await OutputPropertyToFilesystem(property, item, i);
-
-                        i++;
-                    }
+                    var overrideItems = mapper.UserSettings.OutputPropertyOverrides.Where(x => x.Path == property.Path);
+                    await OutputPropertyToFilesystem(property, overrideItems);
                 }
             }
         }
@@ -166,17 +177,12 @@ namespace GameHook.WebAPI.ClientNotifiers
 
         public async Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged, MapperUserSettingsDTO? mapperUserConfig)
         {
-            if (mapperUserConfig?.OutputPropertiesToFilesystem != null)
+            if (mapperUserConfig != null && mapperUserConfig.OutputAllPropertiesToFilesystem == true)
             {
-                if (mapperUserConfig.OutputPropertiesToFilesystem.Any(x => x.Path == property.Path) && fieldsChanged.Contains("value"))
+                if (fieldsChanged.Contains("value"))
                 {
-                    int i = 0;
-                    foreach (var item in mapperUserConfig.OutputPropertiesToFilesystem.Where(x => x.Path == property.Path))
-                    {
-                        await OutputPropertyToFilesystem(property, item, i);
-
-                        i++;
-                    }
+                    var overrideItems = mapperUserConfig.OutputPropertyOverrides.Where(x => x.Path == property.Path);
+                    await OutputPropertyToFilesystem(property, overrideItems);
                 }
             }
         }
