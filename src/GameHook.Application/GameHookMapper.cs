@@ -15,6 +15,7 @@ namespace GameHook.Application
             UserSettings = userSettings;
         }
 
+        public Guid Id => Metadata.Id;
         public string FilesystemId { get; init; }
         public MapperMetadata Metadata { get; init; }
         public IEnumerable<IGameHookProperty> Properties { get; init; }

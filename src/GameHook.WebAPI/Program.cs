@@ -148,6 +148,7 @@ public class Program
             builder.Services.AddSingleton<GameHookInstance>();
             builder.Services.AddSingleton<IClientNotifier, WebSocketClientNotifier>();
             builder.Services.AddSingleton<IClientNotifier, FilesystemClientNotifier>();
+            builder.Services.AddSingleton<GameHookConfiguration>();
 
             // Build and run.
             var app = builder.Build();

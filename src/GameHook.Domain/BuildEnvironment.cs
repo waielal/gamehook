@@ -44,7 +44,6 @@ public static class BuildEnvironment
 
     public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
 
-    public static string OutputPropertiesDirectory => Path.Combine(ConfigurationDirectory, "OutputProperties");
     public static string AppsettingsFilePath => Path.Combine(ConfigurationDirectory, "GameHook.json");
     public static string AppsettingsFilePath2 => Path.Combine(BinaryDirectory, "GameHook.json");
     public static string DebugAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "GameHook.debug.json");

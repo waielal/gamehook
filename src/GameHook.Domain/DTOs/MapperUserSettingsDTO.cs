@@ -8,7 +8,6 @@
 
     public class MapperUserSettingsDTO
     {
-        public bool OutputAllPropertiesToFilesystem { get; set; }
         public List<OutputPropertyOverrideItem> OutputPropertyOverrides { get; set; } = new List<OutputPropertyOverrideItem>();
     }
 }

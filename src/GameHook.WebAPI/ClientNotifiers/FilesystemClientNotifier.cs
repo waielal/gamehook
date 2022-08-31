@@ -1,4 +1,5 @@
-﻿using GameHook.Domain.DTOs;
+﻿using GameHook.Domain;
+using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 
 namespace GameHook.WebAPI.ClientNotifiers
@@ -43,6 +44,10 @@ namespace GameHook.WebAPI.ClientNotifiers
     {
         private readonly ILogger<FilesystemClientNotifier> _logger;
         private readonly HttpClient _httpClient;
+        private readonly GameHookConfiguration _gameHookConfiguration;
+
+        private string OutputPropertiesDirectory => Path.Combine(BuildEnvironment.ConfigurationDirectory, "OutputProperties");
+
 
         private readonly byte[] PlaceholderImageBytes = new byte[] {
             137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 32, 0, 0, 0, 32, 8, 2, 0, 0,
@@ -53,10 +58,11 @@ namespace GameHook.WebAPI.ClientNotifiers
             42, 160, 227, 96, 251, 139, 85, 244, 166, 48, 247, 218, 125, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66,
             96, 130 };
 
-        public FilesystemClientNotifier(ILogger<FilesystemClientNotifier> logger, IHttpClientFactory httpClientFactory)
+        public FilesystemClientNotifier(ILogger<FilesystemClientNotifier> logger, IHttpClientFactory httpClientFactory, GameHookConfiguration gameHookConfiguration)
         {
             _logger = logger;
             _httpClient = httpClientFactory.CreateClient();
+            _gameHookConfiguration = gameHookConfiguration;
         }
 
         private async Task WriteUrlContents(string path, string url, string filename)
@@ -64,7 +70,7 @@ namespace GameHook.WebAPI.ClientNotifiers
             try
             {
                 var bytes = await _httpClient.GetByteArrayAsync(url);
-                await File.WriteAllBytesAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, filename), bytes);
+                await File.WriteAllBytesAsync(Path.Combine(OutputPropertiesDirectory, filename), bytes);
             }
             catch (Exception ex)
             {
@@ -116,7 +122,7 @@ namespace GameHook.WebAPI.ClientNotifiers
 
                         if (property.Value == null)
                         {
-                            await File.WriteAllBytesAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, writeFilename), PlaceholderImageBytes);
+                            await File.WriteAllBytesAsync(Path.Combine(OutputPropertiesDirectory, writeFilename), PlaceholderImageBytes);
                         }
                         else
                         {
@@ -126,7 +132,7 @@ namespace GameHook.WebAPI.ClientNotifiers
                 }
                 else
                 {
-                    await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, writeFilename), writeValue);
+                    await File.WriteAllTextAsync(Path.Combine(OutputPropertiesDirectory, writeFilename), writeValue);
                 }
 
                 if (writeFilename == defaultFilename)
@@ -139,7 +145,7 @@ namespace GameHook.WebAPI.ClientNotifiers
 
             if (outputDefaultFilenameAlready == false)
             {
-                await File.WriteAllTextAsync(Path.Combine(BuildEnvironment.OutputPropertiesDirectory, defaultFilename), defaultValue?.ToString());
+                await File.WriteAllTextAsync(Path.Combine(OutputPropertiesDirectory, defaultFilename), defaultValue?.ToString());
             }
         }
 
@@ -149,25 +155,30 @@ namespace GameHook.WebAPI.ClientNotifiers
         {
             Directory.CreateDirectory(BuildEnvironment.MapperUserSettingsDirectory);
 
-            if (Directory.Exists(BuildEnvironment.OutputPropertiesDirectory))
+            if (Directory.Exists(OutputPropertiesDirectory))
             {
-                Directory.Delete(BuildEnvironment.OutputPropertiesDirectory, true);
+                Directory.Delete(OutputPropertiesDirectory, true);
             }
 
-            Directory.CreateDirectory(BuildEnvironment.OutputPropertiesDirectory);
+            if (_gameHookConfiguration.OutputAllPropertiesToFilesystem)
+            {
+                Directory.CreateDirectory(OutputPropertiesDirectory);
+            }
 
             await Task.CompletedTask;
         }
 
         public async Task SendMapperLoaded(IGameHookMapper mapper)
         {
-            if (mapper.UserSettings?.OutputAllPropertiesToFilesystem == true)
+            if (_gameHookConfiguration.OutputAllPropertiesToFilesystem)
             {
-                Directory.CreateDirectory(BuildEnvironment.OutputPropertiesDirectory);
+                Directory.CreateDirectory(OutputPropertiesDirectory);
 
                 foreach (var property in mapper.Properties)
                 {
-                    var overrideItems = mapper.UserSettings.OutputPropertyOverrides.Where(x => x.Path == property.Path);
+                    var overrideItems = mapper.UserSettings?.OutputPropertyOverrides.Where(x => x.Path == property.Path)
+                        ?? new List<OutputPropertyOverrideItem>();
+
                     await OutputPropertyToFilesystem(property, overrideItems);
                 }
             }
@@ -177,11 +188,13 @@ namespace GameHook.WebAPI.ClientNotifiers
 
         public async Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged, MapperUserSettingsDTO? mapperUserConfig)
         {
-            if (mapperUserConfig != null && mapperUserConfig.OutputAllPropertiesToFilesystem == true)
+            if (_gameHookConfiguration.OutputAllPropertiesToFilesystem)
             {
                 if (fieldsChanged.Contains("value"))
                 {
-                    var overrideItems = mapperUserConfig.OutputPropertyOverrides.Where(x => x.Path == property.Path);
+                    var overrideItems = mapperUserConfig?.OutputPropertyOverrides.Where(x => x.Path == property.Path)
+                        ?? new List<OutputPropertyOverrideItem>();
+
                     await OutputPropertyToFilesystem(property, overrideItems);
                 }
             }
