@@ -116,7 +116,7 @@ namespace GameHook.Application
 
                 if (GameHookConfiguration.OutputAllPropertiesToFilesystem)
                 {
-                    Logger.LogInformation("Outputting property values to filesystem.");
+                    Logger.LogInformation("Outputting properties to filesystem.");
                 }
             }
             catch (Exception ex)
