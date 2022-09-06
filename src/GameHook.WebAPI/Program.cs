@@ -72,9 +72,9 @@ public class Program
             // Add a custom appsettings.user.json file if
             // the user wants to override their settings.
             builder.Configuration.AddJsonStream(EmbededResources.appsettings_json);
-            builder.Configuration.AddJsonFile(BuildEnvironment.AppsettingsFilePath, true, false);
-            builder.Configuration.AddJsonFile(BuildEnvironment.AppsettingsFilePath2, true, false);
-            builder.Configuration.AddJsonFile(BuildEnvironment.DebugAppsettingsFilePath, true, false);
+            builder.Configuration.AddJsonFile(BuildEnvironment.ConfigurationDirectoryAppsettingsFilePath, true, false);
+            builder.Configuration.AddJsonFile(BuildEnvironment.BinaryDirectoryGameHookFilePath, true, false);
+            builder.Configuration.AddJsonFile(BuildEnvironment.ConfigurationDirectoryAppsettingsDebugFilePath, true, false);
 
             if (BuildEnvironment.IsTestingBuild)
             {
@@ -156,11 +156,11 @@ public class Program
 
             // After the configuration is loaded, delete the appsettings.debug.json file
             // if it is present, as it is already loaded into memory.
-            if (File.Exists(BuildEnvironment.DebugAppsettingsFilePath))
+            if (File.Exists(BuildEnvironment.ConfigurationDirectoryAppsettingsDebugFilePath))
             {
-                logger.LogInformation("Using debug appsettings file.");
+                logger.LogInformation("Using appsettings.debug.json file for configuration.");
 
-                File.Delete(BuildEnvironment.DebugAppsettingsFilePath);
+                File.Delete(BuildEnvironment.ConfigurationDirectoryAppsettingsDebugFilePath);
             }
 
             app.UseCors(x =>

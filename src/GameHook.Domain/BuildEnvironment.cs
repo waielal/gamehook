@@ -44,9 +44,9 @@ public static class BuildEnvironment
 
     public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
 
-    public static string AppsettingsFilePath => Path.Combine(ConfigurationDirectory, "GameHook.json");
-    public static string AppsettingsFilePath2 => Path.Combine(BinaryDirectory, "GameHook.json");
-    public static string DebugAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "GameHook.debug.json");
+    public static string ConfigurationDirectoryAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.json");
+    public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
+    public static string ConfigurationDirectoryAppsettingsDebugFilePath => Path.Combine(ConfigurationDirectory, "appsettings.debug.json");
 
 #if DEBUG
     public static bool IsDebug = true;
