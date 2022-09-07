@@ -10,7 +10,10 @@ namespace GameHook.Domain.Interfaces
     public class PreprocessorPropertyResult
     {
         public MemoryAddress? Address { get; init; }
-        public byte[]? Bytes { get; init; }
+
+        public byte[]? PreBytes { get; init; }
+        
+        public byte[]? PostBytes { get; init; }
     }
 
     public class GameHookPropertyProcessResult

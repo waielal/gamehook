@@ -42,7 +42,6 @@ namespace GameHook.Application
             get
             {
                 if (Address == null) return true;
-                if (string.IsNullOrEmpty(MapperVariables.Preprocessor) == false) return true;
 
                 return false;
             }
@@ -65,7 +64,10 @@ namespace GameHook.Application
         {
             var result = new GameHookPropertyProcessResult();
 
+            // preBytes is used by preprocessors if
+            // it needed to decrypt something.
             uint? address = null;
+            byte[]? preBytes = null;
             byte[]? bytes = null;
 
             // Fetch address and bytes.
@@ -78,13 +80,14 @@ namespace GameHook.Application
                 var offset = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(1);
 
                 var preprocessorResult = Preprocessors.data_block_a245dcac(structureIndex, offset, MapperVariables.Size, decryptedDataBlock);
-                if (preprocessorResult.Address == null || preprocessorResult.Bytes == null)
+                if (preprocessorResult.Address == null || preprocessorResult.PostBytes == null)
                 {
-                    throw new Exception($"Preprocessor data_block_a245dcac returned null on path '{Path}'.");
+                    throw new Exception($"Preprocessor data_block_a245dcac returned no bytes on path '{Path}'.");
                 }
 
                 address = preprocessorResult.Address;
-                bytes = preprocessorResult.Bytes;
+                preBytes = preprocessorResult.PreBytes;
+                bytes = preprocessorResult.PostBytes;
             }
             else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("dma_967d10cc"))
             {
@@ -202,7 +205,7 @@ namespace GameHook.Application
             }
 
             Address = address;
-            Bytes = bytes;
+            Bytes = preBytes ?? bytes;
             Value = value;
 
             if (result.FieldsChanged.Count > 0)

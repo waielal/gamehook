@@ -7,6 +7,8 @@ namespace GameHook.Domain.Preprocessors
     {
         public MemoryAddress Address { get; init; }
         public int[] SubstructureOrdering { get; init; } = new int[0];
+
+        public byte[] EncryptedData { get; init; } = new byte[0];
         public byte[] DecryptedData { get; init; } = new byte[0];
     }
 
@@ -16,11 +18,14 @@ namespace GameHook.Domain.Preprocessors
         public static DataBlock_a245dcac decrypt_data_block_a245dcac(IEnumerable<MemoryAddressBlockResult> blocks, uint startingAddress)
         {
             // Starting Address is the start of the P data structure.
-            var block = blocks.GetResultWithinRange(startingAddress) ?? throw new Exception($"Unable to retrieve memory block for address {startingAddress.ToHexdecimalString()}.");
-            var pStructure = block.GetRelativeAddress(startingAddress, 48 + 32);
+            var memoryAddressBlock = blocks.GetResultWithinRange(startingAddress) ?? throw new Exception($"Unable to retrieve memory block for address {startingAddress.ToHexdecimalString()}.");
 
-            var personalityValue = UnsignedIntegerTransformer.ToValue(block.GetRelativeAddress(startingAddress, 4));
-            var originalTrainerId = UnsignedIntegerTransformer.ToValue(block.GetRelativeAddress(startingAddress + 4, 4));
+            // The encrypted data block starts 32 bytes from the start of the p structure.
+            var encryptedDataBlockStartOffset = (uint)32;
+            var encryptedDataBlock = memoryAddressBlock.GetRelativeAddress(startingAddress + encryptedDataBlockStartOffset, 48);
+
+            var personalityValue = UnsignedIntegerTransformer.ToValue(memoryAddressBlock.GetRelativeAddress(startingAddress + encryptedDataBlockStartOffset, 4));
+            var originalTrainerId = UnsignedIntegerTransformer.ToValue(memoryAddressBlock.GetRelativeAddress(startingAddress + encryptedDataBlockStartOffset + 4, 4));
 
             // The order of the structures is determined by the personality value of the P modulo 24,
             // as shown below, where G, A, E, and M stand for the substructures growth, attacks, EVs and condition, and miscellaneous, respectively.
@@ -60,16 +65,17 @@ namespace GameHook.Domain.Preprocessors
 
             // This key can then be used to decrypt the encrypted data block (starting at offset 32)
             // by XORing it, 32 bits (or 4 bytes) at a time.
-            var decryptedByteArray = pStructure
-                .Skip(32).Chunk(4)
+            var decryptedByteArray = encryptedDataBlock
+                .Chunk(4)
                 .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x) ^ decryptionKey))
                 .ToArray();
 
             // Return the byte array decrypted.
             return new DataBlock_a245dcac()
             {
-                Address = startingAddress,
+                Address = startingAddress + encryptedDataBlockStartOffset,
                 SubstructureOrdering = substructureOrder,
+                EncryptedData = encryptedDataBlock,
                 DecryptedData = decryptedByteArray
             };
         }
@@ -83,7 +89,8 @@ namespace GameHook.Domain.Preprocessors
             return new PreprocessorPropertyResult()
             {
                 Address = (MemoryAddress)(decryptedDataBlock.Address + propertyStartingOffset),
-                Bytes = decryptedDataBlock.DecryptedData[propertyStartingOffset..propertyEndingOffset]
+                PreBytes = decryptedDataBlock.EncryptedData[propertyStartingOffset..propertyEndingOffset],
+                PostBytes = decryptedDataBlock.DecryptedData[propertyStartingOffset..propertyEndingOffset]
             };
         }
     }
