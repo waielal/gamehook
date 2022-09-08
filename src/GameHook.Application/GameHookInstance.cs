@@ -204,8 +204,6 @@ namespace GameHook.Application
                     throw new PropertyProcessException($"Failed to process propery {x.Path}.", ex);
                 }
             }).ToArray());
-
-            Console.WriteLine($"player.team.0.nickname is {Mapper.Properties.Single(x => x.Path == "player.team.0.nickname").Value}.");
         }
     }
 }
