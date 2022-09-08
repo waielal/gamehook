@@ -7,14 +7,22 @@ namespace GameHook.Domain.Interfaces
         public Dictionary<MemoryAddress, DataBlock_a245dcac>? data_block_a245dcac { get; set; }
     }
 
-    public class PreprocessorPropertyResult
+    public class PreprocessorPropertyReadResult
     {
         public MemoryAddress? Address { get; init; }
 
         public byte[]? PreBytes { get; init; }
-        
+
         public byte[]? PostBytes { get; init; }
     }
+
+    public class PreprocessorPropertyWriteResult
+    {
+        public MemoryAddress Address { get; init; }
+
+        public byte[] Bytes { get; init; } = Array.Empty<byte>();
+    }
+
 
     public class GameHookPropertyProcessResult
     {
@@ -62,7 +70,7 @@ namespace GameHook.Domain.Interfaces
 
         string? CharacterMap { get; }
 
-        Task<GameHookPropertyProcessResult> Process(IEnumerable<MemoryAddressBlockResult> driverResult, PreprocessorCache preprocessorCache);
+        Task<GameHookPropertyProcessResult> Process(IEnumerable<MemoryAddressBlockResult> driverResult);
         Task WriteValue(object value, bool? freeze);
         Task WriteBytes(byte[] bytes, bool? freeze);
         Task FreezeProperty(byte[] bytesFrozen);

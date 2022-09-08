@@ -4,7 +4,7 @@ namespace GameHook.Domain.Preprocessors
 {
     public static partial class Preprocessors
     {
-        public static PreprocessorPropertyResult dma_967d10cc(MemoryAddress memoryAddress, int size, int offset, MemoryAddressBlockResult memoryAddressBlockResult)
+        public static PreprocessorPropertyReadResult dma_967d10cc(MemoryAddress memoryAddress, int size, int offset, MemoryAddressBlockResult memoryAddressBlockResult)
         {
             var dmaMemoryAddressBytes = memoryAddressBlockResult.GetRelativeAddress(memoryAddress, size);
             var dmaMemoryAddressValue = ValueTransformers.UnsignedIntegerTransformer.ToValue(dmaMemoryAddressBytes);
@@ -13,12 +13,12 @@ namespace GameHook.Domain.Preprocessors
             // This can happen if the game is in the middle of a reset.
             if (dmaMemoryAddressValue == 0)
             {
-                return new PreprocessorPropertyResult() { Address = null };
+                return new PreprocessorPropertyReadResult() { Address = null };
             }
 
             var actualMemoryAddress = (MemoryAddress)(dmaMemoryAddressValue + offset);
 
-            return new PreprocessorPropertyResult()
+            return new PreprocessorPropertyReadResult()
             {
                 Address = actualMemoryAddress
             };

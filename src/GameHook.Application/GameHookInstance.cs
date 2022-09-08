@@ -23,6 +23,7 @@ namespace GameHook.Application
         private CancellationTokenSource? ReadLoopToken { get; set; }
         public IGameHookDriver? Driver { get; private set; }
         public GameHookMapper? Mapper { get; private set; }
+        public PreprocessorCache? PreprocessorCache { get; private set; }
         public IPlatformOptions? PlatformOptions { get; private set; }
         public IEnumerable<MemoryAddressBlock>? BlocksToRead { get; private set; }
         public const int DELAY_MS_BETWEEN_READS = 25;
@@ -158,7 +159,7 @@ namespace GameHook.Application
 
             // Preprocessor Cache
             // Certain preprocessors are costly to run for every property, so cache them here.
-            var preprocessorCache = new PreprocessorCache();
+            PreprocessorCache = new PreprocessorCache();
 
             // data_block_a245dcac
             var dataBlock_a245dcac_Properties = Mapper.Properties
@@ -168,13 +169,13 @@ namespace GameHook.Application
 
             if (dataBlock_a245dcac_Properties != null)
             {
-                preprocessorCache.data_block_a245dcac = new Dictionary<MemoryAddress, DataBlock_a245dcac>();
+                PreprocessorCache.data_block_a245dcac = new Dictionary<MemoryAddress, DataBlock_a245dcac>();
 
                 // Key is the starting memory address block.
                 dataBlock_a245dcac_Properties.ForEach(x =>
                 {
                     Logger.LogDebug($"Creating a preprocessor cache for data_block_a245dcac[{x.Key}].");
-                    preprocessorCache.data_block_a245dcac[x.Key] = Preprocessors.decrypt_data_block_a245dcac(driverResult, x.Key);
+                    PreprocessorCache.data_block_a245dcac[x.Key] = Preprocessors.decrypt_data_block_a245dcac(driverResult, x.Key);
                 });
             }
 
@@ -183,7 +184,7 @@ namespace GameHook.Application
             {
                 try
                 {
-                    await x.Process(driverResult, preprocessorCache);
+                    await x.Process(driverResult);
                 }
                 catch (Exception ex)
                 {

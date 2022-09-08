@@ -60,8 +60,9 @@ namespace GameHook.Application
             return workingBytes;
         }
 
-        public async Task<GameHookPropertyProcessResult> Process(IEnumerable<MemoryAddressBlockResult> driverResult, PreprocessorCache preprocessorCache)
+        public async Task<GameHookPropertyProcessResult> Process(IEnumerable<MemoryAddressBlockResult> driverResult)
         {
+            var preprocessorCache = GameHookInstance.PreprocessorCache ?? throw new Exception("GameHookInstance.PreprocessorCache is NULL.");
             var result = new GameHookPropertyProcessResult();
 
             // preBytes is used by preprocessors if
@@ -79,7 +80,7 @@ namespace GameHook.Application
                 var structureIndex = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(0);
                 var offset = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(1);
 
-                var preprocessorResult = Preprocessors.data_block_a245dcac(structureIndex, offset, MapperVariables.Size, decryptedDataBlock);
+                var preprocessorResult = Preprocessors.read_data_block_a245dcac(structureIndex, offset, MapperVariables.Size, decryptedDataBlock);
                 if (preprocessorResult.Address == null || preprocessorResult.PostBytes == null)
                 {
                     throw new Exception($"Preprocessor data_block_a245dcac returned no bytes on path '{Path}'.");
@@ -219,14 +220,14 @@ namespace GameHook.Application
             return result;
         }
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task WriteValue(object value, bool? freeze)
         {
             if (IsReadOnly) throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
 
+            await Task.CompletedTask;
+
             throw new NotSupportedException();
         }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         public async Task WriteBytes(byte[] bytes, bool? freeze)
         {
@@ -237,7 +238,21 @@ namespace GameHook.Application
                 throw new Exception($"Property '{Path}' address is NULL.");
             }
 
-            await GameHookInstance.GetDriver().WriteBytes((uint)Address, bytes);
+            if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("data_block_a245dcac"))
+            {
+                var baseAddress = MapperVariables.Address ?? throw new Exception($"Property {Path} does not have a base address.");
+                var dataBlock = GameHookInstance.PreprocessorCache.data_block_a245dcac?[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address?.ToHexdecimalString()}.");
+
+                var writeResults = Preprocessors.write_data_block_a245dcac((uint)Address, bytes, dataBlock);
+                foreach (var result in writeResults)
+                {
+                    await GameHookInstance.GetDriver().WriteBytes(result.Address, result.Bytes);
+                }
+            }
+            else
+            {
+                await GameHookInstance.GetDriver().WriteBytes((uint)Address, bytes);
+            }
 
             if (freeze == true)
             {
