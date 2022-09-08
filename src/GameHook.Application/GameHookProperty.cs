@@ -166,7 +166,8 @@ namespace GameHook.Application
                     postprocessorExpression.Parameters["x"] = value;
                     postprocessorExpression.Parameters["y"] = bytes;
 
-                    value = postprocessorExpression.Evaluate();
+                    // TODO: We probably shouldn't hardcode int32 here -- probably should be dependent on the platform?
+                    value = Convert.ToInt32(postprocessorExpression.Evaluate());
                 }
 
                 if ((Type == "bit" || Type == "bool" || Type == "int" || Type == "uint") && string.IsNullOrEmpty(MapperVariables.Reference) == false)
