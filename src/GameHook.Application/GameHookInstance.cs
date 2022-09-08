@@ -159,7 +159,10 @@ namespace GameHook.Application
 
             // Preprocessor Cache
             // Certain preprocessors are costly to run for every property, so cache them here.
-            PreprocessorCache = new PreprocessorCache();
+            if (PreprocessorCache == null)
+            {
+                PreprocessorCache = new PreprocessorCache();
+            }
 
             // data_block_a245dcac
             var dataBlock_a245dcac_Properties = Mapper.Properties
@@ -167,30 +170,42 @@ namespace GameHook.Application
                 .GroupBy(x => x.MapperVariables.Address ?? 0)
                 .ToList();
 
-            if (dataBlock_a245dcac_Properties != null)
+            // Key is the starting memory address block.
+            dataBlock_a245dcac_Properties.ForEach(x =>
             {
-                PreprocessorCache.data_block_a245dcac = new Dictionary<MemoryAddress, DataBlock_a245dcac>();
-
-                // Key is the starting memory address block.
-                dataBlock_a245dcac_Properties.ForEach(x =>
-                {
-                    Logger.LogDebug($"Creating a preprocessor cache for data_block_a245dcac[{x.Key}].");
-                    PreprocessorCache.data_block_a245dcac[x.Key] = Preprocessors.decrypt_data_block_a245dcac(driverResult, x.Key);
-                });
-            }
+                PreprocessorCache.data_block_a245dcac.TryGetValue(x.Key, out var existingCache);
+                PreprocessorCache.data_block_a245dcac[x.Key] = Preprocessors.decrypt_data_block_a245dcac(existingCache, driverResult, x.Key);
+            });
 
             // Processor
             Task.WaitAll(Mapper.Properties.Select(async x =>
             {
                 try
                 {
-                    await x.Process(driverResult);
+                    var result = x.Process(driverResult);
+
+                    if (result.FieldsChanged.Any())
+                    {
+                        if (x.Frozen && x.BytesFrozen != null)
+                        {
+                            await x.WriteBytes(x.BytesFrozen, null);
+                        }
+                        else
+                        {
+                            Task.WaitAll(ClientNotifiers.Select(async notifier =>
+                            {
+                                await notifier.SendPropertyChanged(x, result.FieldsChanged.ToArray(), Mapper.UserSettings);
+                            }).ToArray());
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     throw new PropertyProcessException($"Failed to process propery {x.Path}.", ex);
                 }
             }).ToArray());
+
+            Console.WriteLine($"player.team.0.nickname is {Mapper.Properties.Single(x => x.Path == "player.team.0.nickname").Value}.");
         }
     }
 }

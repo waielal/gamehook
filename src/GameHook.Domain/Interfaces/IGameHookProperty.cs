@@ -4,29 +4,12 @@ namespace GameHook.Domain.Interfaces
 {
     public class PreprocessorCache
     {
-        public Dictionary<MemoryAddress, DataBlock_a245dcac>? data_block_a245dcac { get; set; }
+        public Dictionary<MemoryAddress, DataBlock_a245dcac_Cache> data_block_a245dcac { get; set; } = new Dictionary<MemoryAddress, DataBlock_a245dcac_Cache>();
     }
 
-    public class PreprocessorPropertyReadResult
+    public class PropertyValueResult
     {
-        public MemoryAddress? Address { get; init; }
-
-        public byte[]? PreBytes { get; init; }
-
-        public byte[]? PostBytes { get; init; }
-    }
-
-    public class PreprocessorPropertyWriteResult
-    {
-        public MemoryAddress Address { get; init; }
-
-        public byte[] Bytes { get; init; } = Array.Empty<byte>();
-    }
-
-
-    public class GameHookPropertyProcessResult
-    {
-        public List<string> FieldsChanged { get; init; } = new List<string>();
+        public IEnumerable<string> FieldsChanged { get; init; } = new List<string>();
     }
 
     public class GameHookMapperVariables
@@ -70,7 +53,7 @@ namespace GameHook.Domain.Interfaces
 
         string? CharacterMap { get; }
 
-        Task<GameHookPropertyProcessResult> Process(IEnumerable<MemoryAddressBlockResult> driverResult);
+        PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult);
         Task WriteValue(object value, bool? freeze);
         Task WriteBytes(byte[] bytes, bool? freeze);
         Task FreezeProperty(byte[] bytesFrozen);

@@ -1,10 +1,8 @@
-﻿using System.Linq;
-using GameHook.Domain.Interfaces;
-using GameHook.Domain.ValueTransformers;
+﻿using GameHook.Domain.ValueTransformers;
 
 namespace GameHook.Domain.Preprocessors
 {
-    public class DataBlock_a245dcac
+    public class DataBlock_a245dcac_Cache
     {
         public MemoryAddress Address { get; init; }
         public uint DecryptionKey { get; init; }
@@ -13,6 +11,20 @@ namespace GameHook.Domain.Preprocessors
 
         public byte[] EncryptedData { get; init; } = new byte[0];
         public byte[] DecryptedData { get; init; } = new byte[0];
+    }
+
+    public class DataBlock_a245dcac_ReadResult
+    {
+        public MemoryAddress Address { get; init; }
+
+        public byte[] EncryptedData { get; init; } = new byte[0];
+        public byte[] DecryptedData { get; init; } = new byte[0];
+    }
+
+    public class DataBlock_a245dcac_WriteResult
+    {
+        public MemoryAddress Address { get; init; }
+        public byte[] Bytes { get; init; } = Array.Empty<byte>();
     }
 
     public static partial class Preprocessors
@@ -50,14 +62,19 @@ namespace GameHook.Domain.Preprocessors
             };
         }
 
-        public static DataBlock_a245dcac decrypt_data_block_a245dcac(IEnumerable<MemoryAddressBlockResult> blocks, uint startingAddress)
+        public static DataBlock_a245dcac_Cache decrypt_data_block_a245dcac(DataBlock_a245dcac_Cache? existingCache, IEnumerable<MemoryAddressBlockResult> blocks, uint startingAddress)
         {
             // Starting Address is the start of the P data structure.
             var memoryAddressBlock = blocks.GetResultWithinRange(startingAddress) ?? throw new Exception($"Unable to retrieve memory block for address {startingAddress.ToHexdecimalString()}.");
 
             // The encrypted data block starts 32 bytes from the start of the p structure.
             var encryptedDataStructureStartingAddress = startingAddress + 32;
-            var encryptedDataStructure = memoryAddressBlock.GetRelativeAddress(encryptedDataStructureStartingAddress, 48);
+            var encryptedData = memoryAddressBlock.GetRelativeAddress(encryptedDataStructureStartingAddress, 48);
+
+            if (existingCache != null && existingCache.EncryptedData.SequenceEqual(encryptedData))
+            {
+                return existingCache;
+            }
 
             var personalityValue = UnsignedIntegerTransformer.ToValue(memoryAddressBlock.GetRelativeAddress(startingAddress, 4));
             var originalTrainerId = UnsignedIntegerTransformer.ToValue(memoryAddressBlock.GetRelativeAddress(startingAddress + 4, 4));
@@ -76,38 +93,38 @@ namespace GameHook.Domain.Preprocessors
 
             // This key can then be used to decrypt the encrypted data block (starting at offset 32)
             // by XORing it, 32 bits (or 4 bytes) at a time.
-            var decryptedByteArray = encryptedDataStructure
+            var decryptedData = encryptedData
                 .Chunk(4)
                 .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x) ^ decryptionKey))
                 .ToArray();
 
             // Return the byte array decrypted.
-            return new DataBlock_a245dcac()
+            return new DataBlock_a245dcac_Cache()
             {
                 Address = encryptedDataStructureStartingAddress,
                 DecryptionKey = decryptionKey,
                 Checksum = checksum,
                 SubstructureOrdering = substructureOrder,
-                EncryptedData = encryptedDataStructure,
-                DecryptedData = decryptedByteArray
+                EncryptedData = encryptedData,
+                DecryptedData = decryptedData
             };
         }
 
-        public static PreprocessorPropertyReadResult read_data_block_a245dcac(int structureIndex, int offset, int size, DataBlock_a245dcac decryptedDataBlock)
+        public static DataBlock_a245dcac_ReadResult read_data_block_a245dcac(int structureIndex, int offset, int size, DataBlock_a245dcac_Cache decryptedDataBlock)
         {
             var structurePositionForProperty = decryptedDataBlock.SubstructureOrdering[structureIndex];
             var propertyStartingOffset = (structurePositionForProperty * 12) + offset;
             var propertyEndingOffset = propertyStartingOffset + size;
 
-            return new PreprocessorPropertyReadResult()
+            return new DataBlock_a245dcac_ReadResult()
             {
                 Address = (MemoryAddress)(decryptedDataBlock.Address + propertyStartingOffset),
-                PreBytes = decryptedDataBlock.EncryptedData[propertyStartingOffset..propertyEndingOffset],
-                PostBytes = decryptedDataBlock.DecryptedData[propertyStartingOffset..propertyEndingOffset]
+                EncryptedData = decryptedDataBlock.EncryptedData[propertyStartingOffset..propertyEndingOffset],
+                DecryptedData = decryptedDataBlock.DecryptedData[propertyStartingOffset..propertyEndingOffset]
             };
         }
 
-        public static IEnumerable<PreprocessorPropertyWriteResult> write_data_block_a245dcac(uint address, byte[] bytes, DataBlock_a245dcac dataBlock)
+        public static IEnumerable<DataBlock_a245dcac_WriteResult> write_data_block_a245dcac(uint address, byte[] bytes, DataBlock_a245dcac_Cache dataBlock)
         {
             var newDecryptedData = (byte[])dataBlock.DecryptedData.Clone();
             bytes.CopyTo(newDecryptedData, address - dataBlock.Address);
@@ -123,10 +140,10 @@ namespace GameHook.Domain.Preprocessors
             var newChecksum = newDecryptedData.Chunk(2).Select(IntegerTransformer.ToValue).Sum();
             var newChecksumBytes = UnsignedIntegerTransformer.FromValue((uint)newChecksum).Take(2).ToArray();
 
-            return new List<PreprocessorPropertyWriteResult>()
+            return new List<DataBlock_a245dcac_WriteResult>()
             {
-                new PreprocessorPropertyWriteResult() { Address = dataBlock.Address, Bytes = encryptedByteArray },
-                new PreprocessorPropertyWriteResult() { Address = dataBlock.Address - 4, Bytes = newChecksumBytes }
+                new DataBlock_a245dcac_WriteResult() { Address = dataBlock.Address, Bytes = encryptedByteArray },
+                new DataBlock_a245dcac_WriteResult() { Address = dataBlock.Address - 4, Bytes = newChecksumBytes }
             };
         }
     }

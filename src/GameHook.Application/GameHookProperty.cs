@@ -60,15 +60,16 @@ namespace GameHook.Application
             return workingBytes;
         }
 
-        public async Task<GameHookPropertyProcessResult> Process(IEnumerable<MemoryAddressBlockResult> driverResult)
+        private static readonly PropertyValueResult EmptyPropertyValueResult = new PropertyValueResult();
+        public PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult)
         {
             var preprocessorCache = GameHookInstance.PreprocessorCache ?? throw new Exception("GameHookInstance.PreprocessorCache is NULL.");
-            var result = new GameHookPropertyProcessResult();
 
             // preBytes is used by preprocessors if
             // it needed to decrypt something.
+            var fieldsChanged = new List<string>();
             uint? address = null;
-            byte[]? preBytes = null;
+            byte[]? rawBytes = null;
             byte[]? bytes = null;
 
             // Fetch address and bytes.
@@ -81,14 +82,9 @@ namespace GameHook.Application
                 var offset = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(1);
 
                 var preprocessorResult = Preprocessors.read_data_block_a245dcac(structureIndex, offset, MapperVariables.Size, decryptedDataBlock);
-                if (preprocessorResult.Address == null || preprocessorResult.PostBytes == null)
-                {
-                    throw new Exception($"Preprocessor data_block_a245dcac returned no bytes on path '{Path}'.");
-                }
-
                 address = preprocessorResult.Address;
-                preBytes = preprocessorResult.PreBytes;
-                bytes = preprocessorResult.PostBytes;
+                rawBytes = preprocessorResult.EncryptedData;
+                bytes = preprocessorResult.DecryptedData;
             }
             else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("dma_967d10cc"))
             {
@@ -101,12 +97,11 @@ namespace GameHook.Application
                     throw new Exception($"Unable to retrieve memory block for property {Path} at address {memoryAddress.ToHexdecimalString()}.");
                 }
 
-                var preprocessorResult = Preprocessors.dma_967d10cc(memoryAddress, size: 4, offset, memoryBlock);
-                if (preprocessorResult.Address != null)
-                {
-                    address = preprocessorResult.Address;
-                    bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
-                }
+                var dmaAddress = Preprocessors.dma_967d10cc(memoryAddress, size: 4, offset, memoryBlock);
+                if (dmaAddress == null) { return EmptyPropertyValueResult; }
+
+                address = dmaAddress;
+                bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
             }
             else if (MapperVariables.Address != null)
             {
@@ -122,21 +117,15 @@ namespace GameHook.Application
             // This can happen if the game is in the middle of a reset.
             if (address == null && bytes == null)
             {
-                return result;
+                return EmptyPropertyValueResult;
             }
 
             // Data validation.
             if (address == null) throw new Exception($"Unable to retrieve address for property '{Path}'");
             if (bytes == null) throw new Exception($"Unable to retrieve bytes for property '{Path}' at address {address?.ToHexdecimalString()}. Is the address within the drivers' memory address block ranges?");
 
-            // Determine if we need to reset a frozen property.
-            if (Bytes?.SequenceEqual(bytes) == false && Frozen)
-            {
-                await GameHookInstance.GetDriver().WriteBytes(address ?? 0, BytesFrozen ?? throw new Exception("Attempted to force a frozen bytes, but BytesFrozen was NULL."));
-            }
-
             object? value;
-            if (Address == address && Bytes?.SequenceEqual(bytes) == true)
+            if (Address == address && Bytes?.SequenceEqual(rawBytes ?? bytes) == true)
             {
                 // Fast path - if the bytes match, then we can assume the property has not been
                 // updated since last poll.
@@ -164,7 +153,6 @@ namespace GameHook.Application
                 {
                     var postprocessorExpression = new Expression(MapperVariables.Postprocessor);
                     postprocessorExpression.Parameters["x"] = value;
-                    postprocessorExpression.Parameters["y"] = bytes;
 
                     // TODO: We probably shouldn't hardcode int32 here -- probably should be dependent on the platform?
                     value = Convert.ToInt32(postprocessorExpression.Evaluate());
@@ -178,12 +166,12 @@ namespace GameHook.Application
 
             if (Address?.Equals(address) == false)
             {
-                result.FieldsChanged.Add("address");
+                fieldsChanged.Add("address");
             }
 
-            if (Bytes?.SequenceEqual(bytes) == false)
+            if (Bytes?.SequenceEqual(rawBytes ?? bytes) == false)
             {
-                result.FieldsChanged.Add("bytes");
+                fieldsChanged.Add("bytes");
             }
 
             // Depending on the data type, we might need to compare values differently.
@@ -191,34 +179,29 @@ namespace GameHook.Application
             {
                 if (Value != null && value != null && ((bool[])Value).SequenceEqual(((bool[])value)) == false)
                 {
-                    result.FieldsChanged.Add("value");
+                    fieldsChanged.Add("value");
                 }
             }
             else
             {
                 if (Value == null && value != null)
                 {
-                    result.FieldsChanged.Add("value");
+                    fieldsChanged.Add("value");
                 }
                 else if (Value?.Equals(value) == false)
                 {
-                    result.FieldsChanged.Add("value");
+                    fieldsChanged.Add("value");
                 }
             }
 
             Address = address;
-            Bytes = preBytes ?? bytes;
+            Bytes = rawBytes ?? bytes;
             Value = value;
 
-            if (result.FieldsChanged.Count > 0)
+            return new PropertyValueResult()
             {
-                foreach (var notifier in GameHookInstance.ClientNotifiers)
-                {
-                    _ = notifier.SendPropertyChanged(this, result.FieldsChanged.ToArray(), MapperUserSettings);
-                }
-            }
-
-            return result;
+                FieldsChanged = fieldsChanged
+            };
         }
 
         public async Task WriteValue(object value, bool? freeze)
@@ -242,7 +225,7 @@ namespace GameHook.Application
             if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("data_block_a245dcac"))
             {
                 var baseAddress = MapperVariables.Address ?? throw new Exception($"Property {Path} does not have a base address.");
-                var dataBlock = GameHookInstance.PreprocessorCache.data_block_a245dcac?[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address?.ToHexdecimalString()}.");
+                var dataBlock = GameHookInstance.PreprocessorCache?.data_block_a245dcac[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address?.ToHexdecimalString()}.");
 
                 var writeResults = Preprocessors.write_data_block_a245dcac((uint)Address, bytes, dataBlock);
                 foreach (var result in writeResults)
