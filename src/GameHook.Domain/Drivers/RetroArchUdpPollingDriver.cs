@@ -175,11 +175,13 @@ namespace GameHook.Domain.Drivers
 
         public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
         {
-            return (await Task.WhenAll(blocks.Select(async x =>
+            var results = await Task.WhenAll(blocks.Select(async x =>
             {
                 var data = await ReadMemoryAddress(x.StartingAddress, x.EndingAddress - x.StartingAddress);
                 return new MemoryAddressBlockResult(x.Index, x.Name, x.StartingAddress, x.EndingAddress, data);
-            }))).ToList();
+            }));
+
+            return results.ToList();
         }
     }
 }

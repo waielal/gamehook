@@ -1,13 +1,31 @@
-﻿using Newtonsoft.Json.Linq;
-using OpenAPI.GameHook;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Linq;
 using System.Threading.Tasks;
+using GameHook.Domain.Interfaces;
+using GameHook.IntegrationTests.Fakes;
+using GameHook.WebAPI;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Linq;
+using OpenAPI.GameHook;
+using Serilog;
 using A = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace GameHook.IntegrationTests
 {
+    public static class ValueConverters
+    {
+        public static IEnumerable<T> ValueToTypeArray<T>(this PropertyModel model)
+        {
+            return ((JArray)model.Value).ToObject<List<T>>() ??
+                throw new Exception($"Could not cast {model.Path}'s value to {typeof(T)}");
+        }
+    }
+
     public static class Assert
     {
         public static void AreValuesEqual(long expected, object actual)
@@ -23,7 +41,8 @@ namespace GameHook.IntegrationTests
         public static void AreValueArraysEqual(List<bool> expected, JArray actual)
         {
             var actualConverted = actual.ToObject<List<bool>>() ?? throw new Exception("Unable to convert JArray.");
-            A.AreEqual(string.Join(", ", expected), string.Join(", ", actualConverted));
+
+            A.IsTrue(expected.SequenceEqual(actualConverted));
         }
 
         public static void ArePropertiesEqual(PropertyModel expected, PropertyModel actual)
@@ -42,7 +61,7 @@ namespace GameHook.IntegrationTests
 
         public static void AreBytesEqual(ICollection<int> expected, ICollection<int> actual)
         {
-            A.AreEqual(string.Join(' ', expected), string.Join(' ', actual));
+            A.IsTrue(expected.SequenceEqual(actual));
         }
 
         public static void AreEqual(object expected, object? actual)
@@ -76,26 +95,66 @@ namespace GameHook.IntegrationTests
         }
     }
 
+    public class TestPropertyAssertModel
+    {
+        public uint? Address { get; init; }
+        public List<int>? Bytes { get; init; }
+        public string? Description { get; init; }
+        public int? Position { get; init; }
+        public string Path { get; init; }
+        public string Reference { get; init; }
+        public int? Size { get; init; }
+        public string Type { get; init; }
+        public object? Value { get; init; }
+    }
+
     public abstract class BaseTest
     {
+        private IHost Server { get; }
         protected GameHookClient GameHookClient { get; }
+        protected FakeDriver FakeDriver { get; }
 
         public BaseTest()
         {
-            var httpClient = new HttpClient();
-            GameHookClient = new GameHookClient("http://localhost:8085", httpClient);
+            var testConfiguration = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
+
+            Server = new HostBuilder()
+                .ConfigureWebHost(host =>
+                {
+                    host
+                        .UseTestServer()
+                        .UseSerilog((ctx, conf) =>
+                        {
+                            conf.ReadFrom.Configuration(ctx.Configuration);
+                        })
+                        .UseConfiguration(testConfiguration)
+                        .UseStartup<Startup>()
+                        .ConfigureTestServices(x =>
+                        {
+                            x.Remove(x.Single(x => x.ServiceType == typeof(IGameHookDriver)));
+                            x.AddSingleton<IGameHookDriver, FakeDriver>();
+                        });
+                })
+                .Start();
+
+            FakeDriver = (FakeDriver)Server.Services.GetRequiredService<IGameHookDriver>();
+            GameHookClient = new GameHookClient("http://localhost:8085", Server.GetTestClient());
         }
 
         public async Task Load_GB_PokemonYellow()
         {
+            FakeDriver.LoadFakeMemoryAddressBlockResult("005fdd01-8921-468c-aca3-d4fa864d5911-1.json");
+
             await GameHookClient.ChangeMapperAsync(new MapperReplaceModel()
             {
                 Id = "ff4d0e23c73b21068ef1f5deffb6b6ea"
             });
         }
 
-        public async Task Load_GBA_PokemonFireRed()
+        public async Task Load_GBA_PokemonEmerald()
         {
+            FakeDriver.LoadFakeMemoryAddressBlockResult("005fdd01-8921-468c-aca3-d4fa864d5911-1.json");
+
             await GameHookClient.ChangeMapperAsync(new MapperReplaceModel()
             {
                 Id = "e7b0c74604392f58774cd2d122f3d011"

@@ -113,12 +113,7 @@ namespace GameHook.Application
                 ReadLoopToken = new CancellationTokenSource();
                 _ = Task.Run(ReadLoop, ReadLoopToken.Token);
 
-                Logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName}.");
-
-                if (GameHookConfiguration.OutputAllPropertiesToFilesystem)
-                {
-                    Logger.LogInformation("Outputting properties to filesystem.");
-                }
+                Logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName} ({Mapper.Metadata.Id}).");
             }
             catch (Exception ex)
             {

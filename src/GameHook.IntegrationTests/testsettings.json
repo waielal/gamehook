@@ -1,11 +1,11 @@
-{
+﻿{
     "DRIVER_LISTEN_IP_ADDRESS": "127.0.0.1",
     "DRIVER_LISTEN_PORT": "55355",
     "DRIVER_TIMEOUT_COUNTER": 10,
 
     "OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM": false,
 
-    "AUTOMATIC_MAPPER_UPDATES": true,
+    "AUTOMATIC_MAPPER_UPDATES": false,
     "CHECK_FOR_MAPPER_UPDATES_MINUTES": 1440,
 
     "Urls": "http://localhost:8085",
@@ -25,14 +25,6 @@
             {
                 "Name": "Console",
                 "Args": {
-                    "OutputTemplate": "{Timestamp:HH:mm} [{Level}] ({SourceContext}) {Message}{NewLine}{Exception}"
-                }
-            },
-            {
-                "Name": "File",
-                "Args": {
-                    "path": "gamehook.log",
-                    "fileSizeLimitBytes": 16000000,
                     "OutputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] ({SourceContext}) {Message}{NewLine}{Exception}"
                 }
             }

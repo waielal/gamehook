@@ -36,7 +36,7 @@ public static class BuildEnvironment
         }
     }
 
-    public static string BinaryDirectory =>
+    private static string BinaryDirectory =>
         Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new Exception("Could not determine the binary directory.");
 
     public static string ConfigurationDirectory =>
@@ -46,15 +46,12 @@ public static class BuildEnvironment
 
     public static string ConfigurationDirectoryAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.json");
     public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
-    public static string ConfigurationDirectoryAppsettingsDebugFilePath => Path.Combine(ConfigurationDirectory, "appsettings.debug.json");
 
 #if DEBUG
-    public static bool IsDebug = true;
+    public static bool IsDebug => true;
     public static bool IsTestingBuild => true;
-    public static bool IsPublicBuild => false;
 #else
     public static bool IsDebug = false;
     public static bool IsTestingBuild => AssemblyVersion == "0.0.0.0";
-    public static bool IsPublicBuild => AssemblyVersion != "0.0.0.0";
 #endif
 }

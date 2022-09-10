@@ -115,6 +115,8 @@ namespace GameHook.Domain.Infrastructure
                 if (AutomaticMapperUpdates == false)
                 {
                     Logger.LogInformation("Skipping update checks due to being disabled in configuration.");
+
+                    return false;
                 }
                 else if (CheckForMapperUpdatesMinutes == 0 ||
                          (MapperData.LastCheckedDate.HasValue == false || MapperData.LastCheckedDate.HasValue && (DateTime.UtcNow - MapperData.LastCheckedDate.Value).Minutes > CheckForMapperUpdatesMinutes) ||
@@ -136,19 +138,22 @@ namespace GameHook.Domain.Infrastructure
                         MapperData.LastLocalCommit = latestCommit;
                     }
 
-                    Logger.LogInformation("GameHook will periodically check for mapper updates and download them. If you do not want this, please disable it in the configuration.");
+                    Logger.LogInformation("GameHook will periodically check for mapper updates and download them.");
+                    Logger.LogInformation("If you do not want this, please disable it in the configuration.");
 
                     MapperData.LastLocalVersion = latestVersion;
                     MapperData.LastCheckedDate = DateTime.UtcNow;
+
+                    await WriteMapperData();
+
+                    return true;
                 }
                 else
                 {
                     Logger.LogDebug("Not enough time has passed before doing another update check -- skipping.");
+
+                    return false;
                 }
-
-                await WriteMapperData();
-
-                return true;
             }
             catch (Exception ex)
             {
