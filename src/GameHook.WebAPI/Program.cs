@@ -3,7 +3,7 @@ using Serilog;
 
 public class Program
 {
-    static void Main()
+    public static void Main()
     {
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
 

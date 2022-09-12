@@ -171,7 +171,7 @@ namespace GameHook.WPF
 
         public MainWindow()
         {
-            if (BuildEnvironment.IsPublicBuild)
+            if (BuildEnvironment.IsDebug == false)
             {
                 AutoUpdater.AppTitle = "GameHook";
 
@@ -229,7 +229,7 @@ namespace GameHook.WPF
                 GridWebView.Visibility = Visibility.Visible;
             }
 
-            Task.Run(async () => await Program.Start());
+            Task.Run(Program.Main);
         }
 
         protected override async void OnContentRendered(EventArgs e)
