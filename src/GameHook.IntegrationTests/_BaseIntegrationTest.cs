@@ -141,24 +141,17 @@ namespace GameHook.IntegrationTests
             GameHookClient = new GameHookClient("http://localhost:8085", Server.GetTestClient());
         }
 
-        public async Task Load_GB_PokemonYellow()
+        public async Task LoadMapperAndRamState(string mapperId, string mapperReplaceId, int n)
         {
-            FakeDriver.LoadFakeMemoryAddressBlockResult("005fdd01-8921-468c-aca3-d4fa864d5911-1.json");
+            FakeDriver.LoadFakeMemoryAddressBlockResult($"{mapperId}-{n}.json");
 
             await GameHookClient.ChangeMapperAsync(new MapperReplaceModel()
             {
-                Id = "ff4d0e23c73b21068ef1f5deffb6b6ea"
+                Id = mapperReplaceId
             });
         }
 
-        public async Task Load_GBA_PokemonEmerald()
-        {
-            FakeDriver.LoadFakeMemoryAddressBlockResult("005fdd01-8921-468c-aca3-d4fa864d5911-1.json");
-
-            await GameHookClient.ChangeMapperAsync(new MapperReplaceModel()
-            {
-                Id = "e7b0c74604392f58774cd2d122f3d011"
-            });
-        }
+        public async Task Load_GB_PokemonYellow(int n) => await LoadMapperAndRamState("b2b7d2d6-5cf0-4db1-9152-1efc7fe36926", string.Empty, n);
+        public async Task Load_GBA_PokemonEmerald(int n) => await LoadMapperAndRamState("005fdd01-8921-468c-aca3-d4fa864d5911", "5708b192924d1503cb0f181c192abe72", n);
     }
 }

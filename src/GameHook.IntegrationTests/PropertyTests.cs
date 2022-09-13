@@ -11,7 +11,7 @@ namespace GameHook.IntegrationTests
         [TestMethod]
         public async Task Property_OK_BinaryCodedDecimal()
         {
-            await Load_GB_PokemonYellow();
+            await Load_GB_PokemonYellow(0);
 
             var mapper = await GameHookClient.GetMapperAsync();
             var bcdValue_1 = mapper.Properties.Single(x => x.Path == "player.money");
@@ -35,7 +35,7 @@ namespace GameHook.IntegrationTests
         [TestMethod]
         public async Task Property_OK_BitFieldProperty()
         {
-            await Load_GB_PokemonYellow();
+            await Load_GB_PokemonYellow(0);
 
             var mapper = await GameHookClient.GetMapperAsync();
             var bcdValue_1 = mapper.Properties.Single(x => x.Path == "player.pokedexSeen");
@@ -59,7 +59,7 @@ namespace GameHook.IntegrationTests
         [TestMethod]
         public async Task Property_OK_BitProperty()
         {
-            await Load_GB_PokemonYellow();
+            await Load_GB_PokemonYellow(0);
 
             var mapper = await GameHookClient.GetMapperAsync();
             var bitValue_1 = mapper.Properties.Single(x => x.Path == "settings.battleStyle");
@@ -110,35 +110,6 @@ namespace GameHook.IntegrationTests
         public void Property_OK_UnsignedInteger()
         {
 
-        }
-
-        [TestMethod]
-        public async Task Preprocessor_OK_dma_967d10cc()
-        {
-            await Load_GBA_PokemonEmerald();
-
-            var gameTimeHours = await GameHookClient.GetPropertyAsync("gameTimeHours");
-            var gameTimeMinutes = await GameHookClient.GetPropertyAsync("gameTimeMinutes");
-
-            Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
-            {
-                Address = 0x0202460F,
-                Bytes = new int[] { 0x00 },
-                Path = "gameTimeHours",
-                Size = 1,
-                Type = "int",
-                Value = 0
-            }, gameTimeHours);
-
-            Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
-            {
-                Address = 0x02024610,
-                Bytes = new int[] { 0x0C },
-                Path = "gameTimeMinutes",
-                Size = 1,
-                Type = "int",
-                Value = 12
-            }, gameTimeMinutes);
         }
     }
 }

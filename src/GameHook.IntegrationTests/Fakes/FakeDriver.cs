@@ -23,8 +23,7 @@ namespace GameHook.IntegrationTests.Fakes
 
         public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
         {
-            await Task.CompletedTask;
-
+            await Task.FromResult(LoadedFake);
             return LoadedFake;
         }
 
