@@ -19,25 +19,24 @@ namespace GameHook.IntegrationTests
 
             Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
-                Address = 0x2025A7C,
+                Address = 0x03005D8C,
                 Value = 33708668
             }, dma1_1);
             Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
-                Address = 0x2024AD0,
+                Address = 0x03005D90,
                 Value = 33704656
             }, dma2_1);
             Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
-                Address = 0x2029884,
+                Address = 0x03005D94,
                 Value = 33724548
             }, dma3_1);
 
-            /*
             // Check game time hours and minutes.
             Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
-                Address = 0x0202460F,
+                Address = 0x02024AE1,
                 Bytes = new int[] { 0x00 },
                 Path = "gameTime.seconds",
                 Size = 1,
@@ -47,14 +46,13 @@ namespace GameHook.IntegrationTests
 
             Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
-                Address = 0x02024610,
+                Address = 0x02024AE2,
                 Bytes = new int[] { 0x0C },
                 Path = "gameTime.frames",
                 Size = 1,
                 Type = "int",
                 Value = 12
             }, gameTimeFrames_1);
-            */
 
             await Load_GBA_PokemonEmerald(2);
 
