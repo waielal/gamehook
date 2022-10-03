@@ -18,6 +18,9 @@ jobs:
           - kind: windows
             os: windows-latest
             target: win-x64
+          - kind: macos-x64
+            os: macos-latest
+            target: osx-x64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -57,9 +60,7 @@ jobs:
 
             7z a -tzip "${release_name}.zip" "./deploy/GameHook.exe"
             7z a -tzip "${release_name}-console-only.zip" "./deploy/GameHook.Console.exe"
-          fi
-
-          if [ "${{ matrix.kind }}" == "linux" ]; then            
+          else
             chmod +x ./deploy/GameHook.WebAPI
             cp ./deploy/GameHook.WebAPI ./deploy/GameHook
 
