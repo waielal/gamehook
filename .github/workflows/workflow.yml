@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kind: ['linux', 'windows']
+        kind: ['linux', 'windows', 'osx-x64']
         include:
           - kind: linux
             os: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
           - kind: windows
             os: windows-latest
             target: win-x64
-          - kind: macos-x64
+          - kind: osx-x64
             os: macos-latest
             target: osx-x64
     runs-on: ${{ matrix.os }}
