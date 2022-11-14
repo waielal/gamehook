@@ -54,11 +54,21 @@ class GameHookMapperClient {
     _connectionString
     _signalrClient
     _properties
+
     meta
     properties
     glossary
+    uiConfiguration
 
     connected = false
+
+    get mapperLoaded() {
+        return !meta ? false : true
+    }
+
+    get _signalrConnectionEstablished() {
+        return this._signalrClient != null && this._signalrClient.connection.q === 'Connected'
+    }
 
     _change = []
     _once = []
@@ -91,15 +101,17 @@ class GameHookMapperClient {
         }
     }
 
-    get _signalrConnectionEstablished() {
-        return this._signalrClient != null && this._signalrClient.connection.q === 'Connected'
-    }
-
     _deconstructMapper() {
         this.meta = null
         this._properties = null
         this.properties = null
         this.glossary = null
+    }
+
+    get(path) {
+        return path.split(".").reduce(function (result, key) {
+            return result[key]
+        }, this.properties);
     }
 
     async loadMapper() {
@@ -121,6 +133,24 @@ class GameHookMapperClient {
         }
 
         let mapper = await fetch(`${this._connectionString}/mapper`)
+            .then(async (x) => {
+                return { response: x, body: await x.json() }
+            })
+            .then(x => {
+                if (x.response.status === 200) {
+                    return x.body
+                } else {
+                    this._deconstructMapper()
+
+                    if (x.body) {
+                        throw x.body
+                    } else {
+                        throw new Error('Unknown error.')
+                    }
+                }
+            })
+
+        this.uiConfiguration = await fetch(`${this._connectionString}/ui/configuration`)
             .then(async (x) => {
                 return { response: x, body: await x.json() }
             })
@@ -254,6 +284,7 @@ class GameHookMapperClient {
         this._signalrClient.on('GameHookError', (err) => { this.onGameHookError(err) })
         this._signalrClient.on('DriverError', (err) => { this.onDriverError(err) })
         this._signalrClient.on('SendDriverRecovered', () => { this.onDriverRecovered() })
+        this._signalrClient.on('UiConfigurationChanged', (config) => { this.onUiConfigurationChanged(config) })
 
         return (await this._establishConnection())
     }
@@ -310,4 +341,6 @@ class GameHookMapperClient {
     onMapperLoadError(err) { /* Override this with your own function. */ }
     onDriverError(err) { /* Override this with your own function. */ }
     onPropertyChanged(property, oldProperty, fieldsChanged) { /* Override this with your own function. */ }
+
+    onUiConfigurationChanged(config) { /* Override this with your own function. */ }
 }
