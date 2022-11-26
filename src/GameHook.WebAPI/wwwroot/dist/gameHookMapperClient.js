@@ -265,7 +265,7 @@ class GameHookMapperClient {
         this._signalrClient.on('GameHookError', (err) => { this.onGameHookError(err) })
         this._signalrClient.on('DriverError', (err) => { this.onDriverError(err) })
         this._signalrClient.on('SendDriverRecovered', () => { this.onDriverRecovered() })
-        this._signalrClient.on('UiBuilderConfigurationChanged', (id) => { this.onUiConfigurationChanged(id) })
+        this._signalrClient.on('UiBuilderConfigurationChanged', (id) => { this.onUiBuilderConfigurationChanged(id) })
 
         return (await this._establishConnection())
     }
@@ -323,5 +323,5 @@ class GameHookMapperClient {
     onDriverError(err) { /* Override this with your own function. */ }
     onPropertyChanged(property, oldProperty, fieldsChanged) { /* Override this with your own function. */ }
 
-    onUiConfigurationChanged(id) { /* Override this with your own function. */ }
+    onUiBuilderConfigurationChanged(id) { /* Override this with your own function. */ }
 }
