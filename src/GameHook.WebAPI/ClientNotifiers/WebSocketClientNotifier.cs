@@ -29,7 +29,7 @@ namespace GameHook.WebAPI.ClientNotifiers
         public Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged, MapperUserSettingsDTO? _) =>
             _hubContext.Clients.All.SendAsync("PropertyChanged", property.Path, property.Address, property.Value, property.Bytes?.ToIntegerArray(), property.Frozen, fieldsChanged);
 
-        public Task SendUiConfigurationChanged(UiConfigurationDTO config) =>
-            _hubContext.Clients.All.SendAsync("UiConfigurationChanged", config);
+        public Task SendUiConfigurationChanged(Guid id) =>
+            _hubContext.Clients.All.SendAsync("UiConfigurationChanged", id);
     }
 }

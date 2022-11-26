@@ -200,6 +200,6 @@ namespace GameHook.WebAPI.ClientNotifiers
             }
         }
 
-        public Task SendUiConfigurationChanged(UiConfigurationDTO config) => Task.CompletedTask;
+        public Task SendUiConfigurationChanged(Guid id) => Task.CompletedTask;
     }
 }

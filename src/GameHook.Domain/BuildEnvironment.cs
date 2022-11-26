@@ -46,7 +46,7 @@ public static class BuildEnvironment
 
     public static string ConfigurationDirectoryAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.json");
     public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
-    public static string ConfigurationDirectoryUiConfigFilePath => Path.Combine(ConfigurationDirectory, "ui.json");
+    public static string ConfigurationDirectoryUiBuilderConfigDirectory => Path.Combine(ConfigurationDirectory, "UiBuilder");
 
 
 #if DEBUG

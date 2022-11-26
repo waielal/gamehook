@@ -58,7 +58,6 @@ class GameHookMapperClient {
     meta
     properties
     glossary
-    uiConfiguration
 
     connected = false
 
@@ -133,24 +132,6 @@ class GameHookMapperClient {
         }
 
         let mapper = await fetch(`${this._connectionString}/mapper`)
-            .then(async (x) => {
-                return { response: x, body: await x.json() }
-            })
-            .then(x => {
-                if (x.response.status === 200) {
-                    return x.body
-                } else {
-                    this._deconstructMapper()
-
-                    if (x.body) {
-                        throw x.body
-                    } else {
-                        throw new Error('Unknown error.')
-                    }
-                }
-            })
-
-        this.uiConfiguration = await fetch(`${this._connectionString}/ui/configuration`)
             .then(async (x) => {
                 return { response: x, body: await x.json() }
             })
@@ -284,7 +265,7 @@ class GameHookMapperClient {
         this._signalrClient.on('GameHookError', (err) => { this.onGameHookError(err) })
         this._signalrClient.on('DriverError', (err) => { this.onDriverError(err) })
         this._signalrClient.on('SendDriverRecovered', () => { this.onDriverRecovered() })
-        this._signalrClient.on('UiConfigurationChanged', (config) => { this.onUiConfigurationChanged(config) })
+        this._signalrClient.on('UiConfigurationChanged', (id) => { this.onUiConfigurationChanged(id) })
 
         return (await this._establishConnection())
     }
@@ -342,5 +323,5 @@ class GameHookMapperClient {
     onDriverError(err) { /* Override this with your own function. */ }
     onPropertyChanged(property, oldProperty, fieldsChanged) { /* Override this with your own function. */ }
 
-    onUiConfigurationChanged(config) { /* Override this with your own function. */ }
+    onUiConfigurationChanged(id) { /* Override this with your own function. */ }
 }
