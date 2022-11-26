@@ -265,7 +265,7 @@ class GameHookMapperClient {
         this._signalrClient.on('GameHookError', (err) => { this.onGameHookError(err) })
         this._signalrClient.on('DriverError', (err) => { this.onDriverError(err) })
         this._signalrClient.on('SendDriverRecovered', () => { this.onDriverRecovered() })
-        this._signalrClient.on('UiConfigurationChanged', (id) => { this.onUiConfigurationChanged(id) })
+        this._signalrClient.on('UiBuilderConfigurationChanged', (id) => { this.onUiConfigurationChanged(id) })
 
         return (await this._establishConnection())
     }

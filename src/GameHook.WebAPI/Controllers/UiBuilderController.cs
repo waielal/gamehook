@@ -52,7 +52,7 @@ namespace GameHook.WebAPI.Controllers
 
             System.IO.File.WriteAllText(path, data);
 
-            await ClientNotifiers.ForEachAsync(async x => await x.SendUiConfigurationChanged(id));
+            await ClientNotifiers.ForEachAsync(async x => await x.SendUiBuilderConfigurationChanged(id));
 
             return Ok();
         }
