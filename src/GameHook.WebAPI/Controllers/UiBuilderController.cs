@@ -19,11 +19,11 @@ namespace GameHook.WebAPI.Controllers
             ClientNotifiers = clientNotifiers.ToList();
         }
 
-        [SwaggerOperation("Gets UI builder configuration.")]
-        [HttpGet("configuration/{id}/")]
-        public ActionResult<object> GetUiBuilderConfiguration(Guid id)
+        [SwaggerOperation("Gets UI builder screen.")]
+        [HttpGet("screens/{id}/")]
+        public ActionResult<object> GetUiBuilderScreen(Guid id)
         {
-            var path = $"{BuildEnvironment.ConfigurationDirectoryUiBuilderConfigDirectory}\\{id}.json";
+            var path = $"{BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory}\\{id}.json";
 
             if (System.IO.File.Exists(path))
             {
@@ -36,23 +36,19 @@ namespace GameHook.WebAPI.Controllers
             }
         }
 
-        [SwaggerOperation("Updates UI builder configuration.")]
-        [HttpPut("configuration/{id}/")]
-        public async Task<ActionResult> SetUiBuilderConfiguration(Guid id, string data)
+        [SwaggerOperation("Updates UI builder screen.")]
+        [HttpPut("screens/{id}/")]
+        public async Task<ActionResult> SetUiBuilderScreen(Guid id, [FromBody] dynamic data)
         {
-            if (Directory.Exists(BuildEnvironment.ConfigurationDirectoryUiBuilderConfigDirectory) == false)
+            if (Directory.Exists(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory) == false)
             {
-                Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectoryUiBuilderConfigDirectory);
+                Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory);
             }
 
-            var path = $"{BuildEnvironment.ConfigurationDirectoryUiBuilderConfigDirectory}\\{id}.json";
+            var path = $"{BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory}\\{id}.json";
+            System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(data));
 
-            var dataObject = JsonConvert.DeserializeObject<object>(data);
-            if (dataObject == null) { throw new Exception("Failed to parse data."); }
-
-            System.IO.File.WriteAllText(path, data);
-
-            await ClientNotifiers.ForEachAsync(async x => await x.SendUiBuilderConfigurationChanged(id));
+            await ClientNotifiers.ForEachAsync(async x => await x.SendUiBuilderScreenSaved(id));
 
             return Ok();
         }
