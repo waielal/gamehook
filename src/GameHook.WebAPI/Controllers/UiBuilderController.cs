@@ -1,11 +1,19 @@
-﻿using GameHook.Domain;
+﻿using System.Text.Json;
+using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace GameHook.WebAPI.Controllers
 {
+    public class UiBuilderScreenMetadataModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "Screen";
+        public string? Author { get; set; }
+        public DateTime LastModified { get; set; }
+    }
+
     [ApiController]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -17,6 +25,29 @@ namespace GameHook.WebAPI.Controllers
         public UiBuilderController(IEnumerable<IClientNotifier> clientNotifiers)
         {
             ClientNotifiers = clientNotifiers.ToList();
+        }
+
+        [SwaggerOperation("Gets all UI builder screens.")]
+        [HttpGet("screens")]
+        public IEnumerable<UiBuilderScreenMetadataModel> GetAllUiBuilderScreens()
+        {
+            var files = Directory.GetFiles(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, "*.json", SearchOption.TopDirectoryOnly)
+                         .Select(x => new FileInfo(x))
+                         .OrderByDescending(x => x.LastWriteTime)
+                         .ToArray();
+
+            return files.Select(x =>
+            {
+                var json = System.IO.File.ReadAllText(x.FullName);
+
+                var model = JsonSerializer.Deserialize<UiBuilderScreenMetadataModel>(json)
+                                ?? throw new Exception($"Unable to parse screen {x.Name}.");
+
+                model.Id = Guid.Parse(Path.GetFileNameWithoutExtension(x.Name));
+                model.LastModified = x.LastWriteTime;
+
+                return model;
+            });
         }
 
         [SwaggerOperation("Gets UI builder screen.")]
