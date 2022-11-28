@@ -10,20 +10,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kind: ['linux', 'windows', 'osx-x64', 'osx-arm64']
+        kind: ['linux', 'windows']
         include:
           - kind: linux
-            os: ['linux', 'x64']
+            os: ['ubuntu-latest']
             target: linux-x64
           - kind: windows
-            os: ['windows', 'x64']
+            os: ['windows-latest']
             target: win-x64
-          - kind: osx-x64
-            os: ['macOS', 'x64']
-            target: osx-x64
-          - kind: osx-arm64
-            os: ['macOS', 'ARM64']
-            target: osx-arm64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
