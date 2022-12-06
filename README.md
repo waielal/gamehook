@@ -9,7 +9,7 @@ Live updates to this data are provided through websockets.
  \
  \
 Join our Discord Server \
-https://gamehook.io/join
+https://gamehook.io/discord
 
 ### Documentation
 https://gamehook.io/quickstart
