@@ -9,8 +9,11 @@ namespace GameHook.WebAPI.Controllers
     public class UiBuilderScreenMetadataModel
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = "Screen";
+
+        public string Name { get; set; }
+
         public string? Author { get; set; }
+
         public DateTime LastModified { get; set; }
     }
 
@@ -21,10 +24,16 @@ namespace GameHook.WebAPI.Controllers
     public class UiBuilderController : ControllerBase
     {
         private List<IClientNotifier> ClientNotifiers { get; }
+        private JsonSerializerOptions SerializerOptions { get; }
 
         public UiBuilderController(IEnumerable<IClientNotifier> clientNotifiers)
         {
             ClientNotifiers = clientNotifiers.ToList();
+
+            SerializerOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
         }
 
         [SwaggerOperation("Gets all UI builder screens.")]
@@ -40,10 +49,11 @@ namespace GameHook.WebAPI.Controllers
             {
                 var json = System.IO.File.ReadAllText(x.FullName);
 
-                var model = JsonSerializer.Deserialize<UiBuilderScreenMetadataModel>(json)
+                var model = JsonSerializer.Deserialize<UiBuilderScreenMetadataModel>(json, SerializerOptions)
                                 ?? throw new Exception($"Unable to parse screen {x.Name}.");
 
                 model.Id = Guid.Parse(Path.GetFileNameWithoutExtension(x.Name));
+                model.Name = string.IsNullOrWhiteSpace(model.Name) ? $"Screen {model.Id}" : model.Name;
                 model.LastModified = x.LastWriteTime;
 
                 return model;
