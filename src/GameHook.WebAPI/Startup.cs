@@ -106,6 +106,9 @@ namespace GameHook.WebAPI
                 logger.LogInformation($"Starting GameHook version {BuildEnvironment.AssemblyProductVersion}.");
             }
 
+            Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectory);
+            Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory);
+            
             updateManager.CheckForUpdates().GetAwaiter().GetResult();
 
             app.UseCors(x =>
@@ -134,32 +137,14 @@ namespace GameHook.WebAPI
             {
                 if (BuildEnvironment.IsDebug)
                 {
-                    x.MapGet("/", () =>
-                    {
-                        return Results.Redirect("index.html", false);
-                    });
+                    x.MapGet("/", () => Results.Redirect("index.html", false));
                 }
                 else
                 {
-                    x.MapGet("/", () =>
-                    {
-                        return Results.File(EmbededResources.index_html, contentType: "text/html");
-                    });
-
-                    x.MapGet("/favicon.ico", () =>
-                    {
-                        return Results.File(EmbededResources.favicon_ico, contentType: "image/x-icon");
-                    });
-
-                    x.MapGet("/site.css", () =>
-                    {
-                        return Results.File(EmbededResources.site_css, contentType: "text/css");
-                    });
-
-                    x.MapGet("/dist/gameHookMapperClient.js", () =>
-                    {
-                        return Results.File(EmbededResources.dist_gameHookMapperClient_js, contentType: "application/javascript");
-                    });
+                    x.MapGet("/", () => Results.File(EmbededResources.index_html, contentType: "text/html"));
+                    x.MapGet("/favicon.ico", () => Results.File(EmbededResources.favicon_ico, contentType: "image/x-icon"));
+                    x.MapGet("/site.css", () => Results.File(EmbededResources.site_css, contentType: "text/css"));
+                    x.MapGet("/dist/gameHookMapperClient.js", () => Results.File(EmbededResources.dist_gameHookMapperClient_js, contentType: "application/javascript"));
                 }
 
                 x.MapControllers();

@@ -64,7 +64,7 @@ namespace GameHook.WebAPI.Controllers
         [HttpGet("screens/{id}/")]
         public ActionResult<object> GetUiBuilderScreen(Guid id)
         {
-            var path = $"{BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory}\\{id}.json";
+            var path = Path.Combine(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, $"{id}.json");
 
             if (System.IO.File.Exists(path))
             {
@@ -86,7 +86,7 @@ namespace GameHook.WebAPI.Controllers
                 Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory);
             }
 
-            var path = $"{BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory}\\{id}.json";
+            var path = Path.Combine(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, $"{id}.json");
             System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(data));
 
             await ClientNotifiers.ForEachAsync(async x => await x.SendUiBuilderScreenSaved(id));
