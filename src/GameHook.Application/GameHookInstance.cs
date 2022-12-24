@@ -74,6 +74,7 @@ namespace GameHook.Application
                     "SNES" => new SNES_PlatformOptions(),
                     "GB" => new GB_PlatformOptions(),
                     "GBA" => new GBA_PlatformOptions(),
+                    "PSX" => new PSX_PlatformOptions(),
                     _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
                 };
 

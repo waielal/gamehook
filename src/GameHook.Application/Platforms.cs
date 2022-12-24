@@ -57,4 +57,23 @@ namespace GameHook.Application
             new MemoryAddressBlock(8, "IWRAM", 0x03006000, 0x03006000 + 9999)
         }.ToArray();
     }
+
+    /* ===== PlayStation ===== */
+    /* http://www.raphnet.net/electronique/psx_adaptor/Playstation.txt */
+    /* https://problemkaputt.de/psx-spx.htm */
+    public class PSX_PlatformOptions : IPlatformOptions
+    {
+        public EndianTypes EndianType { get; } = EndianTypes.BigEndian;
+        public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
+        {
+            new MemoryAddressBlock(0, "Kernel", 0x00000000, 0x0000ffff),
+            new MemoryAddressBlock(1, "User Memory", 0x00010000, 0x001fffff),
+            new MemoryAddressBlock(2, "Parallel Port", 0x1f000000, 0x001fffff),
+            new MemoryAddressBlock(3, "Scratch Pad", 0x1f800000, 0x1f8003ff),
+            new MemoryAddressBlock(4, "User Memory", 0x1f801000, 0x1f802fff),
+            new MemoryAddressBlock(5, "Kernel and User Memory Mirror", 0x80000000, 0x801fffff),
+            new MemoryAddressBlock(6, "Kernel and User Memory Mirror", 0xa0000000, 0xa01fffff),
+            new MemoryAddressBlock(7, "BIOS", 0xbfc00000, 0xbfc7ffff)
+        }.ToArray();
+    }
 }
