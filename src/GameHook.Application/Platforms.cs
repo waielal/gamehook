@@ -38,12 +38,12 @@ namespace GameHook.Application
             new MemoryAddressBlock(6, "Work RAM (Bank 1)", 0xD000, 0xDFFF),
             new MemoryAddressBlock(7, "High RAM", 0xFF80, 0xFFFF),
             // RAM Banks 0x02:D000 to 0x07:D000 for GBC
-            new MemoryAddressBlock(6, "Work RAM (Bank 2)", 0x10000, 0x10FFF),
-            new MemoryAddressBlock(6, "Work RAM (Bank 3)", 0x11000, 0x11FFF),
-            new MemoryAddressBlock(6, "Work RAM (Bank 4)", 0x12000, 0x12FFF),
-            new MemoryAddressBlock(6, "Work RAM (Bank 5)", 0x13000, 0x13FFF),
-            new MemoryAddressBlock(6, "Work RAM (Bank 6)", 0x14000, 0x14FFF),
-            new MemoryAddressBlock(6, "Work RAM (Bank 7)", 0x15000, 0x15FFF)
+            new MemoryAddressBlock(8, "Work RAM (Bank 2)", 0x10000, 0x10FFF),
+            new MemoryAddressBlock(9, "Work RAM (Bank 3)", 0x11000, 0x11FFF),
+            new MemoryAddressBlock(10, "Work RAM (Bank 4)", 0x12000, 0x12FFF),
+            new MemoryAddressBlock(11, "Work RAM (Bank 5)", 0x13000, 0x13FFF),
+            new MemoryAddressBlock(12, "Work RAM (Bank 6)", 0x14000, 0x14FFF),
+            new MemoryAddressBlock(13, "Work RAM (Bank 7)", 0x15000, 0x15FFF)
         }.ToArray();
     }
 
