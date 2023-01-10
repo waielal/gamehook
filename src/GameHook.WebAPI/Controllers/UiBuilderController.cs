@@ -60,7 +60,7 @@ namespace GameHook.WebAPI.Controllers
             });
         }
 
-        [SwaggerOperation("Gets UI builder screen.")]
+        [SwaggerOperation("Gets a UI builder screen.")]
         [HttpGet("screens/{id}/")]
         public ActionResult<object> GetUiBuilderScreen(Guid id)
         {
@@ -77,7 +77,7 @@ namespace GameHook.WebAPI.Controllers
             }
         }
 
-        [SwaggerOperation("Updates UI builder screen.")]
+        [SwaggerOperation("Updates a UI builder screen.")]
         [HttpPut("screens/{id}/")]
         public async Task<ActionResult> SetUiBuilderScreen(Guid id, [FromBody] dynamic data)
         {
@@ -87,11 +87,25 @@ namespace GameHook.WebAPI.Controllers
             }
 
             var path = Path.Combine(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, $"{id}.json");
-            System.IO.File.WriteAllText(path, System.Text.Json.JsonSerializer.Serialize(data));
+            System.IO.File.WriteAllText(path, JsonSerializer.Serialize(data));
 
             await ClientNotifiers.ForEachAsync(async x => await x.SendUiBuilderScreenSaved(id));
 
             return Ok();
+        }
+
+        [SwaggerOperation("Deletes a UI builder screen.")]
+        [HttpDelete("screens/{id}/")]
+        public ActionResult DeleteUiBuilderScreen(Guid id)
+        {
+            var path = Path.Combine(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, $"{id}.json");
+            if (System.IO.File.Exists(path) == false)
+            {
+                return ValidationProblem("File does not exist.");
+            }
+
+            System.IO.File.Delete(path);
+            return NoContent();
         }
     }
 }
