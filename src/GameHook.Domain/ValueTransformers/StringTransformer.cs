@@ -2,11 +2,23 @@
 {
     public static class StringTransformer
     {
-        public static byte[] FromValue(string value, IEnumerable<GlossaryItem> glossaryItems)
+        public static byte[] FromValue(string value, int size, IEnumerable<GlossaryItem> glossaryItems)
         {
             var uints = value.ToCharArray()
                 .Select(x => glossaryItems.FirstOrDefaultByValue(x.ToString()))
-                .Select(x => (x ?? glossaryItems.First()).Key);
+                .Select(x => (x ?? glossaryItems.First()).Key)
+                .ToList();
+
+            if (uints.Count + 1 > size)
+            {
+                uints = uints.Take(size - 1).ToList();
+            }
+
+            var nullTerminationKey = glossaryItems.FirstOrDefaultByValue(null)?.Key;
+            if (nullTerminationKey != null)
+            {
+                uints.Add(nullTerminationKey ?? throw new Exception("NullTerminationKey is NULL."));
+            }
 
             return uints.Select(x => x.ToHexdecimalString().FromHexdecimalStringToByte()).ToArray();
         }
