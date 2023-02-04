@@ -16,7 +16,6 @@ namespace GameHook.Application
     public class GameHookInstance
     {
         private ILogger<GameHookInstance> Logger { get; }
-        private GameHookConfiguration GameHookConfiguration { get; }
         private IMapperFilesystemProvider MapperFilesystemProvider { get; }
         public List<IClientNotifier> ClientNotifiers { get; }
         public bool Initalized { get; private set; } = false;
@@ -28,10 +27,9 @@ namespace GameHook.Application
         public IEnumerable<MemoryAddressBlock>? BlocksToRead { get; private set; }
         public const int DELAY_MS_BETWEEN_READS = 25;
 
-        public GameHookInstance(ILogger<GameHookInstance> logger, GameHookConfiguration gameHookConfiguration, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
+        public GameHookInstance(ILogger<GameHookInstance> logger, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
         {
             Logger = logger;
-            GameHookConfiguration = gameHookConfiguration;
             MapperFilesystemProvider = provider;
             ClientNotifiers = clientNotifiers.ToList();
         }

@@ -79,7 +79,7 @@ namespace GameHook.WebAPI.Controllers
 
     public class UpdatePropertyModel
     {
-        public JsonElement? Value { get; init; }
+        public string? Value { get; init; }
         public int[]? Bytes { get; init; }
         public bool? Freeze { get; init; }
     }

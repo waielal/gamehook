@@ -54,7 +54,7 @@ namespace GameHook.Domain.Interfaces
         string? CharacterMap { get; }
 
         PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult);
-        Task WriteValue(object value, bool? freeze);
+        Task<byte[]> WriteValue(string value, bool? freeze);
         Task WriteBytes(byte[] bytes, bool? freeze);
         Task FreezeProperty(byte[] bytesFrozen);
         Task UnfreezeProperty();

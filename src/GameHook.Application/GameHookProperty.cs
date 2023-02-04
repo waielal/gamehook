@@ -47,15 +47,21 @@ namespace GameHook.Application
             }
         }
 
+        private bool ShouldReverseBytesIfLE()
+        {
+            // Little Endian has the least signifant byte first, so we need to reverse the byte array
+            // when translating it to a value.
+
+            return GameHookInstance.PlatformOptions?.EndianType == EndianTypes.LittleEndian;
+        }
+
         private byte[] ReverseBytesIfLE(byte[] bytes)
         {
             if (bytes.Length == 1) { return bytes; }
 
             var workingBytes = (byte[])bytes.Clone();
 
-            // Little Endian has the least signifant byte first, so we need to reverse the byte array
-            // when translating it to a value.
-            if (GameHookInstance.PlatformOptions?.EndianType == EndianTypes.LittleEndian) Array.Reverse(workingBytes);
+            if (ShouldReverseBytesIfLE()) Array.Reverse(workingBytes);
 
             return workingBytes;
         }
@@ -204,13 +210,38 @@ namespace GameHook.Application
             };
         }
 
-        public async Task WriteValue(object value, bool? freeze)
+        public async Task<byte[]> WriteValue(string value, bool? freeze)
         {
             if (IsReadOnly) throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
 
-            await Task.CompletedTask;
+            var bytes = Type switch
+            {
+                "binaryCodedDecimal" => BinaryCodedDecimalTransformer.FromValue(int.Parse(value)),
+                "bitArray" => BitFieldTransformer.FromValue(value.Split(' ').Select(bool.Parse).ToArray()),
+                "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
+                "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
+                "int" => IntegerTransformer.FromValue(int.Parse(value), ShouldReverseBytesIfLE()),
+                "string" => StringTransformer.FromValue(value, Size, GameHookInstance.GetMapper().Glossary[MapperVariables.CharacterMap ?? "defaultCharacterMap"]),
+                "uint" => UnsignedIntegerTransformer.FromValue(uint.Parse(value)),
+                _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
+            };
 
-            throw new NotSupportedException();
+            if (GameHookInstance.Driver == null) { throw new Exception("Driver is not defined."); }
+            if (Address == null) { throw new Exception("Address is not defined."); }
+            if (bytes == null) { throw new Exception("Bytes is not defined."); }
+
+            await GameHookInstance.Driver.WriteBytes((uint)Address, bytes.Take(Size).ToArray());
+
+            if (freeze == true)
+            {
+                await FreezeProperty(bytes);
+            }
+            else if (freeze == false)
+            {
+                await UnfreezeProperty();
+            }
+
+            return bytes;
         }
 
         public async Task WriteBytes(byte[] bytes, bool? freeze)
