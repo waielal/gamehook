@@ -36,7 +36,8 @@ namespace GameHook.Application
             new MemoryAddressBlock(4, "External RAM (Part 2)", 0xB000, 0xBFFF),
             new MemoryAddressBlock(5, "Work RAM (Part 1)", 0xC000, 0xCFFF),
             new MemoryAddressBlock(6, "Work RAM (Part 2)", 0xD000, 0xDFFF),
-            new MemoryAddressBlock(7, "High RAM", 0xFF80, 0xFFFF)
+            new MemoryAddressBlock(7, "I/O Registers", 0xFF00, 0xFF7F),
+            new MemoryAddressBlock(8, "High RAM", 0xFF80, 0xFFFF)
         }.ToArray();
     }
 
