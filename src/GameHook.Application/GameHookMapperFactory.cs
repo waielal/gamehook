@@ -133,13 +133,23 @@ namespace GameHook.Application
                     {
                         var definedChildKey = childKey;
 
-                        // Keys that contain only _ symbols are considered merge operators.
-                        if (childKey.All(x => x == '_'))
+                        // Key is defined as a special command.
+                        if (childKey.StartsWith("_"))
                         {
-                            // Setting child key to empty will force it to merge
-                            // the transversed properties with it's parent.
-
-                            definedChildKey = string.Empty;
+                            var childKeyCharArray = childKey.ToCharArray();
+                            
+                            // Keys that contain only _ or _0, _1, etc. are considered merge operators.
+                            if (childKeyCharArray.Length == 1 || childKeyCharArray.Skip(1).All(char.IsDigit))
+                            {
+                                // Setting child key to empty will force it to merge
+                                // the transversed properties with it's parent.
+                                
+                                definedChildKey = string.Empty;
+                            }
+                            else
+                            {
+                                throw new Exception("Unknown mapper command.");
+                            }
                         }
 
                         // If the next level is an object.
