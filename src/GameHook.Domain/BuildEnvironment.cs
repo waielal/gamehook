@@ -45,6 +45,7 @@ public static class BuildEnvironment
     public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
 
     public static string ConfigurationDirectoryAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.json");
+    public static string ConfigurationDirectoryWpfConfigFilePath => Path.Combine(ConfigurationDirectory, "gamehook.wpf.config");
     public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
     public static string ConfigurationDirectoryUiBuilderScreenDirectory => Path.Combine(ConfigurationDirectory, "UiBuilderScreens");
 

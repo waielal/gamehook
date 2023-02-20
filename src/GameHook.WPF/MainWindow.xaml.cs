@@ -15,19 +15,24 @@ namespace GameHook.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow? Singleton { get; private set; }
+
         bool? isWebView2Installed = null;
 
         #region WindowManagement
         bool IsClosing = false;
         bool CanClose = false;
+
         private void Window_StateChanged(object sender, EventArgs e)
         {
             WindowControlButton_Maximize_Refresh();
         }
+
         private void WindowControlButton_Minimize_Click(object sender, EventArgs e)
         {
             WindowState = WindowState.Minimized;
         }
+
         private void WindowControlButton_Maximize_Click(object sender, EventArgs e)
         {
             if (WindowState == WindowState.Maximized)
@@ -39,10 +44,12 @@ namespace GameHook.WPF
                 WindowState = WindowState.Maximized;
             }
         }
+
         private void WindowControlButton_Close_Click(object sender, EventArgs e)
         {
             Close();
         }
+
         private void WindowControlButton_Maximize_Refresh()
         {
             if (WindowState == WindowState.Maximized)
@@ -58,12 +65,14 @@ namespace GameHook.WPF
                 WindowControlButton_MaximizeRestore.Visibility = Visibility.Collapsed;
             }
         }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (CanClose == true)
             {
                 return;
             }
+
             if (IsClosing == false)
             {
                 var ta = new DoubleAnimation();
@@ -121,6 +130,7 @@ namespace GameHook.WPF
                     handled = true;
                     break;
             }
+
             return IntPtr.Zero;
         }
 #pragma warning restore CS8605 // Unboxing a possibly null value.
@@ -171,6 +181,8 @@ namespace GameHook.WPF
 
         public MainWindow()
         {
+            Singleton = this;
+
             if (BuildEnvironment.IsDebug == false)
             {
                 AutoUpdater.AppTitle = "GameHook";
@@ -205,6 +217,11 @@ namespace GameHook.WPF
             }
 
             InitializeComponent();
+
+            if (App.Singleton != null)
+            {
+                App.Singleton.WindowPlace.Register(this);
+            }
 
             WindowControlButton_Maximize_Refresh();
 
