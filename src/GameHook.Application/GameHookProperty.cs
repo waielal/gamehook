@@ -158,7 +158,14 @@ namespace GameHook.Application
                 if (string.IsNullOrEmpty(MapperVariables.Postprocessor) == false)
                 {
                     var postprocessorExpression = new Expression(MapperVariables.Postprocessor);
+
                     postprocessorExpression.Parameters["x"] = value;
+
+                    postprocessorExpression.EvaluateFunction += delegate (string name, FunctionArgs args)
+                    {
+                        if (name == "BitRange")
+                            args.Result = NCalcFunctions.BitRange((int)args.Parameters[0].Evaluate(), (int)args.Parameters[1].Evaluate(), (int)args.Parameters[2].Evaluate());
+                    };
 
                     // TODO: We probably shouldn't hardcode int32 here -- probably should be dependent on the platform?
                     value = Convert.ToInt32(postprocessorExpression.Evaluate());
