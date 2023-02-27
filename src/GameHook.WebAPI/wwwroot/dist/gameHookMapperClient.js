@@ -108,9 +108,7 @@ class GameHookMapperClient {
     }
 
     get(path) {
-        return path.split(".").reduce(function (result, key) {
-            return result[key]
-        }, this.properties);
+        return this._properties.find(x => x.path === path)
     }
 
     async loadMapper() {
