@@ -9,13 +9,13 @@ namespace GameHook.Application
 {
     public class GameHookProperty : IGameHookProperty
     {
-        public GameHookProperty(GameHookInstance gameHookInstance, GameHookMapperVariables mapperVariables)
+        public GameHookProperty(IGameHookInstance gameHookInstance, GameHookMapperVariables mapperVariables)
         {
             GameHookInstance = gameHookInstance;
             MapperVariables = mapperVariables;
         }
 
-        protected GameHookInstance GameHookInstance { get; }
+        protected IGameHookInstance GameHookInstance { get; }
         protected MapperUserSettingsDTO? MapperUserSettings => GameHookInstance?.Mapper?.UserSettings;
         public GameHookMapperVariables MapperVariables { get; }
 

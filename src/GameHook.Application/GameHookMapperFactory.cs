@@ -42,7 +42,7 @@ namespace GameHook.Application
         private static string? GetMapperUserSettingsPath(Guid id) =>
             Path.Combine(BuildEnvironment.MapperUserSettingsDirectory, $"{id}.json");
 
-        public static GameHookMapper ReadMapper(GameHookInstance instance, IMapperFilesystemProvider provider, string filesystemId)
+        public static GameHookMapper ReadMapper(IGameHookInstance instance, IMapperFilesystemProvider provider, string filesystemId)
         {
             if (string.IsNullOrEmpty(filesystemId))
             {
@@ -117,7 +117,7 @@ namespace GameHook.Application
             return new GameHookMapper(filesystemId, metadata, properties, glossary, mapperUserSettings);
         }
 
-        private static void TranserveMapperFile(GameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
+        private static void TranserveMapperFile(IGameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
         {
             var insideMacro = macroPointer != null;
 
@@ -188,7 +188,7 @@ namespace GameHook.Application
             }
         }
 
-        private static void ParseProperty(GameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
+        private static void ParseProperty(IGameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
         {
             if (string.IsNullOrEmpty(key))
                 throw new Exception("Key cannot be null.");

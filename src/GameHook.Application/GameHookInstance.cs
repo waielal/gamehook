@@ -5,15 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GameHook.Application
 {
-    public class MapperMetadata
-    {
-        public int SchemaVersion { get; init; } = 0;
-        public Guid Id { get; init; } = Guid.Empty;
-        public string GameName { get; init; } = string.Empty;
-        public string GamePlatform { get; init; } = string.Empty;
-    }
-
-    public class GameHookInstance
+    public class GameHookInstance : IGameHookInstance
     {
         private ILogger<GameHookInstance> Logger { get; }
         private IMapperFilesystemProvider MapperFilesystemProvider { get; }
@@ -21,7 +13,7 @@ namespace GameHook.Application
         public bool Initalized { get; private set; } = false;
         private CancellationTokenSource? ReadLoopToken { get; set; }
         public IGameHookDriver? Driver { get; private set; }
-        public GameHookMapper? Mapper { get; private set; }
+        public IGameHookMapper? Mapper { get; private set; }
         public PreprocessorCache? PreprocessorCache { get; private set; }
         public IPlatformOptions? PlatformOptions { get; private set; }
         public IEnumerable<MemoryAddressBlock>? BlocksToRead { get; private set; }
@@ -36,7 +28,7 @@ namespace GameHook.Application
 
         public IPlatformOptions GetPlatformOptions() => PlatformOptions ?? throw new Exception("PlatformOptions is null.");
         public IGameHookDriver GetDriver() => Driver ?? throw new Exception("Driver is null.");
-        public GameHookMapper GetMapper() => Mapper ?? throw new Exception("Mapper is null.");
+        public IGameHookMapper GetMapper() => Mapper ?? throw new Exception("Mapper is null.");
 
         public async Task ResetState()
         {
