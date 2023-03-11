@@ -221,17 +221,27 @@ namespace GameHook.Application
         {
             if (IsReadOnly) throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
 
-            var bytes = Type switch
+            byte[]? bytes = null;
+
+            if (string.IsNullOrEmpty(Reference) == false)
             {
-                "binaryCodedDecimal" => BinaryCodedDecimalTransformer.FromValue(int.Parse(value)),
-                "bitArray" => BitFieldTransformer.FromValue(value.Split(' ').Select(bool.Parse).ToArray()),
-                "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
-                "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
-                "int" => IntegerTransformer.FromValue(int.Parse(value), ShouldReverseBytesIfLE()),
-                "string" => StringTransformer.FromValue(value, Size, GameHookInstance.GetMapper().Glossary[MapperVariables.CharacterMap ?? "defaultCharacterMap"]),
-                "uint" => UnsignedIntegerTransformer.FromValue(uint.Parse(value)),
-                _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
-            };
+                // We want to translate the reference found in the directory and then apply that.
+                bytes = ReferenceTransformer.FromValue(value, Size, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
+            }
+            else
+            {
+                bytes = Type switch
+                {
+                    "binaryCodedDecimal" => BinaryCodedDecimalTransformer.FromValue(int.Parse(value)),
+                    "bitArray" => BitFieldTransformer.FromValue(value.Split(' ').Select(bool.Parse).ToArray()),
+                    "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
+                    "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
+                    "int" => IntegerTransformer.FromValue(int.Parse(value), ShouldReverseBytesIfLE()),
+                    "string" => StringTransformer.FromValue(value, Size, GameHookInstance.GetMapper().Glossary[MapperVariables.CharacterMap ?? "defaultCharacterMap"]),
+                    "uint" => UnsignedIntegerTransformer.FromValue(uint.Parse(value), Size),
+                    _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
+                };
+            }
 
             if (GameHookInstance.Driver == null) { throw new Exception("Driver is not defined."); }
             if (Address == null) { throw new Exception("Address is not defined."); }

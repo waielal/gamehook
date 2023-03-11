@@ -205,9 +205,31 @@
                                 <div v-if="editingProperty.property.reference">
                                     <div for="value">Value</div>
 
-                                    <select class="input is-dark" :value="editingProperty.bytes" @change="editingPropertyReferenceDropdownSelected($event)">
-                                        <option v-for="option in getGlossaryByReferenceKey(editingProperty.property.reference)" v-bind:value="option.value.key">
+                                    <select class="input is-dark" v-model="editingProperty.value">
+                                        <option v-for="option in getGlossaryByReferenceKey(editingProperty.property.reference)" v-bind:value="option.value.value">
                                             {{ option.value.value }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div v-else-if="editingProperty.property.type === 'int' || editingProperty.property.type === 'uint'">
+                                    <div for="value">Value</div>
+
+                                    <input class="input is-dark" type="number" v-model="editingProperty.value" />
+                                </div>
+                                <div v-else-if="editingProperty.property.type === 'string'">
+                                    <div for="value">Value</div>
+
+                                    <input class="input is-dark" type="text" v-model="editingProperty.value" />
+                                </div>
+                                <div v-else-if="editingProperty.property.type === 'bit'">
+                                    <div for="value">Value:</div>
+
+                                    <select class="input is-dark" v-model="editingProperty.value">
+                                        <option value="true">
+                                            True
+                                        </option>
+                                        <option value="false">
+                                            False
                                         </option>
                                     </select>
                                 </div>
@@ -233,10 +255,15 @@
                             </div>
 
                             <template v-if="editingProperty.didValueChange()">
-                                <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingPropertyValue">Save Value</div>
+                                <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingProperty">Save Value Changes</div>
+                            </template>
+                            <template v-else-if="editingProperty.didBytesChange()">
+                                <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingProperty">Save Bytes Changes</div>
+                            </template>
+                            <template v-else-if="editingProperty.didFrozenChange()">
+                                <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingProperty">Save Changes</div>
                             </template>
 
-                            <div class="button is-primary is-fullwidth my-2" v-on:click="saveEditingPropertyBytes">Save Changes</div>
                             <div class="button is-secondary is-fullwidth my-2" v-on:click="cancelEditingProperty">Cancel Changes</div>
 
                             <error-hint :err="editingPropertyError">
@@ -660,65 +687,44 @@
                         else return value;
                     }
 
-                    const copy = JSON.parse(JSON.stringify(property, ignoreKeys))
+                    const copy1 = JSON.parse(JSON.stringify(property, ignoreKeys))
+                    const copy2 = JSON.parse(JSON.stringify(property, ignoreKeys))
 
                     this.editingProperty = {
-                        property: property,
-                        bytes: [...copy.bytes],
-                        value: copy.value,
-                        referenceBytes: null,
-                        frozen: copy.frozen,
+                        property: copy1,
+                        bytes: [...copy2.bytes],
+                        value: copy2.value,
+                        frozen: copy2.frozen,
                         didBytesChange: function () {
-                            return arraysEqual(this.bytes, this.property.bytes) == false || this.frozen != this.property.frozen
-                        },
-                        didReferenceBytesChange: function () {
-                            if (this.referenceBytes == null) return false
-
-                            return arraysEqual(this.referenceBytes, this.property.bytes) == false || this.frozen != this.property.frozen
+                            return arraysEqual(this.bytes, this.property.bytes) == false
                         },
                         didValueChange: function () {
-                            return false
+                            return this.value != this.property.value
                         },
-                        didPropertyChange: function () {
-                            return this.didBytesChange() || this.didReferenceBytesChange() || this.didValueChange()
+                        didFrozenChange: function () {
+                            return this.frozen != this.property.frozen
                         }
                     }
 
                     this.editingPropertyError = null
                 },
-                editingPropertyReferenceDropdownSelected: function (e) {
-                    this.editingProperty.referenceBytes = [parseInt(e.target.value)]
-                },
                 cancelEditingProperty: function () {
                     this.editingProperty = null
                 },
-                saveEditingPropertyValue: async function () {
-                    this.editingPropertyError = null
-
-                    if (this.editingProperty.didValueChange() == false) {
-                        this.editingProperty = null
-                        return
-                    }
-
+                saveEditingProperty: async function () {
                     try {
-                        await this.mapper._editPropertyValue(this.editingProperty.property.path, this.editingProperty.value, this.editingProperty.frozen)
-                        this.editingProperty = null
-                    } catch (ex) {
-                        console.error(ex)
-                        this.editingPropertyError = ex
-                    }
-                },
-                saveEditingPropertyBytes: async function () {
-                    this.editingPropertyError = null
+                        this.editingPropertyError = null
 
-                    if (this.editingProperty.didBytesChange() == false && this.editingProperty.didReferenceBytesChange() == false) {
-                        this.editingProperty = null
-                        return
-                    }
+                        if (this.editingProperty.didBytesChange()) {
+                            await this.mapper._editPropertyBytes(this.editingProperty.property.path, this.editingProperty.bytes, this.editingProperty.frozen)
+                        } else if (this.editingProperty.didValueChange()) {
+                            await this.mapper._editPropertyValue(this.editingProperty.property.path, this.editingProperty.value, this.editingProperty.frozen)
+                        } else if (this.editingProperty.didFrozenChange()) {
+                            await this.mapper._editPropertyBytes(this.editingProperty.property.path, null, this.editingProperty.frozen)
+                        } else {
+                            throw new Error('Nothing changed?')
+                        }
 
-                    try {
-                        const actualBytes = this.editingProperty.referenceBytes || this.editingProperty.bytes
-                        await this.mapper._editPropertyBytes(this.editingProperty.property.path, actualBytes, this.editingProperty.frozen)
                         this.editingProperty = null
                     } catch (ex) {
                         console.error(ex)

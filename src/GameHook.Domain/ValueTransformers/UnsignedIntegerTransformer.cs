@@ -2,9 +2,9 @@
 {
     public static class UnsignedIntegerTransformer
     {
-        public static byte[] FromValue(uint value)
+        public static byte[] FromValue(uint value, int length)
         {
-            return BitConverter.GetBytes(value);
+            return BitConverter.GetBytes(value).Take(length).ToArray();
         }
 
         public static uint ToValue(byte[] passedInData, bool reverseBytes = false)

@@ -4,7 +4,6 @@ using GameHook.Domain.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace GameHook.WebAPI.Controllers
@@ -79,7 +78,7 @@ namespace GameHook.WebAPI.Controllers
 
     public class UpdatePropertyModel
     {
-        public string? Value { get; init; }
+        public object? Value { get; init; }
         public int[]? Bytes { get; init; }
         public bool? Freeze { get; init; }
     }
@@ -227,7 +226,7 @@ namespace GameHook.WebAPI.Controllers
 
             if (model.Value != null)
             {
-                await prop.WriteValue(model.Value, model.Freeze);
+                await prop.WriteValue(model.Value.ToString() ?? string.Empty, model.Freeze);
             }
             else if (model.Bytes != null && bytes != null)
             {

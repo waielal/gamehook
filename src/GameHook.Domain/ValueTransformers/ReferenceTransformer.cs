@@ -28,6 +28,14 @@
 
     public static class ReferenceTransformer
     {
+        public static byte[]? FromValue(string value, int length, IEnumerable<GlossaryItem> glossaryItems)
+        {
+            var key = glossaryItems.FirstOrDefaultByValue(value)?.Key;
+
+            if (key == null) return null;
+            else return UnsignedIntegerTransformer.FromValue(key ?? 0, length);
+        }
+
         public static object? ToValue(int data, IEnumerable<GlossaryItem> glossaryItems)
         {
             return glossaryItems.SingleOrDefaultByKey(data)?.Value;

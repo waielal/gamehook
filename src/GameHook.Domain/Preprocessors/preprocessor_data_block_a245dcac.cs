@@ -95,7 +95,7 @@ namespace GameHook.Domain.Preprocessors
             // by XORing it, 32 bits (or 4 bytes) at a time.
             var decryptedData = encryptedData
                 .Chunk(4)
-                .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x) ^ decryptionKey))
+                .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x) ^ decryptionKey, 4))
                 .ToArray();
 
             // Return the byte array decrypted.
@@ -131,14 +131,14 @@ namespace GameHook.Domain.Preprocessors
 
             var encryptedByteArray = newDecryptedData
                 .Chunk(4)
-                .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x) ^ dataBlock.DecryptionKey))
+                .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x) ^ dataBlock.DecryptionKey, 4))
                 .ToArray();
 
             // Take the decrypted data, sum the entire data block -- by word (2 bytes) at a time.
             // The checksum returns a uint (32 bits) because IntegerTransformer works that way.
             // We instead only need a short (16 bits) so we only take the first two bytes, discard the rest.
             var newChecksum = newDecryptedData.Chunk(2).Select(IntegerTransformer.ToValue).Sum();
-            var newChecksumBytes = UnsignedIntegerTransformer.FromValue((uint)newChecksum).Take(2).ToArray();
+            var newChecksumBytes = UnsignedIntegerTransformer.FromValue((uint)newChecksum, 2).ToArray();
 
             return new List<DataBlock_a245dcac_WriteResult>()
             {
