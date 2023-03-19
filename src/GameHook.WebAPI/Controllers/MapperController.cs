@@ -90,6 +90,12 @@ namespace GameHook.WebAPI.Controllers
         public bool? Freeze { get; init; }
     }
 
+    public class UpdatePropertyFreezeModel
+    {
+        public string Path { get; init; } = string.Empty;
+        public bool Freeze { get; init; }
+    }
+
     [ApiController]
     [Produces("application/json")]
     [Consumes("application/json")]
@@ -252,18 +258,18 @@ namespace GameHook.WebAPI.Controllers
 
         [HttpPost("set-property-frozen")]
         [SwaggerOperation("Updates a property's frozen status.")]
-        public async Task<ActionResult> FreezePropertyAsync(string path, bool frozen = true)
+        public async Task<ActionResult> FreezePropertyAsync(UpdatePropertyFreezeModel model)
         {
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            path = path.StripEndingRoute().FromRouteToPath();
+            var path = model.Path.StripEndingRoute().FromRouteToPath();
 
             var prop = Instance.Mapper.GetPropertyByPath(path);
 
             if (prop == null) return NotFound();
 
-            if (frozen)
+            if (model.Freeze)
             {
                 await prop.FreezeProperty(prop.Bytes ?? Array.Empty<byte>());
             }
