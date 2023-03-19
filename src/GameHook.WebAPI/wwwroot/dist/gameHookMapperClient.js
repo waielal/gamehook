@@ -20,11 +20,7 @@ class GameHookProperty {
     async setBytes(bytes, freeze) { this._client._editPropertyBytes(this.path, bytes, freeze) }
 
     async freeze(freeze = true) {
-        if (freeze == true) {
-            this._client._editPropertyBytes(this.path, this.bytes, freeze)
-        } else if (freeze == false) {
-            this._client._editPropertyBytes(this.path, null, false)
-        }
+        this._client._editPropertyBytes(this.path, this.bytes, freeze)
     }
 
     change(fn) {
@@ -271,10 +267,10 @@ class GameHookMapperClient {
     async _editPropertyValue(path, value, freeze) {
         path = path.replace('.', '/')
 
-        await fetch(`${this._connectionString}/mapper/properties/${path}/`, {
-            method: 'PUT',
+        await fetch(`${this._connectionString}/mapper/set-property-value/`, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ value: value, freeze: freeze })
+            body: JSON.stringify({ path, value, freeze })
         })
             .then(async (x) => { return { response: x } })
             .then(x => {
@@ -293,10 +289,10 @@ class GameHookMapperClient {
     async _editPropertyBytes(path, bytes, freeze) {
         path = path.replace('.', '/')
 
-        await fetch(`${this._connectionString}/mapper/properties/${path}/`, {
-            method: 'PUT',
+        await fetch(`${this._connectionString}/mapper/set-property-bytes/`, {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ bytes: bytes, freeze: freeze })
+            body: JSON.stringify({ path, bytes, freeze })
         })
             .then(async (x) => { return { response: x } })
             .then(x => {

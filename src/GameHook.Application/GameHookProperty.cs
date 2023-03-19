@@ -217,7 +217,7 @@ namespace GameHook.Application
             };
         }
 
-        public async Task<byte[]> WriteValue(string value, bool? freeze)
+        public async Task<byte[]> WriteValue(string? value, bool? freeze)
         {
             if (IsReadOnly) throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
 
@@ -230,15 +230,20 @@ namespace GameHook.Application
             }
             else
             {
+                if (value == null)
+                {
+                    value = string.Empty;
+                }
+
                 bytes = Type switch
                 {
                     "binaryCodedDecimal" => BinaryCodedDecimalTransformer.FromValue(int.Parse(value)),
                     "bitArray" => BitFieldTransformer.FromValue(value.Split(' ').Select(bool.Parse).ToArray()),
                     "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
                     "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
-                    "int" => IntegerTransformer.FromValue(int.Parse(value), ShouldReverseBytesIfLE()),
+                    "int" => ReverseBytesIfLE(IntegerTransformer.FromValue(int.Parse(value), Size)),
                     "string" => StringTransformer.FromValue(value, Size, GameHookInstance.GetMapper().Glossary[MapperVariables.CharacterMap ?? "defaultCharacterMap"]),
-                    "uint" => UnsignedIntegerTransformer.FromValue(uint.Parse(value), Size),
+                    "uint" => ReverseBytesIfLE(UnsignedIntegerTransformer.FromValue(uint.Parse(value), Size)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
             }
@@ -247,7 +252,7 @@ namespace GameHook.Application
             if (Address == null) { throw new Exception("Address is not defined."); }
             if (bytes == null) { throw new Exception("Bytes is not defined."); }
 
-            await GameHookInstance.Driver.WriteBytes((uint)Address, bytes.Take(Size).ToArray());
+            await GameHookInstance.Driver.WriteBytes((uint)Address, bytes.Take(Size).ToArray().ToArray());
 
             if (freeze == true)
             {

@@ -76,10 +76,17 @@ namespace GameHook.WebAPI.Controllers
         public string? Description { get; init; }
     }
 
-    public class UpdatePropertyModel
+    public class UpdatePropertyValueModel
     {
+        public string Path { get; init; } = string.Empty;
         public object? Value { get; init; }
-        public int[]? Bytes { get; init; }
+        public bool? Freeze { get; init; }
+    }
+
+    public class UpdatePropertyBytesModel
+    {
+        public string Path { get; init; } = string.Empty;
+        public int[] Bytes { get; init; } = Array.Empty<int>();
         public bool? Freeze { get; init; }
     }
 
@@ -206,37 +213,61 @@ namespace GameHook.WebAPI.Controllers
             return Ok(prop.MapToPropertyModel(path));
         }
 
-        [HttpPut("properties/{**path}/")]
+        [HttpPost("set-property-value")]
         [SwaggerOperation("Updates a property's value.")]
-        public async Task<ActionResult> UpdatePropertyAsync(string path, UpdatePropertyModel model)
+        public async Task<ActionResult> UpdatePropertyValueAsync(UpdatePropertyValueModel model)
+        {
+            if (Instance.Initalized == false || Instance.Mapper == null)
+                return ApiHelper.MapperNotLoaded();
+
+            var path = model.Path.StripEndingRoute().FromRouteToPath();
+
+            var prop = Instance.Mapper.GetPropertyByPath(path);
+
+            if (prop == null) return NotFound();
+
+            await prop.WriteValue(model.Value?.ToString(), model.Freeze);
+
+            return Ok();
+        }
+
+        [HttpPost("set-property-bytes")]
+        [SwaggerOperation("Updates a property's bytes.")]
+        public async Task<ActionResult> UpdatePropertyBytesAsync(UpdatePropertyBytesModel model)
+        {
+            if (Instance.Initalized == false || Instance.Mapper == null)
+                return ApiHelper.MapperNotLoaded();
+
+            var path = model.Path.StripEndingRoute().FromRouteToPath();
+            var actualBytes = model.Bytes.Select(x => (byte)x).ToArray();
+
+            var prop = Instance.Mapper.GetPropertyByPath(path);
+
+            if (prop == null) return NotFound();
+
+            await prop.WriteBytes(actualBytes, model.Freeze);
+
+            return Ok();
+        }
+
+        [HttpPost("set-property-frozen")]
+        [SwaggerOperation("Updates a property's frozen status.")]
+        public async Task<ActionResult> FreezePropertyAsync(string path, bool frozen = true)
         {
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
             path = path.StripEndingRoute().FromRouteToPath();
-            var bytes = model.Bytes?.Select(x => (byte)x).ToArray();
 
             var prop = Instance.Mapper.GetPropertyByPath(path);
 
-            if (prop == null)
-                return NotFound();
+            if (prop == null) return NotFound();
 
-            if (model.Value == null && model.Bytes == null && model.Freeze == null)
-                return BadRequest("Invalid arguments.");
-
-            if (model.Value != null)
+            if (frozen)
             {
-                await prop.WriteValue(model.Value.ToString() ?? string.Empty, model.Freeze);
+                await prop.FreezeProperty(prop.Bytes ?? Array.Empty<byte>());
             }
-            else if (model.Bytes != null && bytes != null)
-            {
-                await prop.WriteBytes(bytes, model.Freeze);
-            }
-            else if (model.Freeze == true)
-            {
-                await prop.FreezeProperty(prop.Bytes ?? throw new Exception($"Property {prop.Path} does not have bytes."));
-            }
-            else if (model.Freeze == false)
+            else
             {
                 await prop.UnfreezeProperty();
             }

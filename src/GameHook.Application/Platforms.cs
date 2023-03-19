@@ -55,18 +55,19 @@ namespace GameHook.Application
         public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
         {
             new MemoryAddressBlock(0, "Partial EWRAM 1", 0x00000000, 0x00003FFF),
-            new MemoryAddressBlock(1, "Partial EWRAM 2", 0x02021000, 0x02022FFF),
-            new MemoryAddressBlock(2, "Partial EWRAM 3", 0x02023000, 0x02023FFF),
-            new MemoryAddressBlock(3, "Partial EWRAM 4", 0x02024000, 0x02027FFF),
-            new MemoryAddressBlock(4, "Partial EWRAM 5", 0x02030000, 0x02033FFF),
-            new MemoryAddressBlock(5, "Partial EWRAM 6", 0x02037000, 0x02039999),
-            new MemoryAddressBlock(6, "Partial EWRAM 7", 0x0203A000, 0x0203AFFF),
-            new MemoryAddressBlock(7, "Partial EWRAM 8", 0x0203B000, 0x0203BFFF),
-            new MemoryAddressBlock(8, "Partial EWRAM 9", 0x0203C000, 0x0203CFFF),
-            new MemoryAddressBlock(9, "Partial EWRAM 10", 0x0203D000, 0x0203DFFF),
-            new MemoryAddressBlock(10, "IWRAM", 0x03001000, 0x03004FFF),
-            new MemoryAddressBlock(11, "IWRAM", 0x03005000, 0x03005FFF),
-            new MemoryAddressBlock(12, "IWRAM", 0x03006000, 0x03006000 + 9999)
+            new MemoryAddressBlock(1, "Partial EWRAM 2", 0x02020000, 0x02020FFF),
+            new MemoryAddressBlock(2, "Partial EWRAM 3", 0x02021000, 0x02022FFF),
+            new MemoryAddressBlock(3, "Partial EWRAM 4", 0x02023000, 0x02023FFF),
+            new MemoryAddressBlock(4, "Partial EWRAM 5", 0x02024000, 0x02027FFF),
+            new MemoryAddressBlock(5, "Partial EWRAM 6", 0x02030000, 0x02033FFF),
+            new MemoryAddressBlock(6, "Partial EWRAM 7", 0x02037000, 0x02039999),
+            new MemoryAddressBlock(7, "Partial EWRAM 8", 0x0203A000, 0x0203AFFF),
+            new MemoryAddressBlock(8, "Partial EWRAM 9", 0x0203B000, 0x0203BFFF),
+            new MemoryAddressBlock(9, "Partial EWRAM 10", 0x0203C000, 0x0203CFFF),
+            new MemoryAddressBlock(10, "Partial EWRAM 11", 0x0203D000, 0x0203DFFF),
+            new MemoryAddressBlock(11, "IWRAM", 0x03001000, 0x03004FFF),
+            new MemoryAddressBlock(12, "IWRAM", 0x03005000, 0x03005FFF),
+            new MemoryAddressBlock(13, "IWRAM", 0x03006000, 0x03006000 + 9999)
         }.ToArray();
     }
 

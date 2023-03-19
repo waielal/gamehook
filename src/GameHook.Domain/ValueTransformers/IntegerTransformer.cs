@@ -2,9 +2,9 @@
 {
     public static class IntegerTransformer
     {
-        public static byte[] FromValue(int value, bool reverseBytes)
+        public static byte[] FromValue(int value, int length)
         {
-            return BitConverter.GetBytes(value);
+            return BitConverter.GetBytes(value).Take(length).ToArray();
         }
 
         public static int ToValue(byte[] data)

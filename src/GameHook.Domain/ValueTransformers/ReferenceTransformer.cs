@@ -28,7 +28,7 @@
 
     public static class ReferenceTransformer
     {
-        public static byte[]? FromValue(string value, int length, IEnumerable<GlossaryItem> glossaryItems)
+        public static byte[]? FromValue(string? value, int length, IEnumerable<GlossaryItem> glossaryItems)
         {
             var key = glossaryItems.FirstOrDefaultByValue(value)?.Key;
 
