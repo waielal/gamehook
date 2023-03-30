@@ -26,7 +26,10 @@ namespace GameHook.Domain.Interfaces
 
         public string? Expression { get; init; }
         public string? Preprocessor { get; init; }
-        public string? Postprocessor { get; init; }
+        public string? PostprocessorReader { get; init; }
+        public string? PostprocessorWriter { get; init; }
+
+        public string? StaticValue { get; init; }
     }
 
     public interface IGameHookProperty

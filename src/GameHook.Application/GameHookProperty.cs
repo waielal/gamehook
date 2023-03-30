@@ -13,6 +13,11 @@ namespace GameHook.Application
         {
             GameHookInstance = gameHookInstance;
             MapperVariables = mapperVariables;
+
+            if (IsStaticValue)
+            {
+                Value = mapperVariables.StaticValue;
+            }
         }
 
         protected IGameHookInstance GameHookInstance { get; }
@@ -37,11 +42,17 @@ namespace GameHook.Application
 
         public string? Description => MapperVariables.Description;
 
+        public bool IsStaticValue
+        {
+            get { return string.IsNullOrEmpty(MapperVariables.StaticValue) == false; }
+        }
+
         public bool IsReadOnly
         {
             get
             {
                 if (Address == null) return true;
+                if (IsStaticValue) return true;
 
                 return false;
             }
@@ -69,6 +80,8 @@ namespace GameHook.Application
         private static readonly PropertyValueResult EmptyPropertyValueResult = new PropertyValueResult();
         public PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult)
         {
+            if (IsStaticValue) { return new PropertyValueResult(); }
+
             var preprocessorCache = GameHookInstance.PreprocessorCache ?? throw new Exception("GameHookInstance.PreprocessorCache is NULL.");
 
             // preBytes is used by preprocessors if
@@ -155,16 +168,16 @@ namespace GameHook.Application
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
 
-                if (string.IsNullOrEmpty(MapperVariables.Postprocessor) == false)
+                if (string.IsNullOrEmpty(MapperVariables.PostprocessorReader) == false)
                 {
-                    var postprocessorExpression = new Expression(MapperVariables.Postprocessor);
+                    var postprocessorExpression = new Expression(MapperVariables.PostprocessorReader);
 
                     postprocessorExpression.Parameters["x"] = value;
 
                     postprocessorExpression.EvaluateFunction += delegate (string name, FunctionArgs args)
                     {
                         if (name == "BitRange")
-                            args.Result = NCalcFunctions.BitRange((int)args.Parameters[0].Evaluate(), (int)args.Parameters[1].Evaluate(), (int)args.Parameters[2].Evaluate());
+                            args.Result = NCalcFunctions.ReadBitRange((int)args.Parameters[0].Evaluate(), (int)args.Parameters[1].Evaluate(), (int)args.Parameters[2].Evaluate());
                     };
 
                     // TODO: We probably shouldn't hardcode int32 here -- probably should be dependent on the platform?
@@ -246,6 +259,23 @@ namespace GameHook.Application
                     "uint" => ReverseBytesIfLE(UnsignedIntegerTransformer.FromValue(uint.Parse(value), Size)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
+            }
+
+            if (string.IsNullOrEmpty(MapperVariables.PostprocessorWriter) == false)
+            {
+                var postprocessorExpression = new Expression(MapperVariables.PostprocessorWriter);
+
+                postprocessorExpression.Parameters["x"] = bytes;
+                postprocessorExpression.Parameters["y"] = Bytes;
+
+                postprocessorExpression.EvaluateFunction += delegate (string name, FunctionArgs args)
+                {
+                    if (name == "BitRange")
+                        args.Result = NCalcFunctions.WriteBitRange((byte[])args.Parameters[0].Evaluate(), (byte[])args.Parameters[1].Evaluate(), (int)args.Parameters[2].Evaluate(), (int)args.Parameters[3].Evaluate());
+                };
+
+                // TODO: We probably shouldn't hardcode int32 here -- probably should be dependent on the platform?
+                bytes = (byte[])postprocessorExpression.Evaluate();
             }
 
             if (GameHookInstance.Driver == null) { throw new Exception("Driver is not defined."); }

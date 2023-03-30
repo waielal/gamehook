@@ -221,7 +221,7 @@
 
                                     <input class="input is-dark" type="text" v-model="editingProperty.value" />
                                 </div>
-                                <div v-else-if="editingProperty.property.type === 'bit'">
+                                <div v-else-if="editingProperty.property.type === 'bit' || editingProperty.property.type === 'bool'">
                                     <div for="value">Value:</div>
 
                                     <select class="input is-dark" v-model="editingProperty.value">

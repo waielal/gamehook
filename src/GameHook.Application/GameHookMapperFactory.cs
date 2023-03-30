@@ -123,7 +123,7 @@ namespace GameHook.Application
 
             try
             {
-                if (insideMacro == false && source.ContainsKey("type") && (source.ContainsKey("address") || source.ContainsKey("preprocessor")) || (insideMacro == true && source.ContainsKey("type") && source.ContainsKey("offset")))
+                if (insideMacro == false && source.ContainsKey("type") && (source.ContainsKey("address") || source.ContainsKey("preprocessor") || source.ContainsKey("staticValue")) || (insideMacro == true && source.ContainsKey("type") && source.ContainsKey("offset")))
                 {
                     ParseProperty(instance, root, properties, source, key, macroPointer);
                 }
@@ -137,13 +137,13 @@ namespace GameHook.Application
                         if (childKey.StartsWith("_"))
                         {
                             var childKeyCharArray = childKey.ToCharArray();
-                            
+
                             // Keys that contain only _ or _0, _1, etc. are considered merge operators.
                             if (childKeyCharArray.Length == 1 || childKeyCharArray.Skip(1).All(char.IsDigit))
                             {
                                 // Setting child key to empty will force it to merge
                                 // the transversed properties with it's parent.
-                                
+
                                 definedChildKey = string.Empty;
                             }
                             else
@@ -188,23 +188,38 @@ namespace GameHook.Application
             }
         }
 
+        private static string? GetValue(this IDictionary<object, object> dictionary, string key)
+        {
+            return dictionary.ContainsKey(key) ? dictionary[key].ToString() : null;
+        }
+
+        private static bool DoesDefineValue(this IDictionary<object, object> dictionary, string key)
+        {
+            return dictionary.ContainsKey(key) ? string.IsNullOrEmpty(dictionary[key].ToString()) == false : false;
+        }
+
         private static void ParseProperty(IGameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
         {
             if (string.IsNullOrEmpty(key))
                 throw new Exception("Key cannot be null.");
 
             // Convert the property object into an IGameHookProperty.
-            var type = source["type"].ToString() ?? throw new Exception("Type is required.");
-            var size = (source.ContainsKey("size") ? int.Parse(source["size"].ToString() ?? string.Empty) : 1);
+            var type = source.GetValue("type") ?? throw new Exception("Type is required.");
+            var size = int.Parse(source.GetValue("size") ?? "1");
             var position = (int?)(source.ContainsKey("position") ? int.Parse(source["position"].ToString() ?? "1") : null);
-            var description = source.ContainsKey("description") ? source["description"].ToString() : null;
-            var reference = source.ContainsKey("reference") ? source["reference"].ToString() : null;
-            var characterMap = source.ContainsKey("characterMap") ? source["characterMap"].ToString() : null;
-            var macro = source.ContainsKey("macro") ? source["macro"].ToString() : null;
+            var description = source.GetValue("description");
+            var reference = source.GetValue("reference");
+            var characterMap = source.GetValue("characterMap");
+            var macro = source.GetValue("macro");
             var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
-            var preprocessor = source.ContainsKey("preprocessor") ? source["preprocessor"].ToString() : null;
-            var postprocessor = source.ContainsKey("postprocessor") ? source["postprocessor"].ToString() : null;
-            var expression = source.ContainsKey("expression") ? source["expression"].ToString() : null;
+            var preprocessor = source.GetValue("preprocessor");
+
+            // TODO: 3/29/2023 Remove 'postprocessor' key in a future version. Mappers will migrate to postprocessorReader.
+            var postprocessorReader = source.GetValue("preprocessorReader") ?? source.GetValue("preprocessor");
+            var postprocessorWriter = source.GetValue("postprocessorWriter");
+
+            var expression = source.GetValue("expression");
+            var staticValue = source.GetValue("staticValue");
 
             // TODO: 8/23/2022 Remove this in a future versions.
             if (type == "reference")
@@ -222,14 +237,17 @@ namespace GameHook.Application
             }
             else
             {
-                if ((source.ContainsKey("address") == false || string.IsNullOrEmpty(source["address"].ToString())) && source.ContainsKey("preprocessor") == false)
+                if (source.ContainsKey("preprocessor") == false && source.ContainsKey("staticValue") == false)
                 {
-                    throw new Exception($"Property {key} is missing a required field: address.");
+                    if (source.DoesDefineValue("address") == false)
+                    {
+                        throw new Exception($"Property {key} is missing a required field: address.");
+                    }
                 }
 
-                if (source.ContainsKey("address"))
+                if (source.DoesDefineValue("address"))
                 {
-                    address = (source["address"]?.ToString() ?? string.Empty).FromHexdecimalStringToUint();
+                    address = source.GetValue("address")?.FromHexdecimalStringToUint() ?? throw new Exception("Cannot determine address.");
                 }
             }
 
@@ -256,7 +274,8 @@ namespace GameHook.Application
                     Path = key,
 
                     Preprocessor = preprocessor,
-                    Postprocessor = postprocessor,
+                    PostprocessorReader = postprocessorReader,
+                    PostprocessorWriter = postprocessorWriter,
                     Type = type,
                     Address = address,
                     Size = size,
@@ -264,7 +283,8 @@ namespace GameHook.Application
                     Reference = reference,
                     CharacterMap = characterMap,
                     Expression = expression,
-                    Description = description
+                    Description = description,
+                    StaticValue = staticValue
                 };
 
                 properties.Add(new GameHookProperty(instance, variables));
