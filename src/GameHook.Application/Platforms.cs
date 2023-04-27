@@ -67,7 +67,8 @@ namespace GameHook.Application
             new MemoryAddressBlock(10, "Partial EWRAM 11", 0x0203D000, 0x0203DFFF),
             new MemoryAddressBlock(11, "IWRAM", 0x03001000, 0x03004FFF),
             new MemoryAddressBlock(12, "IWRAM", 0x03005000, 0x03005FFF),
-            new MemoryAddressBlock(13, "IWRAM", 0x03006000, 0x03006000 + 9999)
+            new MemoryAddressBlock(13, "IWRAM", 0x03006000, 0x03006FFF),
+            new MemoryAddressBlock(14, "IWRAM", 0x03007000, 0x03007FFF)
         }.ToArray();
     }
 

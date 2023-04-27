@@ -215,7 +215,7 @@ namespace GameHook.Application
             var preprocessor = source.GetValue("preprocessor");
 
             // TODO: 3/29/2023 Remove 'postprocessor' key in a future version. Mappers will migrate to postprocessorReader.
-            var postprocessorReader = source.GetValue("preprocessorReader") ?? source.GetValue("preprocessor");
+            var postprocessorReader = source.GetValue("postprocessorReader") ?? source.GetValue("postprocessor");
             var postprocessorWriter = source.GetValue("postprocessorWriter");
 
             var expression = source.GetValue("expression");

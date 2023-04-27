@@ -187,6 +187,7 @@ namespace GameHook.Application
                 }
                 catch (Exception ex)
                 {
+                    Logger.LogError(ex, $"Failed to process propery {x.Path}.");
                     throw new PropertyProcessException($"Failed to process propery {x.Path}.", ex);
                 }
             }).ToArray());

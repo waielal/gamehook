@@ -179,10 +179,6 @@ namespace GameHook.Domain.Drivers
                 return new MemoryAddressBlockResult(x.Index, x.Name, x.StartingAddress, x.EndingAddress, data);
             }));
 
-#if DEBUG
-            File.WriteAllText(@"C:\TEMP\ReadBytes.json", System.Text.Json.JsonSerializer.Serialize(results));
-#endif
-
             return results.ToList();
         }
     }
