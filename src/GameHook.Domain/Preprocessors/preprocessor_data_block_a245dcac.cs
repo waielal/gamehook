@@ -7,18 +7,18 @@ namespace GameHook.Domain.Preprocessors
         public MemoryAddress Address { get; init; }
         public uint DecryptionKey { get; init; }
         public uint Checksum { get; init; }
-        public int[] SubstructureOrdering { get; init; } = new int[0];
+        public int[] SubstructureOrdering { get; init; } = Array.Empty<int>();
 
-        public byte[] EncryptedData { get; init; } = new byte[0];
-        public byte[] DecryptedData { get; init; } = new byte[0];
+        public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
+        public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
     }
 
     public class DataBlock_a245dcac_ReadResult
     {
         public MemoryAddress Address { get; init; }
 
-        public byte[] EncryptedData { get; init; } = new byte[0];
-        public byte[] DecryptedData { get; init; } = new byte[0];
+        public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
+        public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
     }
 
     public class DataBlock_a245dcac_WriteResult
@@ -62,7 +62,7 @@ namespace GameHook.Domain.Preprocessors
             };
         }
 
-        public static DataBlock_a245dcac_Cache decrypt_data_block_a245dcac(DataBlock_a245dcac_Cache? existingCache, IEnumerable<MemoryAddressBlockResult> blocks, uint startingAddress)
+        public static DataBlock_a245dcac_Cache decrypt_data_block_a245dcac(DataBlock_a245dcac_Cache? existingCache, IEnumerable<MemoryAddressBlockResult> blocks, MemoryAddress startingAddress)
         {
             // Starting Address is the start of the P data structure.
             var memoryAddressBlock = blocks.GetResultWithinRange(startingAddress) ?? throw new Exception($"Unable to retrieve memory block for address {startingAddress.ToHexdecimalString()}.");
@@ -113,12 +113,12 @@ namespace GameHook.Domain.Preprocessors
         public static DataBlock_a245dcac_ReadResult read_data_block_a245dcac(int structureIndex, int offset, int size, DataBlock_a245dcac_Cache decryptedDataBlock)
         {
             var structurePositionForProperty = decryptedDataBlock.SubstructureOrdering[structureIndex];
-            var propertyStartingOffset = (structurePositionForProperty * 12) + offset;
+            var propertyStartingOffset =(structurePositionForProperty * 12) + offset;
             var propertyEndingOffset = propertyStartingOffset + size;
 
             return new DataBlock_a245dcac_ReadResult()
             {
-                Address = (MemoryAddress)(decryptedDataBlock.Address + propertyStartingOffset),
+                Address = decryptedDataBlock.Address + (uint)propertyStartingOffset,
                 EncryptedData = decryptedDataBlock.EncryptedData[propertyStartingOffset..propertyEndingOffset],
                 DecryptedData = decryptedDataBlock.DecryptedData[propertyStartingOffset..propertyEndingOffset]
             };

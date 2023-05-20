@@ -39,7 +39,7 @@ namespace GameHook.IntegrationTests
                 Address = 0x02024AE1,
                 Bytes = new int[] { 0x00 },
                 Path = "gameTime.seconds",
-                Size = 1,
+                Length = 1,
                 Type = "int",
                 Value = 0
             }, gameTimeSeconds_1);
@@ -49,7 +49,7 @@ namespace GameHook.IntegrationTests
                 Address = 0x02024AE2,
                 Bytes = new int[] { 0x0C },
                 Path = "gameTime.frames",
-                Size = 1,
+                Length = 1,
                 Type = "int",
                 Value = 12
             }, gameTimeFrames_1);

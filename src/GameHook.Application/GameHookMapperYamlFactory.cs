@@ -1,8 +1,6 @@
-﻿using GameHook.Domain;
-using GameHook.Domain.DTOs;
+using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using YamlDotNet.Serialization;
 
 namespace GameHook.Application
@@ -37,11 +35,8 @@ namespace GameHook.Application
         public MemoryAddress Address { get; set; }
     }
 
-    public static class GameHookMapperFactory
+    public static class GameHookMapperYamlFactory
     {
-        private static string? GetMapperUserSettingsPath(Guid id) =>
-            Path.Combine(BuildEnvironment.MapperUserSettingsDirectory, $"{id}.json");
-
         public static GameHookMapper ReadMapper(IGameHookInstance instance, IMapperFilesystemProvider provider, string filesystemId)
         {
             if (string.IsNullOrEmpty(filesystemId))
@@ -70,27 +65,10 @@ namespace GameHook.Application
             // Load metadata.
             var metadata = new MapperMetadata()
             {
-                SchemaVersion = data.meta.schemaVersion,
                 Id = data.meta.id,
                 GameName = data.meta.gameName,
                 GamePlatform = data.meta.gamePlatform
             };
-
-            // Load user settings.
-            MapperUserSettingsDTO? mapperUserSettings = null;
-            var mapperUserSettingsPath = GetMapperUserSettingsPath(metadata.Id);
-
-            if (File.Exists(mapperUserSettingsPath))
-            {
-                var mapperUserSettingsContents = File.ReadAllText(mapperUserSettingsPath);
-
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-
-                mapperUserSettings = JsonSerializer.Deserialize<MapperUserSettingsDTO>(mapperUserSettingsContents, options);
-            }
 
             // Load properties.
             var properties = new List<GameHookProperty>();
@@ -103,18 +81,15 @@ namespace GameHook.Application
             {
                 var list = new List<GlossaryItem>();
 
-                if (x.Value != null)
+                foreach (var y in x.Value)
                 {
-                    foreach (var y in x.Value)
-                    {
-                        list.Add(new GlossaryItem(y.Key, y.Value));
-                    }
+                    list.Add(new GlossaryItem(y.Key, y.Value));
                 }
 
                 glossary.Add(x.Key, list);
             }
 
-            return new GameHookMapper(filesystemId, metadata, properties, glossary, mapperUserSettings);
+            return new GameHookMapper(metadata, properties, glossary);
         }
 
         private static void TranserveMapperFile(IGameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
@@ -212,7 +187,7 @@ namespace GameHook.Application
             var characterMap = source.GetValue("characterMap");
             var macro = source.GetValue("macro");
             var offset = (int?)(source.ContainsKey("offset") ? int.Parse(source["offset"].ToString() ?? string.Empty) : null);
-            var preprocessor = source.GetValue("preprocessor");
+            var preprocessor = source.GetValue("preprocessor")?.NormalizeMemoryAddresses();
 
             // TODO: 3/29/2023 Remove 'postprocessor' key in a future version. Mappers will migrate to postprocessorReader.
             var postprocessorReader = source.GetValue("postprocessorReader") ?? source.GetValue("postprocessor");
@@ -247,7 +222,7 @@ namespace GameHook.Application
 
                 if (source.DoesDefineValue("address"))
                 {
-                    address = source.GetValue("address")?.FromHexdecimalStringToUint() ?? throw new Exception("Cannot determine address.");
+                    address = source.GetValue("address")?.NormalizeMemoryAddresses().ToMemoryAddress() ?? throw new Exception("Cannot determine address.");
                 }
             }
 
@@ -273,17 +248,16 @@ namespace GameHook.Application
                 {
                     Path = key,
 
+                    Type = type,
+                    Address = address,
+                    Length = size,
+                    Position = position,
+                    Reference = reference,
+                    Description = description,
+                    Expression = expression,
                     Preprocessor = preprocessor,
                     PostprocessorReader = postprocessorReader,
                     PostprocessorWriter = postprocessorWriter,
-                    Type = type,
-                    Address = address,
-                    Size = size,
-                    Position = position,
-                    Reference = reference,
-                    CharacterMap = characterMap,
-                    Expression = expression,
-                    Description = description,
                     StaticValue = staticValue
                 };
 

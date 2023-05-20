@@ -19,7 +19,7 @@ namespace GameHook.WebAPI
                 .Map(dest => dest.Path, src => src.Path)
                 .Map(dest => dest.Type, src => src.Type)
                 .Map(dest => dest.Address, src => src.Address)
-                .Map(dest => dest.Size, src => src.Size)
+                .Map(dest => dest.Length, src => src.Length)
                 .Map(dest => dest.Position, src => src.MapperVariables.Position)
                 .Map(dest => dest.Reference, src => src.MapperVariables.Reference)
                 .Map(dest => dest.Value, src => src.Value)

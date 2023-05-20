@@ -2,41 +2,33 @@
 {
     public static class ReferenceHelper
     {
-        public static GlossaryItem? SingleOrDefaultByKey(this IEnumerable<GlossaryItem> glossaryItems, int data)
+        public static GlossaryItem? SingleOrDefaultByKey(this IEnumerable<GlossaryItem> glossaryItems, ulong data)
         {
             return glossaryItems.SingleOrDefault(x => x.Key == data);
         }
 
-        public static GlossaryItem? SingleOrDefaultByKey(this IEnumerable<GlossaryItem> glossaryItems, byte[] bytes)
-        {
-            var convertedValue = UnsignedIntegerTransformer.ToValue(bytes);
-            return glossaryItems.SingleOrDefault(x => x.Key == convertedValue);
-        }
-
         public static GlossaryItem? FirstOrDefaultByValue(this IEnumerable<GlossaryItem> glossaryItems, string? value)
         {
-            var item = glossaryItems.FirstOrDefault(x => x.Value?.ToString() == value);
-
-            if (item == null)
+            if (value == null)
             {
-                return null;
+                return glossaryItems.FirstOrDefault(x => x.Value == null);
             }
 
-            return item;
+            return glossaryItems.FirstOrDefault(x => x.Value?.ToString() == value);
         }
     }
 
     public static class ReferenceTransformer
     {
-        public static byte[]? FromValue(string? value, int length, IEnumerable<GlossaryItem> glossaryItems)
+        public static byte[]? FromValue(string? value, IEnumerable<GlossaryItem> glossaryItems)
         {
             var key = glossaryItems.FirstOrDefaultByValue(value)?.Key;
 
             if (key == null) return null;
-            else return UnsignedIntegerTransformer.FromValue(key ?? 0, length);
+            else return BitConverter.GetBytes(key ?? throw new Exception($"BitConverter cannot convert {key} to a byte array."));
         }
 
-        public static object? ToValue(int data, IEnumerable<GlossaryItem> glossaryItems)
+        public static object? ToValue(ulong data, IEnumerable<GlossaryItem> glossaryItems)
         {
             return glossaryItems.SingleOrDefaultByKey(data)?.Value;
         }

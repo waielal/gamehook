@@ -1,18 +1,14 @@
 using Microsoft.Extensions.Configuration;
+using System.Data;
 
 namespace GameHook.Domain
 {
     public static class Extensions
     {
-        public static string ToHexdecimalString(this uint value) => $"0x{value:X2}";
+        public static string ToHexdecimalString(this MemoryAddress value) => $"0x{value:X2}";
         public static string ToHexdecimalString(this byte value) => ((uint)value).ToHexdecimalString();
-        public static string ToHexdecimalString(this byte[] bytes) => string.Join(", ", bytes.ToHexdecimalStringArray());
-        public static string[] ToHexdecimalStringArray(this byte[] bytes) => bytes.Select(x => x.ToHexdecimalString()).ToArray();
 
-        public static IEnumerable<int> ToIntegerArray(this byte[] bytes) => bytes.Select(x => (int)x).ToList();
-
-        public static byte FromHexdecimalStringToByte(this string value) => Convert.ToByte(value, 16);
-        public static uint FromHexdecimalStringToUint(this string value) => Convert.ToUInt32(value, 16);
+        public static IEnumerable<int> ToIntegerArray(this byte[] bytes) => bytes.Select(x => (int)x).ToArray();
 
         public static string GetRequiredValue(this IConfiguration configuration, string key)
         {
@@ -24,17 +20,12 @@ namespace GameHook.Domain
             return value;
         }
 
-        public static string GetValue(this IConfiguration configuration, string key)
-        {
-            return configuration[key];
-        }
-
-        public static bool Between(this uint value, uint min, uint max)
+        public static bool Between(this MemoryAddress value, MemoryAddress min, MemoryAddress max)
         {
             return value >= min && value <= max;
         }
 
-        public static MemoryAddressBlockResult? GetResultWithinRange(this IEnumerable<MemoryAddressBlockResult> blocks, uint address)
+        public static MemoryAddressBlockResult? GetResultWithinRange(this IEnumerable<MemoryAddressBlockResult> blocks, MemoryAddress address)
         {
             return blocks.SingleOrDefault(x => address >= x.StartingAddress && address <= x.EndingAddress);
         }
@@ -47,36 +38,37 @@ namespace GameHook.Domain
             return block.Data[startingOffset..endingOffset];
         }
 
-        public static byte[]? GetAddress(this IEnumerable<MemoryAddressBlockResult> blocks, uint address, int length)
+        public static byte[]? GetAddressData(this IEnumerable<MemoryAddressBlockResult> blocks, uint address, int length)
         {
             return GetResultWithinRange(blocks, address)?.GetRelativeAddress(address, length);
         }
 
-        public static int GetIntParameterFromFunctionString(this string function, int position)
+        public static MemoryAddress ToMemoryAddress(this string memoryAddress)
+        {
+            if (MemoryAddress.TryParse(memoryAddress, out var result)) { return result; }
+            throw new Exception($"Unable to determine memory address from string {memoryAddress}. It must be in decimal form (not hexdecimal).");
+        }
+
+        public static int GetIntParameterFromFunction(this string function, int position)
         {
             return int.Parse(function.Between("(", ")").Split(",")[position]);
         }
 
-        public static uint GetHexdecimalParameterFromFunctionString(this string function, int position)
+        public static MemoryAddress GetMemoryAddressFromFunction(this string function, int position)
         {
-            return function.Between("(", ")").Split(",")[position].ToString().FromHexdecimalStringToUint();
+            return function.Between("(", ")").Split(",")[position].ToMemoryAddress();
         }
 
         public static string Between(this string str, string firstString, string lastString)
         {
-            string FinalString;
-            int Pos1 = str.IndexOf(firstString) + firstString.Length;
-            int Pos2 = str.IndexOf(lastString);
-            FinalString = str.Substring(Pos1, Pos2 - Pos1);
-            return FinalString;
+            int start = str.IndexOf(firstString) + firstString.Length;
+            int end = str.IndexOf(lastString);
+            return str.Substring(start, end - start);
         }
 
         public static async Task ForEachAsync<T>(this List<T> list, Func<T, Task> func)
         {
-            foreach (var value in list)
-            {
-                await func(value);
-            }
+            foreach (var value in list) await func(value);
         }
     }
 }

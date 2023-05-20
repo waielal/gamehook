@@ -18,10 +18,9 @@ namespace GameHook.Domain.Interfaces
 
         public string Type { get; init; } = string.Empty;
         public MemoryAddress? Address { get; init; }
-        public int Size { get; init; } = 1;
+        public int Length { get; init; } = 1;
         public int? Position { get; init; }
         public string? Reference { get; init; }
-        public string? CharacterMap { get; init; }
         public string? Description { get; init; }
 
         public string? Expression { get; init; }
@@ -38,7 +37,7 @@ namespace GameHook.Domain.Interfaces
 
         string Path { get; }
         string Type { get; }
-        int Size { get; }
+        int Length { get; }
         uint? Address { get; }
         bool IsDynamicAddress { get; }
 
@@ -53,8 +52,6 @@ namespace GameHook.Domain.Interfaces
         bool Frozen { get; }
 
         string? Description { get; }
-
-        string? CharacterMap { get; }
 
         PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult);
         Task<byte[]> WriteValue(string? value, bool? freeze);

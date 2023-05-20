@@ -26,7 +26,7 @@ namespace GameHook.WebAPI.ClientNotifiers
         public Task SendDriverError(ProblemDetailsForClientDTO problemDetails) =>
             _hubContext.Clients.All.SendAsync("DriverError", problemDetails);
 
-        public Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged, MapperUserSettingsDTO? _) =>
+        public Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged) =>
             _hubContext.Clients.All.SendAsync("PropertyChanged", property.Path, property.Address, property.Value, property.Bytes?.ToIntegerArray(), property.Frozen, fieldsChanged);
 
         public Task SendUiBuilderScreenSaved(Guid id) =>

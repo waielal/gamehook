@@ -14,22 +14,22 @@ namespace GameHook.IntegrationTests
             await Load_GB_PokemonYellow(0);
 
             var mapper = await GameHookClient.GetMapperAsync();
-            var bcdValue_1 = mapper.Properties.Single(x => x.Path == "player.money");
-            var bcdValue_2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "player.money");
-            var bcdValue_3 = await GameHookClient.GetPropertyAsync("player.money");
+            var playerMoney = mapper.Properties.Single(x => x.Path == "player.money");
+            var playerMoney2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "player.money");
+            var playerMoney3 = await GameHookClient.GetPropertyAsync("player.money");
 
-            Assert.AreEqual(bcdValue_1.Address, 0xD346);
-            Assert.AreBytesEqual(bcdValue_1.Bytes, new List<int>() { 0x03, 0x42, 0x07 });
-            Assert.IsNull(bcdValue_1.Description);
-            Assert.IsNull(bcdValue_1.Position);
-            Assert.AreEqual(bcdValue_1.Path, "player.money");
-            Assert.IsNull(bcdValue_1.Reference);
-            Assert.AreEqual(bcdValue_1.Size, 3);
-            Assert.AreEqual(bcdValue_1.Type, "binaryCodedDecimal");
-            Assert.AreValuesEqual(34207, bcdValue_1.Value);
+            Assert.AreEqual(playerMoney.Address, 0xD346);
+            Assert.AreBytesEqual(playerMoney.Bytes, new List<int>() { 0x06, 0x84, 0x15 });
+            Assert.IsNull(playerMoney.Description);
+            Assert.IsNull(playerMoney.Position);
+            Assert.AreEqual(playerMoney.Path, "player.money");
+            Assert.IsNull(playerMoney.Reference);
+            Assert.AreEqual(playerMoney.Length, 3);
+            Assert.AreEqual(playerMoney.Type, "binaryCodedDecimal");
+            Assert.AreValuesEqual(68415, playerMoney.Value);
 
-            Assert.ArePropertiesEqual(bcdValue_1, bcdValue_2);
-            Assert.ArePropertiesEqual(bcdValue_1, bcdValue_3);
+            Assert.ArePropertiesEqual(playerMoney, playerMoney2);
+            Assert.ArePropertiesEqual(playerMoney, playerMoney3);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace GameHook.IntegrationTests
             Assert.IsNull(bcdValue_1.Position);
             Assert.AreEqual(bcdValue_1.Path, "player.pokedexSeen");
             Assert.IsNull(bcdValue_1.Reference);
-            Assert.AreEqual(bcdValue_1.Size, 19);
+            Assert.AreEqual(bcdValue_1.Length, 19);
             Assert.AreEqual(bcdValue_1.Type, "bitArray");
             Assert.AreEqual(152, bcdValue_1.ValueToTypeArray<bool>().Count());
             //Assert.AreValueArraysEqual(new List<bool>() { true, true, false, true, false, false, true, false, false, true, true, false, true, true, false, true, false, false, true, true, true, true, true, true, false, true, true, true, true, false, true, true, true, true, false, false, true, true, false, false, true, true, true, true, false, true, false, true, true, true, true, true, true, false, false, true, false, true, true, false, false, false, true, true, true, true, true, true, true, true, false, false, false, true, true, false, true, true, true, true, false, false, false, true, false, false, true, true, false, true, true, true, true, true, true, true, true, false, false, true, false, true, false, true, true, true, true, false, true, true, true, true, false, true, false, false, false, true, false, true, true, false, false, true, false, false, false, true, false, true, true, false, true, false, true, false, true, false, false, false, false, true, true, false, false, false, false, true, true, false, false, false }, (JArray) bcdValue_1.Value);
@@ -62,24 +62,24 @@ namespace GameHook.IntegrationTests
             await Load_GB_PokemonYellow(0);
 
             var mapper = await GameHookClient.GetMapperAsync();
-            var bitValue_1 = mapper.Properties.Single(x => x.Path == "settings.battleStyle");
-            var bitValue_2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "settings.battleStyle");
-            var bitValue_3 = await GameHookClient.GetPropertyAsync("settings.battleStyle");
+            var battleStyle = mapper.Properties.Single(x => x.Path == "settings.battleStyle");
+            var battleStyle2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "settings.battleStyle");
+            var battleStyle3 = await GameHookClient.GetPropertyAsync("settings.battleStyle");
 
             Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
                 Address = 0xD354,
-                Bytes = new int[] { 0x41 },
+                Bytes = new int[] { 0xC1 },
                 Position = 6,
                 Path = "settings.battleStyle",
-                Size = 1,
+                Length = 1,
                 Type = "bit",
                 Frozen = false,
                 Value = true
-            }, bitValue_1);
+            }, battleStyle);
 
-            Assert.ArePropertiesEqual(bitValue_1, bitValue_2);
-            Assert.ArePropertiesEqual(bitValue_1, bitValue_3);
+            Assert.ArePropertiesEqual(battleStyle, battleStyle2);
+            Assert.ArePropertiesEqual(battleStyle, battleStyle3);
         }
 
         [TestMethod]
@@ -101,9 +101,29 @@ namespace GameHook.IntegrationTests
         }
 
         [TestMethod]
-        public void Property_OK_String()
+        public async Task Property_OK_String()
         {
+            await Load_GB_PokemonYellow(0);
 
+            var mapper = await GameHookClient.GetMapperAsync();
+            var playerName = mapper.Properties.Single(x => x.Path == "player.name");
+            var playerName2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "player.name");
+            var playerName3 = await GameHookClient.GetPropertyAsync("player.name");
+
+            Assert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
+            {
+                Address = 0xD157,
+                Bytes = new int[] { 0x95, 0xA0, 0xAD, 0x8C, 0xA0, 0xAD, 0x50, 0x00, 0x00, 0x00, 0x00 },
+                Position = null,
+                Path = "player.name",
+                Length = 11,
+                Type = "string",
+                Frozen = false,
+                Value = "VanMan"
+            }, playerName);
+
+            Assert.ArePropertiesEqual(playerName, playerName2);
+            Assert.ArePropertiesEqual(playerName, playerName3);
         }
 
         [TestMethod]

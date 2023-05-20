@@ -20,37 +20,19 @@
                 uints.Add(nullTerminationKey ?? throw new Exception("NullTerminationKey is NULL."));
             }
 
-            return uints.Select(x => x.ToHexdecimalString().FromHexdecimalStringToByte()).ToArray();
+            return uints.Select(x => (byte)x).ToArray();
         }
 
         public static string ToValue(byte[] data, IEnumerable<GlossaryItem> glossaryItems)
         {
-            var results = new List<string?>();
-
-            var values = data.Select(b => glossaryItems.SingleOrDefaultByKey(new byte[] { b })?.Value as string);
-
-            // If the returned values array is empty,
-            // then there's nothing to do, return an empty string.
-            if (values.Any() == false)
+            var results = data.Select(b =>
             {
-                return string.Empty;
-            }
-
-            foreach (var charItem in values)
-            {
-                if (charItem == null)
-                {
-                    // This is likely a non-displayable character.
-
-                    break;
-                }
-
-                // Add the character to the string buffer.
-                results.Add(charItem);
-            }
+                var glossaryItem = glossaryItems.SingleOrDefault(x => x.Key == b);
+                return glossaryItem?.Value?.ToString() ?? null;
+            });
 
             // Return the completed string buffer.
-            return string.Join(string.Empty, results);
+            return string.Join(string.Empty, results.TakeWhile(s => s != null));
         }
     }
 }

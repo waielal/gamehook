@@ -54,7 +54,7 @@ namespace GameHook.IntegrationTests
             A.AreEqual(expected.Path, actual.Path);
             A.AreEqual(expected.Position, actual.Position);
             A.AreEqual(expected.Reference, actual.Reference);
-            A.AreEqual(expected.Size, actual.Size);
+            A.AreEqual(expected.Length, actual.Length);
             A.AreEqual(expected.Type, actual.Type);
             A.AreEqual(expected.Value, actual.Value);
         }
@@ -151,7 +151,7 @@ namespace GameHook.IntegrationTests
             });
         }
 
-        public async Task Load_GB_PokemonYellow(int n) => await LoadMapperAndRamState("b2b7d2d6-5cf0-4db1-9152-1efc7fe36926", string.Empty, n);
+        public async Task Load_GB_PokemonYellow(int n) => await LoadMapperAndRamState("b2b7d2d6-5cf0-4db1-9152-1efc7fe36926", "ff4d0e23c73b21068ef1f5deffb6b6ea", n);
         public async Task Load_GBA_PokemonEmerald(int n) => await LoadMapperAndRamState("005fdd01-8921-468c-aca3-d4fa864d5911", "5708b192924d1503cb0f181c192abe72", n);
     }
 }

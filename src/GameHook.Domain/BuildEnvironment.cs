@@ -42,11 +42,16 @@ public static class BuildEnvironment
     public static string ConfigurationDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameHook");
 
+    // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
     public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
+
+    public static string TransformedMapperFilePath => Path.Combine(ConfigurationDirectory, "transformed.xml");
 
     public static string ConfigurationDirectoryAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.json");
     public static string ConfigurationDirectoryWpfConfigFilePath => Path.Combine(ConfigurationDirectory, "gamehook.wpf.config");
     public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
+
+    // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
     public static string ConfigurationDirectoryUiBuilderScreenDirectory => Path.Combine(ConfigurationDirectory, "UiBuilderScreens");
 
 

@@ -1,5 +1,4 @@
 ﻿using GameHook.Domain;
-using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 using GameHook.Domain.Preprocessors;
 using GameHook.Domain.ValueTransformers;
@@ -21,18 +20,16 @@ namespace GameHook.Application
         }
 
         protected IGameHookInstance GameHookInstance { get; }
-        protected MapperUserSettingsDTO? MapperUserSettings => GameHookInstance?.Mapper?.UserSettings;
         public GameHookMapperVariables MapperVariables { get; }
 
         public string Path => MapperVariables.Path;
         public string Type => MapperVariables.Type;
-        public int Size => MapperVariables.Size;
+        public int Length => MapperVariables.Length;
         public uint? Address { get; private set; }
         public bool IsDynamicAddress => MapperVariables.Address == null;
 
         public int? Position => MapperVariables.Position;
         public string? Reference => MapperVariables.Reference;
-        public string? CharacterMap => MapperVariables.CharacterMap;
 
         public object? Value { get; private set; }
         public byte[]? Bytes { get; private set; }
@@ -94,38 +91,52 @@ namespace GameHook.Application
             // Fetch address and bytes.
             if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("data_block_a245dcac"))
             {
-                var baseAddress = MapperVariables.Address ?? throw new Exception($"Property {Path} does not have a base address.");
-                var decryptedDataBlock = preprocessorCache.data_block_a245dcac?[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address?.ToHexdecimalString()}.");
+                try
+                {
+                    var baseAddress = MapperVariables.Address ?? throw new Exception($"Property {Path} does not have a base address.");
+                    var decryptedDataBlock = preprocessorCache.data_block_a245dcac?[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address?.ToHexdecimalString()}.");
 
-                var structureIndex = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(0);
-                var offset = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(1);
+                    var structureIndex = MapperVariables.Preprocessor.GetIntParameterFromFunction(0);
+                    var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(1);
 
-                var preprocessorResult = Preprocessors.read_data_block_a245dcac(structureIndex, offset, MapperVariables.Size, decryptedDataBlock);
-                address = preprocessorResult.Address;
-                rawBytes = preprocessorResult.EncryptedData;
-                bytes = preprocessorResult.DecryptedData;
+                    var preprocessorResult = Preprocessors.read_data_block_a245dcac(structureIndex, offset, MapperVariables.Length, decryptedDataBlock);
+                    address = preprocessorResult.Address;
+                    rawBytes = preprocessorResult.EncryptedData;
+                    bytes = preprocessorResult.DecryptedData;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unable to process preprocessor {MapperVariables.Preprocessor}.", ex);
+                }
             }
             else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("dma_967d10cc"))
             {
-                var memoryAddress = MapperVariables.Preprocessor.GetHexdecimalParameterFromFunctionString(0);
-                var offset = MapperVariables.Preprocessor.GetIntParameterFromFunctionString(1);
-
-                var memoryBlock = driverResult.GetResultWithinRange(memoryAddress);
-                if (memoryBlock == null)
+                try
                 {
-                    throw new Exception($"Unable to retrieve memory block for property {Path} at address {memoryAddress.ToHexdecimalString()}.");
+                    var memoryAddress = MapperVariables.Preprocessor.GetMemoryAddressFromFunction(0);
+                    var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(1);
+
+                    var memoryBlock = driverResult.GetResultWithinRange(memoryAddress);
+                    if (memoryBlock == null)
+                    {
+                        throw new Exception($"Unable to retrieve memory block for property {Path} at address {memoryAddress.ToHexdecimalString()}.");
+                    }
+
+                    var dmaAddress = Preprocessors.dma_967d10cc(memoryAddress, size: 4, offset, memoryBlock);
+                    if (dmaAddress == null) { return EmptyPropertyValueResult; }
+
+                    address = dmaAddress;
+                    bytes = driverResult.GetAddressData((uint)address, MapperVariables.Length);
                 }
-
-                var dmaAddress = Preprocessors.dma_967d10cc(memoryAddress, size: 4, offset, memoryBlock);
-                if (dmaAddress == null) { return EmptyPropertyValueResult; }
-
-                address = dmaAddress;
-                bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unable to process preprocessor {MapperVariables.Preprocessor}.", ex);
+                }
             }
             else if (MapperVariables.Address != null)
             {
                 address = MapperVariables.Address;
-                bytes = driverResult.GetAddress((uint)address, MapperVariables.Size);
+                bytes = driverResult.GetAddressData((uint)address, MapperVariables.Length);
             }
             else
             {
@@ -163,7 +174,7 @@ namespace GameHook.Application
                     "bit" => BitTransformer.ToValue(bytes, MapperVariables.Position ?? throw new Exception("Missing property variable: Position")),
                     "bool" => BooleanTransformer.ToValue(bytes),
                     "int" => IntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
-                    "string" => StringTransformer.ToValue(bytes, GameHookInstance.GetMapper().Glossary[MapperVariables.CharacterMap ?? "defaultCharacterMap"]),
+                    "string" => StringTransformer.ToValue(bytes, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? "defaultCharacterMap"]),
                     "uint" => UnsignedIntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
@@ -186,7 +197,7 @@ namespace GameHook.Application
 
                 if ((Type == "bit" || Type == "bool" || Type == "int" || Type == "uint") && string.IsNullOrEmpty(MapperVariables.Reference) == false)
                 {
-                    value = ReferenceTransformer.ToValue((int)value, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
+                    value = ReferenceTransformer.ToValue(Convert.ToUInt64(value), GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
                 }
             }
 
@@ -239,7 +250,7 @@ namespace GameHook.Application
             if (string.IsNullOrEmpty(Reference) == false)
             {
                 // We want to translate the reference found in the directory and then apply that.
-                bytes = ReferenceTransformer.FromValue(value, Size, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
+                bytes = ReferenceTransformer.FromValue(value, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
             }
             else
             {
@@ -254,9 +265,9 @@ namespace GameHook.Application
                     "bitArray" => BitFieldTransformer.FromValue(value.Split(' ').Select(bool.Parse).ToArray()),
                     "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
                     "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
-                    "int" => ReverseBytesIfLE(IntegerTransformer.FromValue(int.Parse(value), Size)),
-                    "string" => StringTransformer.FromValue(value, Size, GameHookInstance.GetMapper().Glossary[MapperVariables.CharacterMap ?? "defaultCharacterMap"]),
-                    "uint" => ReverseBytesIfLE(UnsignedIntegerTransformer.FromValue(uint.Parse(value), Size)),
+                    "int" => ReverseBytesIfLE(IntegerTransformer.FromValue(int.Parse(value), Length)),
+                    "string" => StringTransformer.FromValue(value, Length, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? "defaultCharacterMap"]),
+                    "uint" => ReverseBytesIfLE(UnsignedIntegerTransformer.FromValue(uint.Parse(value), Length)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
             }
@@ -282,7 +293,7 @@ namespace GameHook.Application
             if (Address == null) { throw new Exception("Address is not defined."); }
             if (bytes == null) { throw new Exception("Bytes is not defined."); }
 
-            await GameHookInstance.Driver.WriteBytes((uint)Address, bytes.Take(Size).ToArray().ToArray());
+            await GameHookInstance.Driver.WriteBytes((uint)Address, bytes.Take(Length).ToArray().ToArray());
 
             if (freeze == true)
             {
@@ -337,7 +348,7 @@ namespace GameHook.Application
 
             foreach (var notifier in GameHookInstance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(this, new string[] { "frozen" }, MapperUserSettings);
+                await notifier.SendPropertyChanged(this, new string[] { "frozen" });
             }
         }
 
@@ -347,7 +358,7 @@ namespace GameHook.Application
 
             foreach (var notifier in GameHookInstance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(this, new string[] { "frozen" }, MapperUserSettings);
+                await notifier.SendPropertyChanged(this, new string[] { "frozen" });
             }
         }
 

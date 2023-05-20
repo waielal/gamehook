@@ -61,9 +61,6 @@
       }
     },
     "/": {},
-    "/favicon.ico": {},
-    "/site.css": {},
-    "/dist/gameHookMapperClient.js": {},
     "/mapper": {
       "get": {
         "tags": [
@@ -204,28 +201,66 @@
             }
           }
         }
-      },
-      "put": {
+      }
+    },
+    "/mapper/set-property-value": {
+      "post": {
         "tags": [
           "Mapper"
         ],
         "summary": "Updates a property's value.",
-        "operationId": "UpdatePropertyAsync",
-        "parameters": [
-          {
-            "name": "path",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "operationId": "UpdatePropertyValueAsync",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdatePropertyModel"
+                "$ref": "#/components/schemas/UpdatePropertyValueModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/mapper/set-property-bytes": {
+      "post": {
+        "tags": [
+          "Mapper"
+        ],
+        "summary": "Updates a property's bytes.",
+        "operationId": "UpdatePropertyBytesAsync",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePropertyBytesModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/mapper/set-property-frozen": {
+      "post": {
+        "tags": [
+          "Mapper"
+        ],
+        "summary": "Updates a property's frozen status.",
+        "operationId": "FreezePropertyAsync",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePropertyFreezeModel"
               }
             }
           }
@@ -293,7 +328,10 @@
           }
         }
       }
-    }
+    },
+    "/favicon.ico": {},
+    "/site.css": {},
+    "/dist/gameHookMapperClient.js": {}
   },
   "components": {
     "schemas": {
@@ -313,10 +351,6 @@
       "MapperMetaModel": {
         "type": "object",
         "properties": {
-          "schemaVersion": {
-            "type": "integer",
-            "format": "int32"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -379,14 +413,14 @@
             "type": "string",
             "nullable": true
           },
+          "length": {
+            "type": "integer",
+            "format": "int32"
+          },
           "address": {
             "type": "integer",
             "format": "int32",
             "nullable": true
-          },
-          "size": {
-            "type": "integer",
-            "format": "int32"
           },
           "position": {
             "type": "integer",
@@ -434,10 +468,11 @@
         },
         "additionalProperties": false
       },
-      "UpdatePropertyModel": {
+      "UpdatePropertyBytesModel": {
         "type": "object",
         "properties": {
-          "value": {
+          "path": {
+            "type": "string",
             "nullable": true
           },
           "bytes": {
@@ -446,6 +481,36 @@
               "type": "integer",
               "format": "int32"
             },
+            "nullable": true
+          },
+          "freeze": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePropertyFreezeModel": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "nullable": true
+          },
+          "freeze": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePropertyValueModel": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
             "nullable": true
           },
           "freeze": {

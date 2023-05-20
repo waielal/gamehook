@@ -16,10 +16,9 @@ namespace GameHook.WebAPI.Controllers
                 Path = path,
                 Type = x.Type,
                 Address = x.Address,
-                Size = x.Size,
+                Length = x.Length,
                 Position = x.MapperVariables.Position,
                 Reference = x.MapperVariables.Reference,
-                CharacterMap = x.MapperVariables.CharacterMap,
                 Value = x.Value,
                 Frozen = x.Frozen,
                 Bytes = x.Bytes?.ToIntegerArray(),
@@ -36,7 +35,6 @@ namespace GameHook.WebAPI.Controllers
 
     public record MapperMetaModel
     {
-        public int SchemaVersion { get; init; }
         public Guid Id { get; init; }
         public string GameName { get; init; } = string.Empty;
         public string GamePlatform { get; init; } = string.Empty;
@@ -48,7 +46,7 @@ namespace GameHook.WebAPI.Controllers
         public object? Value { get; init; }
     }
 
-    public record MapperReplaceModel(string? Id);
+    public record MapperReplaceModel(string Id);
 
     public class PropertyModel
     {
@@ -56,15 +54,13 @@ namespace GameHook.WebAPI.Controllers
 
         public string Type { get; init; } = string.Empty;
 
-        public int Size { get; init; }
+        public int Length { get; init; }
 
         public uint? Address { get; init; }
 
         public int? Position { get; init; }
 
         public string? Reference { get; init; }
-
-        public string? CharacterMap { get; init; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public object? Value { get; init; }
@@ -128,15 +124,7 @@ namespace GameHook.WebAPI.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(model.Id))
-                {
-                    // Reload the existing mapper from the filesystem.
-                    await Instance.Load(Driver, Instance.Mapper?.FilesystemId ?? string.Empty);
-                }
-                else
-                {
-                    await Instance.Load(Driver, model.Id);
-                }
+                await Instance.Load(Driver, model.Id);
 
                 return Ok();
             }
@@ -160,7 +148,6 @@ namespace GameHook.WebAPI.Controllers
             var meta = Instance.Mapper.Metadata;
             var model = new MapperMetaModel
             {
-                SchemaVersion = meta.SchemaVersion,
                 Id = meta.Id,
                 GameName = meta.GameName,
                 GamePlatform = meta.GamePlatform

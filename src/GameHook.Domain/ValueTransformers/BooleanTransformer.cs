@@ -9,7 +9,7 @@
 
         public static bool ToValue(byte[] data)
         {
-            return data.First() == 0x00 ? false : true;
+            return data[0] == 0x00 ? false : true;
         }
     }
 }

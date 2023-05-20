@@ -1,4 +1,5 @@
-﻿using GameHook.Domain;
+﻿using System.Xml.Linq;
+using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using GameHook.Domain.Preprocessors;
 using Microsoft.Extensions.Logging;
@@ -8,9 +9,11 @@ namespace GameHook.Application
     public class GameHookInstance : IGameHookInstance
     {
         private ILogger<GameHookInstance> Logger { get; }
+        public GameHookConfiguration Configuration { get; }
         private IMapperFilesystemProvider MapperFilesystemProvider { get; }
+        private bool OutputDriverJson { get; set; } = false;
         public List<IClientNotifier> ClientNotifiers { get; }
-        public bool Initalized { get; private set; } = false;
+        public bool Initalized { get; private set; }
         private CancellationTokenSource? ReadLoopToken { get; set; }
         public IGameHookDriver? Driver { get; private set; }
         public IGameHookMapper? Mapper { get; private set; }
@@ -19,9 +22,10 @@ namespace GameHook.Application
         public IEnumerable<MemoryAddressBlock>? BlocksToRead { get; private set; }
         public const int DELAY_MS_BETWEEN_READS = 25;
 
-        public GameHookInstance(ILogger<GameHookInstance> logger, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
+        public GameHookInstance(ILogger<GameHookInstance> logger, GameHookConfiguration configuration, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
         {
             Logger = logger;
+            Configuration = configuration;
             MapperFilesystemProvider = provider;
             ClientNotifiers = clientNotifiers.ToList();
         }
@@ -50,14 +54,44 @@ namespace GameHook.Application
 
         public async Task Load(IGameHookDriver driver, string mapperId)
         {
-            await ResetState();
-
             try
             {
+                await ResetState();
+
                 Logger.LogDebug("Creating GameHook mapper instance...");
 
                 Driver = driver;
-                Mapper = GameHookMapperFactory.ReadMapper(this, MapperFilesystemProvider, mapperId);
+
+                // Load the mapper file.
+                if (string.IsNullOrEmpty(mapperId))
+                {
+                    throw new ArgumentException("ID was NULL or empty.", nameof(mapperId));
+                }
+
+                // Get the file path from the filesystem provider.
+                var mapperFile = MapperFilesystemProvider.MapperFiles.SingleOrDefault(x => x.Id == mapperId) ??
+                                 throw new Exception($"Unable to determine a mapper with the ID of {mapperId}.");
+
+                if (File.Exists(mapperFile.AbsolutePath) == false)
+                {
+                    throw new FileNotFoundException($"File was not found in the {mapperFile.Type} mapper folder.", mapperFile.DisplayName);
+                }
+
+                var mapperContents = await File.ReadAllTextAsync(mapperFile.AbsolutePath);
+                if (mapperFile.AbsolutePath.EndsWith(".yml"))
+                {
+                    Mapper = GameHookMapperYamlFactory.ReadMapper(this, MapperFilesystemProvider, mapperFile.Id);
+                }
+                else if (mapperFile.AbsolutePath.EndsWith(".xml"))
+                {
+                    var mapperXDocument = XDocument.Parse(mapperContents);
+                    Mapper = GameHookMapperXmlFactory.LoadMapperFromFile(this, mapperXDocument);
+                }
+                else
+                {
+                    throw new Exception($"Invalid extension for mapper.");
+                }
+
                 PlatformOptions = Mapper.Metadata.GamePlatform switch
                 {
                     "NES" => new NES_PlatformOptions(),
@@ -72,23 +106,18 @@ namespace GameHook.Application
                 var addressesToWatch = Mapper.Properties
                     .Where(x => x.MapperVariables.Address != null)
                     .Select(x => x.MapperVariables.Address)
-                    .Cast<uint>()
                     .ToList();
 
                 var addressesFromDma = Mapper.Properties
                     .Where(x => x.MapperVariables.Preprocessor?.Contains("dma_967d10cc") ?? false)
-                    .Select(x => x.MapperVariables.Preprocessor?.GetHexdecimalParameterFromFunctionString(0))
-                    .Cast<uint>()
+                    .Select(x => x.MapperVariables.Preprocessor?.GetMemoryAddressFromFunction(0))
                     .ToList();
 
                 addressesToWatch.AddRange(addressesFromDma);
-
-                addressesToWatch = addressesToWatch
-                    .Distinct()
-                    .ToList();
+                addressesToWatch = addressesToWatch.Distinct().ToList();
 
                 BlocksToRead = PlatformOptions.Ranges
-                                .Where(x => addressesToWatch.Any(y => y.Between(x.StartingAddress, x.EndingAddress)))
+                                .Where(x => addressesToWatch.Any(y => y?.Between(x.StartingAddress, x.EndingAddress) ?? false))
                                 .ToList();
 
                 Logger.LogDebug($"Requested {BlocksToRead.Count()}/{PlatformOptions.Ranges.Count()} ranges of memory.");
@@ -143,6 +172,16 @@ namespace GameHook.Application
 
             var driverResult = await Driver.ReadBytes(BlocksToRead);
 
+            /*
+            #if DEBUG
+                        if (OutputDriverJson == false)
+                        {
+                            File.WriteAllText(Path.Combine(BuildEnvironment.ConfigurationDirectory, "driver.json"), System.Text.Json.JsonSerializer.Serialize(driverResult));
+                            OutputDriverJson = true;
+                        }
+            #endif
+            */
+
             // Preprocessor Cache
             // Certain preprocessors are costly to run for every property, so cache them here.
             if (PreprocessorCache == null)
@@ -180,7 +219,7 @@ namespace GameHook.Application
                         {
                             Task.WaitAll(ClientNotifiers.Select(async notifier =>
                             {
-                                await notifier.SendPropertyChanged(x, result.FieldsChanged.ToArray(), Mapper.UserSettings);
+                                await notifier.SendPropertyChanged(x, result.FieldsChanged.ToArray());
                             }).ToArray());
                         }
                     }

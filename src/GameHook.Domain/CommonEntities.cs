@@ -41,13 +41,13 @@ namespace GameHook.Domain
 
     public class GlossaryItem
     {
-        public GlossaryItem(uint key, object? value)
+        public GlossaryItem(ulong key, object? value)
         {
             Key = key;
             Value = value;
         }
 
-        public uint Key { get; private set; }
+        public ulong Key { get; private set; }
         public object? Value { get; private set; }
     }
 }

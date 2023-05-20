@@ -2,6 +2,7 @@
 {
     public interface IGameHookInstance
     {
+        GameHookConfiguration Configuration { get; }
         List<IClientNotifier> ClientNotifiers { get; }
         bool Initalized { get; }
         IGameHookDriver? Driver { get; }

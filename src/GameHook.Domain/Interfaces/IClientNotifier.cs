@@ -8,7 +8,7 @@ namespace GameHook.Domain.Interfaces
         Task SendInstanceReset();
         Task SendMapperLoaded(IGameHookMapper mapper);
         Task SendDriverError(ProblemDetailsForClientDTO details);
-        Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged, MapperUserSettingsDTO? mapperUserConfig);
+        Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged);
         Task SendUiBuilderScreenSaved(Guid id);
     }
 }

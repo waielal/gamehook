@@ -107,8 +107,19 @@ namespace GameHook.WebAPI
             }
 
             Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectory);
-            Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory);
-            
+
+            // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
+            if (Directory.Exists(BuildEnvironment.MapperUserSettingsDirectory))
+            {
+                Directory.Delete(BuildEnvironment.MapperUserSettingsDirectory, true);
+            }
+
+            // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
+            if (Directory.Exists(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory))
+            {
+                Directory.Delete(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, true);
+            }
+
             updateManager.CheckForUpdates().GetAwaiter().GetResult();
 
             app.UseCors(x =>

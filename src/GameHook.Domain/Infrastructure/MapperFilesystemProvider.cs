@@ -5,6 +5,17 @@ using System.Text;
 
 namespace GameHook.Domain.Infrastructure
 {
+    public static class MapperFilesystemHelper
+    {
+        public static IEnumerable<FileInfo> GetFilesByExtensions(this DirectoryInfo dir, params string[] extensions)
+        {
+            if (extensions == null) throw new ArgumentNullException("extensions");
+
+            IEnumerable<FileInfo> files = dir.EnumerateFiles("*", SearchOption.AllDirectories);
+            return files.Where(f => extensions.Contains(f.Extension));
+        }
+    }
+    
     public class MapperFilesystemProvider : IMapperFilesystemProvider
     {
         private ILogger<MapperFilesystemProvider> Logger { get; }
@@ -71,7 +82,7 @@ namespace GameHook.Domain.Infrastructure
         private IEnumerable<MapperFilesystemDTO> GetAllMapperFiles()
         {
             var mappers = new DirectoryInfo(OfficialMapperFolder)
-                .GetFiles("*.yml", SearchOption.AllDirectories)
+                .GetFilesByExtensions(".xml", ".yml")
                 .Select(x => new MapperFilesystemDTO()
                 {
                     Id = MD5(x.FullName),
@@ -84,7 +95,7 @@ namespace GameHook.Domain.Infrastructure
             if (CustomMapperFolder != null)
             {
                 var customMappers = new DirectoryInfo(CustomMapperFolder)
-                    .GetFiles("*.yml", SearchOption.AllDirectories)
+                    .GetFilesByExtensions(".xml", ".yml")
                     .Select(x => new MapperFilesystemDTO()
                     {
                         Id = MD5(x.FullName),
