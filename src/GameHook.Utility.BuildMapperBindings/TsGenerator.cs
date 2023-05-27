@@ -173,7 +173,7 @@ public static class TsGenerator
     {
         var result = new StringBuilder();
 
-        result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../base.js\"");
+        result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../core.js\"");
         result.AppendLine(string.Empty);
 
         // Interfaces
@@ -212,7 +212,7 @@ public static class TsGenerator
 
         // Properties
         var meta = GameHookMapperXmlFactory.GetMetadata(doc);
-        result.AppendLine($"export class {meta.UniqueIdentifier} extends GameHookMapper {{");
+        result.AppendLine($"export class {meta.UniqueIdentifier}MapperClient extends GameHookMapper {{");
 
         foreach (var el in doc.Descendants("properties").Elements())
         {
