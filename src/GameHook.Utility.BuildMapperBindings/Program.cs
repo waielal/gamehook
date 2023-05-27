@@ -32,6 +32,6 @@ foreach (var mapper in mappers)
 imports.AppendLine(string.Empty);
 imports.AppendLine($"export {{ {string.Join(',', mappers.Select(x => x.Metadata.UniqueIdentifier))} }}");
 
-await File.WriteAllTextAsync(Path.Combine(typescriptOutputDirectoryPath, "gamehook.ts"), imports.ToString());
+await File.WriteAllTextAsync(Path.Combine(typescriptOutputDirectoryPath, "index.ts"), imports.ToString());
 
 Console.WriteLine("Done");
