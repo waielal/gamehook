@@ -6,7 +6,7 @@ using GameHook.Utility.BuildMapperBindings;
 
 // Load XML file paths.
 var mapperInputDirectoryPath = Path.GetFullPath($"{AppContext.BaseDirectory}../../../../../../mappers");
-var typescriptOutputDirectoryPath = Path.GetFullPath($"{AppContext.BaseDirectory}../../../../../../mappers-js/src");
+var typescriptOutputDirectoryPath = Path.GetFullPath($"{AppContext.BaseDirectory}../../../../../../bindings/src");
 var filePaths = Directory.GetFiles(mapperInputDirectoryPath, "*.xml", SearchOption.AllDirectories);
 
 var mappers = new List<IGameHookMapper>();
@@ -26,7 +26,7 @@ foreach (var xmlFilePath in filePaths)
 var imports = new StringBuilder();
 foreach (var mapper in mappers)
 {
-    imports.AppendLine($"import {{ {mapper.Metadata.UniqueIdentifier} }} from './mappers/{mapper.Metadata.UniqueIdentifier}'");
+    imports.AppendLine($"import {{ {mapper.Metadata.UniqueIdentifier} }} from './mappers/{mapper.Metadata.UniqueIdentifier}.js'");
 }
 
 imports.AppendLine(string.Empty);

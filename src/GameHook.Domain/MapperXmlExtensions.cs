@@ -63,8 +63,20 @@ public static class MapperXmlExtensions
     {
         return el.Parent?.IsArray() ?? false;
     }
-
+    
     public static string? GetElementActualName(this XElement el)
+    {
+        if (el.Name.LocalName is "property" || el.Name.LocalName is "class")
+        {
+            return el.GetAttributeValue("name").Replace("-", string.Empty);
+        }
+        else
+        {
+            return el.Name.LocalName.Replace("-", string.Empty);
+        }
+    }
+
+    static string? GetElementPathName(this XElement el)
     {
         if (el.Name.LocalName is "class")
         {
@@ -82,7 +94,7 @@ public static class MapperXmlExtensions
         
         return el
                    .AncestorsAndSelf().InDocumentOrder().Reverse()
-                   .Aggregate("", (s, xe) => xe.GetElementActualName() + "." + s)
+                   .Aggregate("", (s, xe) => xe.GetElementPathName() + "." + s)
                    .ReplaceStart("mapper.properties.", string.Empty).ReplaceEnd(".property.", string.Empty) +
                $".{elementName}";
     }

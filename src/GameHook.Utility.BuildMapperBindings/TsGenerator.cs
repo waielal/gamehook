@@ -18,10 +18,32 @@ public static class TsGenerator
         {
             case "property":
             {
+                var referenceType = el.GetOptionalAttributeValue("reference");
+                if (string.IsNullOrEmpty(referenceType) == false)
+                {
+                    var referenceNode = el?.Document?.Descendants("references")?.Descendants(referenceType)?.Single() ??
+                                        throw new Exception($"Unable to determine reference type {referenceType}.");
+
+                    var referenceNodeType = referenceNode.GetOptionalAttributeValue("type") ?? "string";
+                    if (referenceNodeType == "string")
+                    {
+                        return "GameHookProperty<string>";
+                    }
+                    else if (referenceNodeType == "number")
+                    {
+                        return "GameHookProperty<number>";
+                    }
+                    else
+                    {
+                        throw new Exception(
+                            $"Unable to translate reference node type of {referenceNodeType} for reference {referenceType}.");
+                    }
+                }
+
                 var attributeType = el.GetAttributeValue("type");
-            
+
                 if (attributeType == "int") return "GameHookProperty<number>";
-                if (attributeType == "string") return "GameHookProperty<string>";
+                else if (attributeType == "string") return "GameHookProperty<string>";
                 else return $"GameHookProperty<string>";
                 throw new Exception($"Invalid property type {attributeType}.");
             }
@@ -46,7 +68,8 @@ public static class TsGenerator
         return $"[{string.Join(',', tupleTypes)}]";
     }
 
-    static void TransverseHierarchy(XElement el, StringBuilder result, int depth, string separator, string endingCharacter)
+    static void TransverseHierarchy(XElement el, StringBuilder result, int depth, string separator,
+        string endingCharacter)
     {
         if (el.IsParentAnArray())
         {
@@ -96,11 +119,13 @@ public static class TsGenerator
             case "property":
                 if (el.IsParentAnArray())
                 {
-                    result.AppendLine($"    new {el.GetTypescriptType()}(this, '{el.GetElementPath()}'){endingCharacter}");
+                    result.AppendLine(
+                        $"    new {el.GetTypescriptType()}(this, '{el.GetElementPath()}'){endingCharacter}");
                 }
                 else
                 {
-                    result.AppendLine($"    {el.Attribute("name")?.Value}{separator} new {el.GetTypescriptType()}(this, '{el.GetElementPath()}'){endingCharacter}");
+                    result.AppendLine(
+                        $"    {el.GetElementActualName()}{separator} new {el.GetTypescriptType()}(this, '{el.GetElementPath()}'){endingCharacter}");
                 }
 
                 break;
@@ -117,11 +142,11 @@ public static class TsGenerator
     {
         if (el.Name.LocalName == "property")
         {
-            builder.AppendLine($"{el.Attribute("name")?.Value}: {el.GetTypescriptType()}");
+            builder.AppendLine($"{el.GetElementActualName()}: {el.GetTypescriptType()}");
         }
         else if (el.IsArray())
         {
-            builder.AppendLine($"{el.Name.LocalName}: {el.GetTypescriptTupleTypes()}");
+            builder.AppendLine($"{el.GetElementActualName()}: {el.GetTypescriptTupleTypes()}");
         }
         else if (el.IsParentAnArray())
         {
@@ -134,12 +159,12 @@ public static class TsGenerator
         else
         {
             builder.AppendLine($"{el.GetElementActualName()}: {{");
-            
+
             foreach (var childEl in el.Elements())
             {
                 IterateInterfaceElement(builder, childEl);
             }
-            
+
             builder.AppendLine("}");
         }
     }
@@ -148,15 +173,15 @@ public static class TsGenerator
     {
         var result = new StringBuilder();
 
-        result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../base\"");
+        result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../base.js\"");
         result.AppendLine(string.Empty);
 
         // Interfaces
         foreach (var x in doc.Descendants("classes").Elements())
         {
-            result.AppendLine($"export class {GetTypescriptInterface(x.Name.LocalName)} {{");
+            result.AppendLine($"export interface {GetTypescriptInterface(x.Name.LocalName)} {{");
 
-            foreach (var y in x.Descendants())
+            foreach (var y in x.Elements())
             {
                 IterateInterfaceElement(result, y);
             }
