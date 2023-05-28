@@ -12,6 +12,30 @@ public static class TsGenerator
         return $"I" + name.First().ToString().ToUpper() + name.Substring(1, name.Length - 1);
     }
 
+    static string GetTypescriptEnumName(string name)
+    {
+        return name.CapitalizeFirstLetter();
+    }
+
+    static string GetEnumKeyName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            return "NONE";
+        }
+
+        var strippedString = new String(name
+                                .Where(x => char.IsLetterOrDigit(x) || char.IsWhiteSpace(x))
+                                .ToArray());
+
+        if (strippedString.Length > 0 && char.IsNumber(strippedString[0]))
+        {
+            return string.Empty;
+        }
+
+        return strippedString.Replace(" ", "_").ToUpper();
+    }
+
     static string GetTypescriptType(this XElement el)
     {
         switch (el.Name.LocalName)
@@ -175,11 +199,47 @@ public static class TsGenerator
 
         result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../core.js\"");
         result.AppendLine(string.Empty);
+        
+        // References
+        var references = GameHookMapperXmlFactory.GetGlossary(doc);
+        foreach (var reference in references)
+        {
+            if (reference.Type == "number")
+            {
+                continue;
+            }
+
+            if (reference.Name.Contains("CharacterMap", StringComparison.InvariantCultureIgnoreCase))
+            {
+                continue;
+            }
+
+            result.AppendLine($"export enum {GetTypescriptEnumName(reference.Name)} {{");
+
+            foreach (var x in reference.Values.DistinctBy(x => x.Value))
+            {
+                if (x.Value == null)
+                {
+                    continue;
+                }
+
+                var enumName = GetEnumKeyName(x.Value?.ToString() ?? string.Empty);
+
+                if (string.IsNullOrEmpty(enumName) == false)
+                {
+                    result.AppendLine($"{enumName} = '{x.Value?.ToString()?.Replace("'", "\\'")}',");
+                }
+            }
+
+            result.AppendLine($"}}");
+        }
+        
+        result.AppendLine(string.Empty);
 
         // Interfaces
         foreach (var x in doc.Descendants("classes").Elements())
         {
-            result.AppendLine($"export interface {GetTypescriptInterface(x.Name.LocalName)} {{");
+            result.AppendLine($"export class {GetTypescriptInterface(x.Name.LocalName)} {{");
 
             foreach (var y in x.Elements())
             {
@@ -191,24 +251,6 @@ public static class TsGenerator
         }
 
         result.AppendLine(string.Empty);
-
-        /*
-        // References
-        var references = GameHookMapperXmlFactory.GetGlossary(doc);
-        foreach (var reference in references)
-        {
-            result.AppendLine($"export enum {GetTypescriptEnum(reference.Key)} {{");
-
-            foreach (var x in reference.Value.DistinctBy(x => x.Value))
-            {
-                if (x.Value == null) { continue; }
-
-                result.AppendLine($"{GetEnumName(x.Value?.ToString() ?? string.Empty)} = '{x.Value}',");
-            }
-
-            result.AppendLine($"}}");
-        }
-        */
 
         // Properties
         var meta = GameHookMapperXmlFactory.GetMetadata(doc);

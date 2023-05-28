@@ -70,5 +70,18 @@ namespace GameHook.Domain
         {
             foreach (var value in list) await func(value);
         }
+        
+        public static string CapitalizeFirstLetter(this string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input; // Return input as it is if it's null or empty
+            }
+
+            char firstChar = char.ToUpper(input[0]); // Convert the first character to uppercase
+            string restOfString = input.Substring(1); // Get the remaining characters of the string
+
+            return firstChar + restOfString;
+        }
     }
 }
