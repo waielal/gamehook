@@ -34,6 +34,7 @@ namespace GameHook.Domain.Interfaces
     public interface IGameHookProperty
     {
         GameHookMapperVariables MapperVariables { get; }
+        GlossaryList? Glossary { get; }
 
         string Path { get; }
         string Type { get; }

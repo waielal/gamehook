@@ -22,8 +22,6 @@ public class Program
                                 .WriteTo.File(defaultLogPath)
                                 .CreateBootstrapLogger();
 
-            Mapping.Setup();
-
             Host.CreateDefaultBuilder()
                     .ConfigureWebHostDefaults(x => x.UseStartup<Startup>())
                     .ConfigureAppConfiguration(x =>

@@ -39,15 +39,31 @@ namespace GameHook.Domain
         public int DriverTimeoutCounter { get; }
     }
 
-    public class GlossaryItem
+    public class GlossaryList
     {
-        public GlossaryItem(ulong key, object? value)
+        public string Name { get; set; } = string.Empty;
+        public string? Type { get; set; }
+        public IEnumerable<GlossaryListItem> Values { get; set; } = new List<GlossaryListItem>();
+
+        public GlossaryListItem? GetFirstOrDefaultByValue(object? value)
         {
-            Key = key;
-            Value = value;
+            return Values.FirstOrDefault(x => x.Value == value);
         }
 
-        public ulong Key { get; private set; }
-        public object? Value { get; private set; }
+        public GlossaryListItem? GetFirstOrDefaultByKey(string key)
+        {
+            return Values.FirstOrDefault(x => x.Key.ToString() == key);
+        }
+
+        public GlossaryListItem? GetFirstOrDefaultByKey(ulong key)
+        {
+            return Values.FirstOrDefault(x => x.Key == key);
+        }
+    }
+
+    public class GlossaryListItem
+    {
+        public ulong Key { get; set; }
+        public object? Value { get; set; }
     }
 }

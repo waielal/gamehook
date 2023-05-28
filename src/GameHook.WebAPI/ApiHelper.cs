@@ -42,7 +42,7 @@ namespace GameHook.WebAPI
 
         public static string FromRouteToPath(this string route)
         {
-            return route.Replace("/", ".");
+            return route.Replace("/", ".").Replace("%2F", ".");
         }
 
         public static string StripEndingRoute(this string route)

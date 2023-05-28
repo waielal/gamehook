@@ -22,6 +22,25 @@ namespace GameHook.Application
         protected IGameHookInstance GameHookInstance { get; }
         public GameHookMapperVariables MapperVariables { get; }
 
+        public GlossaryList? Glossary
+        {
+            get
+            {
+                if (GameHookInstance.Mapper == null)
+                {
+                    throw new Exception("Mapper is NULL.");
+                }
+
+                if (Type == "string" && string.IsNullOrEmpty(MapperVariables.Reference))
+                {
+                    return GameHookInstance.Mapper.Glossary.Single(x => x.Name == "defaultCharacterMap");
+                }
+
+                if (string.IsNullOrEmpty(MapperVariables.Reference)) { return null; }
+                return GameHookInstance.Mapper.Glossary.Single(x => x.Name == MapperVariables.Reference);
+            }
+        }
+
         public string Path => MapperVariables.Path;
         public string Type => MapperVariables.Type;
         public int Length => MapperVariables.Length;
@@ -174,7 +193,7 @@ namespace GameHook.Application
                     "bit" => BitTransformer.ToValue(bytes, MapperVariables.Position ?? throw new Exception("Missing property variable: Position")),
                     "bool" => BooleanTransformer.ToValue(bytes),
                     "int" => IntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
-                    "string" => StringTransformer.ToValue(bytes, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? "defaultCharacterMap"]),
+                    "string" => StringTransformer.ToValue(bytes, Glossary ?? throw new Exception("ReferenceList returned NULL")),
                     "uint" => UnsignedIntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
@@ -197,7 +216,7 @@ namespace GameHook.Application
 
                 if ((Type == "bit" || Type == "bool" || Type == "int" || Type == "uint") && string.IsNullOrEmpty(MapperVariables.Reference) == false)
                 {
-                    value = ReferenceTransformer.ToValue(Convert.ToUInt64(value), GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
+                    value = ReferenceTransformer.ToValue(Convert.ToUInt64(value), Glossary ?? throw new Exception("ReferenceList returned NULL"));
                 }
             }
 
@@ -250,7 +269,7 @@ namespace GameHook.Application
             if (string.IsNullOrEmpty(Reference) == false)
             {
                 // We want to translate the reference found in the directory and then apply that.
-                bytes = ReferenceTransformer.FromValue(value, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? throw new Exception("Missing property variable: reference")]);
+                bytes = ReferenceTransformer.FromValue(value, Glossary ?? throw new Exception("ReferenceList returned NULL"));
             }
             else
             {
@@ -266,7 +285,7 @@ namespace GameHook.Application
                     "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
                     "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
                     "int" => ReverseBytesIfLE(IntegerTransformer.FromValue(int.Parse(value), Length)),
-                    "string" => StringTransformer.FromValue(value, Length, GameHookInstance.GetMapper().Glossary[MapperVariables.Reference ?? "defaultCharacterMap"]),
+                    "string" => StringTransformer.FromValue(value, Length, Glossary ?? throw new Exception("ReferenceList returned NULL")),
                     "uint" => ReverseBytesIfLE(UnsignedIntegerTransformer.FromValue(uint.Parse(value), Length)),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };

@@ -2,35 +2,35 @@
 {
     public static class ReferenceHelper
     {
-        public static GlossaryItem? SingleOrDefaultByKey(this IEnumerable<GlossaryItem> glossaryItems, ulong data)
+        public static GlossaryListItem? SingleOrDefaultByKey(this GlossaryList glossaryItems, ulong data)
         {
-            return glossaryItems.SingleOrDefault(x => x.Key == data);
+            return glossaryItems.Values.SingleOrDefault(x => x.Key == data);
         }
 
-        public static GlossaryItem? FirstOrDefaultByValue(this IEnumerable<GlossaryItem> glossaryItems, string? value)
+        public static GlossaryListItem? FirstOrDefaultByValue(this GlossaryList glossaryItems, string? value)
         {
             if (value == null)
             {
-                return glossaryItems.FirstOrDefault(x => x.Value == null);
+                return glossaryItems.Values.FirstOrDefault(x => x.Value == null);
             }
 
-            return glossaryItems.FirstOrDefault(x => x.Value?.ToString() == value);
+            return glossaryItems.Values.FirstOrDefault(x => x.Value?.ToString() == value);
         }
     }
 
     public static class ReferenceTransformer
     {
-        public static byte[]? FromValue(string? value, IEnumerable<GlossaryItem> glossaryItems)
+        public static byte[]? FromValue(string? value, GlossaryList referenceList)
         {
-            var key = glossaryItems.FirstOrDefaultByValue(value)?.Key;
+            var key = referenceList.FirstOrDefaultByValue(value)?.Key;
 
             if (key == null) return null;
             else return BitConverter.GetBytes(key ?? throw new Exception($"BitConverter cannot convert {key} to a byte array."));
         }
 
-        public static object? ToValue(ulong data, IEnumerable<GlossaryItem> glossaryItems)
+        public static object? ToValue(ulong data, GlossaryList referenceList)
         {
-            return glossaryItems.SingleOrDefaultByKey(data)?.Value;
+            return referenceList.SingleOrDefaultByKey(data)?.Value;
         }
     }
 }

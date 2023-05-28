@@ -1,6 +1,7 @@
 ﻿using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using System.Data;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
@@ -182,19 +183,39 @@ namespace GameHook.Application
                 .ToArray();
         }
 
-        public static Dictionary<string, IEnumerable<GlossaryItem>> GetGlossary(XDocument doc)
+        public static IEnumerable<GlossaryList> GetGlossary(XDocument doc)
         {
             return doc.Descendants("references")
                 .Elements()
-                .ToDictionary(x => x.Name.LocalName,
-                    x => x.Descendants().Select(y =>
-                    {
-                        var key = y.GetAttributeValue("key").ToULong();
-                        var value = y.GetOptionalAttributeValue("value");
+                .Select(el =>
+                {
+                    var name = el.Name.LocalName;
+                    var type = el.GetOptionalAttributeValue("type") ?? "string";
 
-                        return new GlossaryItem(key, value);
-                    })
-                );
+                    return new GlossaryList()
+                    {
+                        Name = name,
+                        Type = type,
+                        Values = el.Elements().Select(y =>
+                        {
+                            var key = y.GetAttributeValue("key").ToULong();
+                            object? value = null;
+
+                            var valueStr = y.GetOptionalAttributeValue("value");
+                            if (string.IsNullOrEmpty(valueStr)) { value = null; }
+                            else if (type == "string") { value = valueStr; }
+                            else if (type == "number") { value = int.Parse(valueStr); }
+                            else throw new Exception($"Unknown type for reference list {type}.");
+
+                            return new GlossaryListItem()
+                            {
+                                Key = key,
+                                Value = value
+                            };
+
+                        })
+                    };
+                });
         }
 
         public static GameHookMapper LoadMapperFromFile(IGameHookInstance? instance, XDocument doc)

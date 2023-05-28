@@ -482,6 +482,7 @@
                     loadingMapperSelectedId: null,
                     loadingMapperError: null,
                     mapper: null,
+                    mapperLoadId: null,
                     pinnedPropertyPaths: [],
                     editingProperty: null,
                     editingPropertyError: null,
@@ -641,6 +642,8 @@
                 replaceMapper: async function (id = null) {
                     this.loadingMapper = true
 
+                    if (id == null) { id = this.mapperLoadId }
+
                     try {
                         const result = await fetch(`${this.mapper._connectionString}/mapper`, {
                             method: 'PUT',
@@ -654,6 +657,8 @@
                         }
 
                         await this.mapper.loadMapper()
+                        this.mapperLoadId = id
+
                         this.loadingMapperWindowOpen = false
                     } finally {
                         this.loadingMapper = false

@@ -75,21 +75,23 @@ namespace GameHook.Application
 
             TranserveMapperFile(instance, data, properties, data.properties, null, null);
 
-            // Load glossary.
-            var glossary = new Dictionary<string, IEnumerable<GlossaryItem>>();
+            // Load references.
+            var references = new List<GlossaryList>();
             foreach (var x in data.glossary)
             {
-                var list = new List<GlossaryItem>();
-
-                foreach (var y in x.Value)
+                references.Add(new GlossaryList()
                 {
-                    list.Add(new GlossaryItem(y.Key, y.Value));
-                }
-
-                glossary.Add(x.Key, list);
+                    Name = x.Key,
+                    Type = null,
+                    Values = x.Value.Select(y => new GlossaryListItem()
+                    {
+                        Key = y.Key,
+                        Value = y.Value
+                    })
+                });
             }
 
-            return new GameHookMapper(metadata, properties, glossary);
+            return new GameHookMapper(metadata, properties, references);
         }
 
         private static void TranserveMapperFile(IGameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)

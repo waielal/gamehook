@@ -1,7 +1,6 @@
 using GameHook.Application;
 using GameHook.Domain;
 using GameHook.Domain.Interfaces;
-using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json.Serialization;
@@ -10,10 +9,10 @@ namespace GameHook.WebAPI.Controllers
 {
     static class MapperHelper
     {
-        public static PropertyModel MapToPropertyModel(this IGameHookProperty x, string path) =>
+        public static PropertyModel MapToPropertyModel(this IGameHookProperty x) =>
             new PropertyModel
             {
-                Path = path,
+                Path = x.Path,
                 Type = x.Type,
                 Address = x.Address,
                 Length = x.Length,
@@ -24,6 +23,22 @@ namespace GameHook.WebAPI.Controllers
                 Bytes = x.Bytes?.ToIntegerArray(),
                 Description = x.MapperVariables.Description
             };
+
+        public static Dictionary<string, IEnumerable<GlossaryItemModel>> MapToDictionaryGlossaryItemModel(this IEnumerable<GlossaryList> glossaryList)
+        {
+            var dictionary = new Dictionary<string, IEnumerable<GlossaryItemModel>>();
+
+            foreach (var item in glossaryList)
+            {
+                dictionary[item.Name] = item.Values.Select(x => new GlossaryItemModel()
+                {
+                    Key = x.Key,
+                    Value = x.Value
+                });
+            }
+
+            return dictionary;
+        }
     }
 
     public record MapperModel
@@ -42,7 +57,7 @@ namespace GameHook.WebAPI.Controllers
 
     public class GlossaryItemModel
     {
-        public uint Key { get; init; }
+        public ulong Key { get; init; }
         public object? Value { get; init; }
     }
 
@@ -114,7 +129,18 @@ namespace GameHook.WebAPI.Controllers
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            var model = Instance.Mapper.Adapt<MapperModel>();
+            var model = new MapperModel()
+            {
+                Meta = new MapperMetaModel()
+                {
+                    Id = Instance.Mapper.Metadata.Id,
+                    GameName = Instance.Mapper.Metadata.GameName,
+                    GamePlatform = Instance.Mapper.Metadata.GamePlatform
+                },
+                Properties = Instance.Mapper.Properties.Select(x => x.MapToPropertyModel()).ToArray(),
+                Glossary = Instance.Mapper.Glossary.MapToDictionaryGlossaryItemModel()
+            };
+
             return Ok(model);
         }
 
@@ -169,9 +195,11 @@ namespace GameHook.WebAPI.Controllers
             var prop = Instance.Mapper.GetPropertyByPath(path);
 
             if (prop == null)
+            {
                 return NotFound();
+            }
 
-            if (prop.Value is object)
+            if (prop.Value != null && prop.Value is string == false && prop.Value is int == false)
             {
                 return BadRequest($"{prop.Path} is an object and cannot be converted to text.");
             }
@@ -186,7 +214,7 @@ namespace GameHook.WebAPI.Controllers
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            return Ok(Instance.Mapper.Properties.Select(x => x.MapToPropertyModel(x.Path)));
+            return Ok(Instance.Mapper.Properties.Select(x => x.MapToPropertyModel()));
         }
 
         [HttpGet("properties/{**path}/")]
@@ -201,9 +229,11 @@ namespace GameHook.WebAPI.Controllers
             var prop = Instance.Mapper.GetPropertyByPath(path);
 
             if (prop == null)
+            {
                 return NotFound();
+            }
 
-            return Ok(prop.MapToPropertyModel(path));
+            return Ok(prop.MapToPropertyModel());
         }
 
         [HttpPost("set-property-value")]
@@ -217,7 +247,10 @@ namespace GameHook.WebAPI.Controllers
 
             var prop = Instance.Mapper.GetPropertyByPath(path);
 
-            if (prop == null) return NotFound();
+            if (prop == null)
+            {
+                return NotFound();
+            }
 
             await prop.WriteValue(model.Value?.ToString(), model.Freeze);
 
@@ -236,7 +269,10 @@ namespace GameHook.WebAPI.Controllers
 
             var prop = Instance.Mapper.GetPropertyByPath(path);
 
-            if (prop == null) return NotFound();
+            if (prop == null)
+            {
+                return NotFound();
+            }
 
             await prop.WriteBytes(actualBytes, model.Freeze);
 
@@ -254,7 +290,10 @@ namespace GameHook.WebAPI.Controllers
 
             var prop = Instance.Mapper.GetPropertyByPath(path);
 
-            if (prop == null) return NotFound();
+            if (prop == null)
+            {
+                return NotFound();
+            }
 
             if (model.Freeze)
             {
@@ -270,27 +309,36 @@ namespace GameHook.WebAPI.Controllers
 
         [HttpGet("glossary")]
         [SwaggerOperation("Returns the glossary section of the mapper file.")]
-        public ActionResult<Dictionary<string, Dictionary<byte, dynamic>>> GetGlossary()
+        public ActionResult<Dictionary<string, Dictionary<string, GlossaryItemModel>>> GetGlossary()
         {
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            return Ok(Instance.Mapper.Glossary);
+            return Ok(Instance.Mapper.Glossary.MapToDictionaryGlossaryItemModel());
         }
 
         [HttpGet("glossary/{key}")]
         [SwaggerOperation("Returns a specific glossary by it's key.")]
-        public ActionResult<Dictionary<byte, dynamic>> GetGlossaryPage(string key)
+        public ActionResult<IEnumerable<GlossaryItemModel>> GetGlossaryPage(string key)
         {
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
             key = key.StripEndingRoute();
 
-            if (Instance.Mapper.Glossary.ContainsKey(key) == false)
+            var glossaryItem = Instance.Mapper.Glossary.SingleOrDefault(x => x.Name == key);
+            if (glossaryItem == null)
+            {
                 return NotFound();
+            }
             else
-                return Ok(Instance.Mapper.Glossary[key]);
+            {
+                return Ok(glossaryItem.Values.Select(x => new GlossaryItemModel()
+                {
+                    Key = x.Key,
+                    Value = x.Value
+                }));
+            }
         }
     }
 }

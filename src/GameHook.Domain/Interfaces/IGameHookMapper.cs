@@ -16,7 +16,8 @@
 
         public IEnumerable<IGameHookProperty> Properties { get; init; }
 
-        public IDictionary<string, IEnumerable<GlossaryItem>> Glossary { get; init; }
+        public IEnumerable<GlossaryList> Glossary { get; init; }
+
         IGameHookProperty GetPropertyByPath(string path);
     }
 }

@@ -7,7 +7,7 @@ namespace GameHook.Application
     {
         public GameHookMapper(MapperMetadata metadata,
             IEnumerable<IGameHookProperty> properties,
-            IDictionary<string, IEnumerable<GlossaryItem>> glossary)
+            IEnumerable<GlossaryList> glossary)
         {
             Metadata = metadata;
             Properties = properties;
@@ -17,7 +17,7 @@ namespace GameHook.Application
         public Guid Id => Metadata.Id;
         public MapperMetadata Metadata { get; init; }
         public IEnumerable<IGameHookProperty> Properties { get; init; }
-        public IDictionary<string, IEnumerable<GlossaryItem>> Glossary { get; init; }
+        public IEnumerable<GlossaryList> Glossary { get; init; }
 
         public IGameHookProperty GetPropertyByPath(string path)
         {

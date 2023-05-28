@@ -2,11 +2,10 @@
 {
     public static class StringTransformer
     {
-        public static byte[] FromValue(string value, int size, IEnumerable<GlossaryItem> glossaryItems)
+        public static byte[] FromValue(string value, int size, GlossaryList referenceList)
         {
             var uints = value.ToCharArray()
-                .Select(x => glossaryItems.FirstOrDefaultByValue(x.ToString()))
-                .Select(x => (x ?? glossaryItems.First()).Key)
+                .Select(x => referenceList.Values.Single(x => x.Value?.ToString() == x.ToString()))
                 .ToList();
 
             if (uints.Count + 1 > size)
@@ -14,21 +13,18 @@
                 uints = uints.Take(size - 1).ToList();
             }
 
-            var nullTerminationKey = glossaryItems.FirstOrDefaultByValue(null)?.Key;
-            if (nullTerminationKey != null)
-            {
-                uints.Add(nullTerminationKey ?? throw new Exception("NullTerminationKey is NULL."));
-            }
+            var nullTerminationKey = referenceList.Values.First(x => x.Value == null);
+            uints.Add(nullTerminationKey);
 
-            return uints.Select(x => (byte)x).ToArray();
+            return uints.Select(x => (byte)(x.Value ?? 0)).ToArray();
         }
 
-        public static string ToValue(byte[] data, IEnumerable<GlossaryItem> glossaryItems)
+        public static string ToValue(byte[] data, GlossaryList referenceList)
         {
             var results = data.Select(b =>
             {
-                var glossaryItem = glossaryItems.SingleOrDefault(x => x.Key == b);
-                return glossaryItem?.Value?.ToString() ?? null;
+                var referenceItem = referenceList.Values.SingleOrDefault(x => x.Key == b);
+                return referenceItem?.Value?.ToString() ?? null;
             });
 
             // Return the completed string buffer.
