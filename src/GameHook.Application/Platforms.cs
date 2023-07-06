@@ -17,9 +17,17 @@ namespace GameHook.Application
     {
         public EndianTypes EndianType { get; } = EndianTypes.LittleEndian;
 
+        // Implemented the full WRAM range for the SNES. Tested with my Super Mario RPG Mapper and the BS Zelda Mapper file. -Jesco
         public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
         {
-            new MemoryAddressBlock(0, "?", 0x7E6D00, 0x7E7FFF)
+        new MemoryAddressBlock(0, "?", 0x7E0000, 0x7E3FFF),
+        new MemoryAddressBlock(1, "?", 0x7E4000, 0x7E7FFF),
+        new MemoryAddressBlock(2, "?", 0x7E8000, 0x7EBFFF),
+        new MemoryAddressBlock(3, "?", 0x7EC000, 0x7EFFFF),
+        new MemoryAddressBlock(4, "?", 0x7F0000, 0x7F3FFF),
+        new MemoryAddressBlock(5, "?", 0x7F4000, 0x7F7FFF),
+        new MemoryAddressBlock(6, "?", 0x7F8000, 0x7FBFFF),
+        new MemoryAddressBlock(7, "?", 0x7FC000, 0x7FFFFF)
         }.ToArray();
     }
 
