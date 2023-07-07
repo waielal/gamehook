@@ -65,11 +65,15 @@ public static class TsGenerator
                 }
 
                 var attributeType = el.GetAttributeValue("type");
-
-                if (attributeType == "int") return "GameHookProperty<number>";
+                
+                if (attributeType == "binaryCodedDecimal") return "GameHookProperty<number>";
+                else if (attributeType == "bitArray") return "GameHookProperty<boolean[]>";
+                else if (attributeType == "bit") return "GameHookProperty<boolean>";
+                else if (attributeType == "bool") return "GameHookProperty<boolean>";
+                else if (attributeType == "int") return "GameHookProperty<number>";
                 else if (attributeType == "string") return "GameHookProperty<string>";
-                else return $"GameHookProperty<string>";
-                throw new Exception($"Invalid property type {attributeType}.");
+                else if (attributeType == "uint") return "GameHookProperty<number>";
+                else throw new Exception($"Invalid property type {attributeType}.");
             }
             case "class":
             {
@@ -193,11 +197,17 @@ public static class TsGenerator
         }
     }
 
-    public static string FromMapper(XDocument doc)
+    public static string FromMapper(XDocument doc, string? stateManagerFilename)
     {
         var result = new StringBuilder();
 
         result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../core.js\"");
+
+        if (string.IsNullOrEmpty(stateManagerFilename) == false)
+        {
+            result.AppendLine($"import {{ StateManager }} from \"{stateManagerFilename.Replace(".ts", ".js")}\";");
+        }
+        
         result.AppendLine(string.Empty);
         
         // References
@@ -259,6 +269,11 @@ public static class TsGenerator
         foreach (var el in doc.Descendants("properties").Elements())
         {
             TransverseProperties(el, result, 0);
+        }
+
+        if (string.IsNullOrEmpty(stateManagerFilename) == false)
+        {
+            result.AppendLine("state = new StateManager(this)");
         }
 
         result.AppendLine($"}}");
