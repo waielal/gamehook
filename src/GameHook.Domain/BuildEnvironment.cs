@@ -36,6 +36,25 @@ public static class BuildEnvironment
         }
     }
 
+    public static string? GetSolutionMapperFolder()
+    {
+        string exePath = Assembly.GetExecutingAssembly().Location;
+        string solutionDir = Path.GetDirectoryName(exePath);
+
+        if (solutionDir == null)
+        {
+            return null;
+        }
+
+        string solutionPath = Path.GetFullPath(Path.Combine(solutionDir, @"..\..\..\..\..\"));
+        if (solutionPath.EndsWith("src\\") == false)
+        {
+            return null;
+        }
+
+        return Path.Combine(solutionPath, "Mappers");
+    }
+
     private static string BinaryDirectory =>
         Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new Exception("Could not determine the binary directory.");
 

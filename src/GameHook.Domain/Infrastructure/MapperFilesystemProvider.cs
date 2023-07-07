@@ -15,7 +15,7 @@ namespace GameHook.Domain.Infrastructure
             return files.Where(f => extensions.Contains(f.Extension));
         }
     }
-    
+
     public class MapperFilesystemProvider : IMapperFilesystemProvider
     {
         private ILogger<MapperFilesystemProvider> Logger { get; }
@@ -69,9 +69,9 @@ namespace GameHook.Domain.Infrastructure
             return builder.ToString();
         }
 
-        private string GetRelativePath(string filePath)
+        private string GetMapperDisplayName(string directory, string filePath)
         {
-            return filePath.Replace(OfficialMapperFolder, string.Empty);
+            return filePath.Replace(directory, string.Empty)[1..].Replace("\\", " - ");
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace GameHook.Domain.Infrastructure
                     Id = MD5(x.FullName),
                     Type = MapperFilesystemTypes.Official,
                     AbsolutePath = x.FullName,
-                    DisplayName = $"official:\\{GetRelativePath(x.FullName)}"
+                    DisplayName = $"{GetMapperDisplayName(OfficialMapperFolder, x.FullName)}"
                 })
                 .ToList();
 
@@ -99,13 +99,33 @@ namespace GameHook.Domain.Infrastructure
                     .Select(x => new MapperFilesystemDTO()
                     {
                         Id = MD5(x.FullName),
-                        Type = MapperFilesystemTypes.Official,
+                        Type = MapperFilesystemTypes.Custom,
                         AbsolutePath = x.FullName,
-                        DisplayName = $"custom:\\{GetRelativePath(x.FullName)}"
+                        DisplayName = $"(Custom) {GetMapperDisplayName(CustomMapperFolder, x.FullName)}"
                     })
                     .ToList();
 
                 mappers.AddRange(customMappers);
+            }
+
+            if (BuildEnvironment.IsDebug)
+            {
+                var solutionMapperFolder = BuildEnvironment.GetSolutionMapperFolder();
+                if (string.IsNullOrEmpty(solutionMapperFolder) == false)
+                {
+                    var customMappers = new DirectoryInfo(solutionMapperFolder)
+                        .GetFilesByExtensions(".xml")
+                        .Select(x => new MapperFilesystemDTO()
+                        {
+                            Id = MD5(x.FullName),
+                            Type = MapperFilesystemTypes.Custom,
+                            AbsolutePath = x.FullName,
+                            DisplayName = $"(Solution) {GetMapperDisplayName(solutionMapperFolder, x.FullName)}"
+                        })
+                        .ToList();
+
+                    mappers.AddRange(customMappers);
+                }
             }
 
             return mappers;

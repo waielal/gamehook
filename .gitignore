@@ -1,3 +1,6 @@
+src/mappers/*.xml
+src/mappers/*.yml
+
 *.log
 appsettings.*.json
 

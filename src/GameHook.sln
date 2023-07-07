@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.IntegrationTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.Utility.OffsetYml", "GameHook.Utility.OffsetYml\GameHook.Utility.OffsetYml.csproj", "{D3F22731-B70C-4936-9DAA-B397250EDBD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameHook.Utility.BuildMapperBindings", "GameHook.Utility.BuildMapperBindings\GameHook.Utility.BuildMapperBindings.csproj", "{79ADB9C3-64ED-4930-B136-45461C123CA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameHook.Utility.BuildMapperBindings", "GameHook.Utility.BuildMapperBindings\GameHook.Utility.BuildMapperBindings.csproj", "{79ADB9C3-64ED-4930-B136-45461C123CA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mappers", "Mappers\Mappers.csproj", "{F5ADCD04-F7A0-46A2-AC7A-116BEED141CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,10 @@ Global
 		{79ADB9C3-64ED-4930-B136-45461C123CA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79ADB9C3-64ED-4930-B136-45461C123CA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79ADB9C3-64ED-4930-B136-45461C123CA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5ADCD04-F7A0-46A2-AC7A-116BEED141CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5ADCD04-F7A0-46A2-AC7A-116BEED141CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5ADCD04-F7A0-46A2-AC7A-116BEED141CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5ADCD04-F7A0-46A2-AC7A-116BEED141CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

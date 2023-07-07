@@ -207,7 +207,7 @@
                                         </option>
                                     </select>
                                 </div>
-                                <div v-else-if="editingProperty.property.type === 'int' || editingProperty.property.type === 'uint'">
+                                <div v-else-if="editingProperty.property.type === 'int' || editingProperty.property.type === 'uint' || editingProperty.property.type === 'nibble'">
                                     <div for="value">Value</div>
 
                                     <input class="input is-dark" type="number" v-model="editingProperty.value" />
