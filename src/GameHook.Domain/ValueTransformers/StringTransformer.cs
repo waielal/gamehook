@@ -4,8 +4,8 @@
     {
         public static byte[] FromValue(string value, int size, GlossaryList referenceList)
         {
-            var uints = value.ToCharArray()
-                .Select(x => referenceList.Values.Single(x => x.Value?.ToString() == x.ToString()))
+            var uints = value
+                .Select(x => referenceList.Values.FirstOrDefault(y => x.ToString() == y?.Value?.ToString()))
                 .ToList();
 
             if (uints.Count + 1 > size)
@@ -16,7 +16,18 @@
             var nullTerminationKey = referenceList.Values.First(x => x.Value == null);
             uints.Add(nullTerminationKey);
 
-            return uints.Select(x => (byte)(x.Value ?? 0)).ToArray();
+            return uints
+                .Select(x =>
+                {
+                    if (x?.Value == null)
+                    {
+                        return nullTerminationKey.Key;
+                    }
+
+                    return x.Key;
+                })
+                .Select(x => (byte)x)
+                .ToArray();
         }
 
         public static string ToValue(byte[] data, GlossaryList referenceList)

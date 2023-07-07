@@ -12,6 +12,30 @@ public static class TsGenerator
         return $"I" + name.First().ToString().ToUpper() + name.Substring(1, name.Length - 1);
     }
 
+    static string GetTypescriptEnumName(string name)
+    {
+        return name.CapitalizeFirstLetter();
+    }
+
+    static string GetEnumKeyName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            return "NONE";
+        }
+
+        var strippedString = new String(name
+                                .Where(x => char.IsLetterOrDigit(x) || char.IsWhiteSpace(x))
+                                .ToArray());
+
+        if (strippedString.Length > 0 && char.IsNumber(strippedString[0]))
+        {
+            return string.Empty;
+        }
+
+        return strippedString.Replace(" ", "_").ToUpper();
+    }
+
     static string GetTypescriptType(this XElement el)
     {
         switch (el.Name.LocalName)
@@ -41,11 +65,15 @@ public static class TsGenerator
                 }
 
                 var attributeType = el.GetAttributeValue("type");
-
-                if (attributeType == "int") return "GameHookProperty<number>";
+                
+                if (attributeType == "binaryCodedDecimal") return "GameHookProperty<number>";
+                else if (attributeType == "bitArray") return "GameHookProperty<boolean[]>";
+                else if (attributeType == "bit") return "GameHookProperty<boolean>";
+                else if (attributeType == "bool") return "GameHookProperty<boolean>";
+                else if (attributeType == "int") return "GameHookProperty<number>";
                 else if (attributeType == "string") return "GameHookProperty<string>";
-                else return $"GameHookProperty<string>";
-                throw new Exception($"Invalid property type {attributeType}.");
+                else if (attributeType == "uint") return "GameHookProperty<number>";
+                else throw new Exception($"Invalid property type {attributeType}.");
             }
             case "class":
             {
@@ -169,17 +197,59 @@ public static class TsGenerator
         }
     }
 
-    public static string FromMapper(XDocument doc)
+    public static string FromMapper(XDocument doc, string? stateManagerFilename)
     {
         var result = new StringBuilder();
 
         result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../core.js\"");
+
+        if (string.IsNullOrEmpty(stateManagerFilename) == false)
+        {
+            result.AppendLine($"import {{ StateManager }} from \"{stateManagerFilename.Replace(".ts", ".js")}\";");
+        }
+        
+        result.AppendLine(string.Empty);
+        
+        // References
+        var references = GameHookMapperXmlFactory.GetGlossary(doc);
+        foreach (var reference in references)
+        {
+            if (reference.Type == "number")
+            {
+                continue;
+            }
+
+            if (reference.Name.Contains("CharacterMap", StringComparison.InvariantCultureIgnoreCase))
+            {
+                continue;
+            }
+
+            result.AppendLine($"export enum {GetTypescriptEnumName(reference.Name)} {{");
+
+            foreach (var x in reference.Values.DistinctBy(x => x.Value))
+            {
+                if (x.Value == null)
+                {
+                    continue;
+                }
+
+                var enumName = GetEnumKeyName(x.Value?.ToString() ?? string.Empty);
+
+                if (string.IsNullOrEmpty(enumName) == false)
+                {
+                    result.AppendLine($"{enumName} = '{x.Value?.ToString()?.Replace("'", "\\'")}',");
+                }
+            }
+
+            result.AppendLine($"}}");
+        }
+        
         result.AppendLine(string.Empty);
 
         // Interfaces
         foreach (var x in doc.Descendants("classes").Elements())
         {
-            result.AppendLine($"export interface {GetTypescriptInterface(x.Name.LocalName)} {{");
+            result.AppendLine($"export class {GetTypescriptInterface(x.Name.LocalName)} {{");
 
             foreach (var y in x.Elements())
             {
@@ -192,24 +262,6 @@ public static class TsGenerator
 
         result.AppendLine(string.Empty);
 
-        /*
-        // References
-        var references = GameHookMapperXmlFactory.GetGlossary(doc);
-        foreach (var reference in references)
-        {
-            result.AppendLine($"export enum {GetTypescriptEnum(reference.Key)} {{");
-
-            foreach (var x in reference.Value.DistinctBy(x => x.Value))
-            {
-                if (x.Value == null) { continue; }
-
-                result.AppendLine($"{GetEnumName(x.Value?.ToString() ?? string.Empty)} = '{x.Value}',");
-            }
-
-            result.AppendLine($"}}");
-        }
-        */
-
         // Properties
         var meta = GameHookMapperXmlFactory.GetMetadata(doc);
         result.AppendLine($"export class {meta.UniqueIdentifier}MapperClient extends GameHookMapper {{");
@@ -217,6 +269,11 @@ public static class TsGenerator
         foreach (var el in doc.Descendants("properties").Elements())
         {
             TransverseProperties(el, result, 0);
+        }
+
+        if (string.IsNullOrEmpty(stateManagerFilename) == false)
+        {
+            result.AppendLine("state = new StateManager(this)");
         }
 
         result.AppendLine($"}}");
