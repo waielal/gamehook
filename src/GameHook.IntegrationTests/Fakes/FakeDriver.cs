@@ -21,13 +21,13 @@ namespace GameHook.IntegrationTests.Fakes
                 ?? throw new System.Exception("Could not deserialize fake memory address block result.");
         }
 
-        public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
+        public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IPlatformOptions? platformOptions, IEnumerable<MemoryAddressBlock> blocks)
         {
             await Task.FromResult(LoadedFake);
             return LoadedFake;
         }
 
-        public async Task WriteBytes(uint startingMemoryAddress, byte[] values)
+        public async Task WriteBytes(IPlatformOptions? platformOptions, uint startingMemoryAddress, byte[] values)
         {
             await Task.CompletedTask;
         }

@@ -170,7 +170,7 @@ namespace GameHook.Application
             if (Mapper == null) throw new Exception("Mapper is null.");
             if (BlocksToRead == null) throw new Exception("BlocksToRead is null.");
 
-            var driverResult = await Driver.ReadBytes(BlocksToRead);
+            var driverResult = await Driver.ReadBytes(PlatformOptions, BlocksToRead);
 
             /*
             #if DEBUG

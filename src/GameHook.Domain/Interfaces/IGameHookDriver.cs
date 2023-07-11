@@ -10,8 +10,8 @@ namespace GameHook.Domain.Interfaces
     {
         string ProperName { get; }
 
-        Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks);
+        Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IPlatformOptions? platformOptions, IEnumerable<MemoryAddressBlock> blocks);
 
-        Task WriteBytes(MemoryAddress startingMemoryAddress, byte[] values);
+        Task WriteBytes(IPlatformOptions? platformOptions, MemoryAddress startingMemoryAddress, byte[] values);
     }
 }

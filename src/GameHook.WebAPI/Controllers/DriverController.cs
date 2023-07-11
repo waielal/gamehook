@@ -13,17 +13,19 @@ namespace GameHook.WebAPI.Controllers
     public class DriverController : Controller
     {
         private readonly IGameHookDriver _driver;
+        private readonly IGameHookInstance _instance;
 
-        public DriverController(IGameHookDriver gameHookDriver)
+        public DriverController(IGameHookDriver gameHookDriver, IGameHookInstance instance)
         {
             _driver = gameHookDriver;
+            _instance = instance;
         }
 
         [HttpPut("memory")]
         [SwaggerOperation("Write bytes back to the driver manually.")]
         public async Task<IActionResult> WriteMemory(UpdateMemoryModel model)
         {
-            await _driver.WriteBytes(model.Address, model.Bytes);
+            await _driver.WriteBytes(_instance.PlatformOptions, model.Address, model.Bytes);
 
             return Ok();
         }

@@ -10,17 +10,7 @@ namespace GameHook.Domain.ValueTransformers
 
     public static class NibbleTransformer
     {
-        public static NibblePosition ToNibblePosition(this int position)
-        {
-            return position switch
-            {
-                0 => NibblePosition.MostSignificant,
-                1 => NibblePosition.LeastSignificant,
-                _ => throw new Exception("Unable to determine from position.")
-            };
-        }
-
-        public static byte[] FromValue(int value, byte[] nibble, NibblePosition position)
+        public static byte[] FromValue(int value, byte[] bytes, NibblePosition position)
         {
             if (value < 0)
             {
@@ -32,24 +22,40 @@ namespace GameHook.Domain.ValueTransformers
                 throw new ValidationException("Nibble cannot be greater than 15.");
             }
 
-            var result = position switch
+            if (bytes == null || bytes.Length == 0)
             {
-                NibblePosition.MostSignificant => (byte)((value & 0x0F) | (nibble[0] << 4)),
-                NibblePosition.LeastSignificant => (byte)((value & 0xF0) | (nibble[0] & 0x0F)),
-                _ => throw new Exception($"Unknown Nibble position supplied: {position}.")
-            };
+                throw new Exception("Byte array cannot be null or empty.");
+            }
 
-            return new byte[] { result };
+            byte newValue = (byte)(value & 0x0F);
+            byte targetNibble = (byte)(bytes[0] & (position == NibblePosition.MostSignificant ? 0x0F : 0xF0));
+
+            if (position == NibblePosition.MostSignificant)
+            {
+                bytes[0] = (byte)((newValue << 4) | targetNibble);
+            }
+            else
+            {
+                bytes[0] = (byte)(targetNibble | newValue);
+            }
+
+            return bytes;
         }
 
         public static int ToValue(byte[] value, NibblePosition position)
         {
-            return position switch
+            if (position == NibblePosition.LeastSignificant)
             {
-                NibblePosition.MostSignificant => (byte)((value[0] & 0xF0) >> 4),
-                NibblePosition.LeastSignificant => (byte)(value[0] & 0x0F),
-                _ => throw new Exception($"Unknown Nibble position supplied: {position}.")
-            };
+                return value[0] & 0x0F;
+            }
+            else if (position == NibblePosition.MostSignificant)
+            {
+                return (value[0] >> 4) & 0x0F;
+            }
+            else
+            {
+                throw new Exception($"Unknown nibble position supplied: {position}");
+            }
         }
     }
 }

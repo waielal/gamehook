@@ -28,6 +28,7 @@ namespace GameHook.Domain.Drivers
         private Dictionary<string, ReceivedPacket> Responses { get; set; } = new Dictionary<string, ReceivedPacket>();
 
         private const int READ_PACKET_TIMEOUT_MS = 64;
+        private IPlatformOptions PlatformOptions { get; set; }
         public string ProperName { get; } = "RetroArch";
 
         void CreateUdpClient()
@@ -82,6 +83,20 @@ namespace GameHook.Domain.Drivers
             });
         }
 
+        private byte[] ReverseBytesIfLE(IPlatformOptions? platformOptions, byte[] bytes)
+        {
+            if (platformOptions == null || bytes.Length == 1) { return bytes; }
+
+            if (platformOptions.EndianType == EndianTypes.BigEndian)
+            {
+                var workingBytes = (byte[])bytes.Clone();
+                Array.Reverse(workingBytes);
+                return workingBytes;
+            }
+
+            return bytes;
+        }
+
         private string ToRetroArchHexdecimalString(uint value)
         {
             // TODO: This is somewhat of a hack because
@@ -91,9 +106,10 @@ namespace GameHook.Domain.Drivers
             else return $"{value:X2}".ToLower();
         }
 
-        public async Task WriteBytes(MemoryAddress memoryAddress, byte[] values)
+        public async Task WriteBytes(IPlatformOptions? platformOptions, MemoryAddress memoryAddress, byte[] values)
         {
-            await SendPacket("WRITE_CORE_MEMORY", $"{ToRetroArchHexdecimalString(memoryAddress)} {string.Join(' ', values.Select(x => x.ToHexdecimalString()))}");
+            var bytes = string.Join(' ', ReverseBytesIfLE(platformOptions, values).Select(x => x.ToHexdecimalString()));
+            await SendPacket("WRITE_CORE_MEMORY", $"{ToRetroArchHexdecimalString(memoryAddress)} {bytes}");
         }
 
         private async Task SendPacket(string command, string argument)
@@ -171,11 +187,11 @@ namespace GameHook.Domain.Drivers
             Logger.LogDebug($"[Incoming Packet] Set response {receiveKey}");
         }
 
-        public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
+        public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IPlatformOptions? platformOptions, IEnumerable<MemoryAddressBlock> blocks)
         {
             var results = await Task.WhenAll(blocks.Select(async x =>
             {
-                var data = await ReadMemoryAddress(x.StartingAddress, x.EndingAddress - x.StartingAddress);
+                var data = ReverseBytesIfLE(platformOptions, await ReadMemoryAddress(x.StartingAddress, x.EndingAddress - x.StartingAddress));
                 return new MemoryAddressBlockResult(x.Index, x.Name, x.StartingAddress, x.EndingAddress, data);
             }));
 

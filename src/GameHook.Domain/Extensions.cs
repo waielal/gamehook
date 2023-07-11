@@ -7,6 +7,7 @@ namespace GameHook.Domain
     {
         public static string ToHexdecimalString(this MemoryAddress value) => $"0x{value:X2}";
         public static string ToHexdecimalString(this byte value) => ((uint)value).ToHexdecimalString();
+        public static string ToHexdecimalString(this byte[] value) => $"{string.Join(' ', value.Select(x => x.ToHexdecimalString()))}";
 
         public static IEnumerable<int> ToIntegerArray(this byte[] bytes) => bytes.Select(x => (int)x).ToArray();
 
@@ -70,7 +71,7 @@ namespace GameHook.Domain
         {
             foreach (var value in list) await func(value);
         }
-        
+
         public static string CapitalizeFirstLetter(this string input)
         {
             if (string.IsNullOrEmpty(input))

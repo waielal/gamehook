@@ -74,25 +74,6 @@ namespace GameHook.Application
             }
         }
 
-        private bool ShouldReverseBytesIfLE()
-        {
-            // Little Endian has the least signifant byte first, so we need to reverse the byte array
-            // when translating it to a value.
-
-            return GameHookInstance.PlatformOptions?.EndianType == EndianTypes.LittleEndian;
-        }
-
-        private byte[] ReverseBytesIfLE(byte[] bytes)
-        {
-            if (bytes.Length == 1) { return bytes; }
-
-            var workingBytes = (byte[])bytes.Clone();
-
-            if (ShouldReverseBytesIfLE()) Array.Reverse(workingBytes);
-
-            return workingBytes;
-        }
-
         private static readonly PropertyValueResult EmptyPropertyValueResult = new PropertyValueResult();
         public PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult)
         {
@@ -193,9 +174,9 @@ namespace GameHook.Application
                     "bit" => BitTransformer.ToValue(bytes, MapperVariables.Position ?? throw new Exception("Missing property variable: Position")),
                     "bool" => BooleanTransformer.ToValue(bytes),
                     "nibble" => NibbleTransformer.ToValue(bytes, (NibblePosition)(MapperVariables.Position ?? throw new Exception("Missing property variable: Position"))),
-                    "int" => IntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
+                    "int" => IntegerTransformer.ToValue(bytes),
                     "string" => StringTransformer.ToValue(bytes, Glossary ?? throw new Exception("ReferenceList returned NULL")),
-                    "uint" => UnsignedIntegerTransformer.ToValue(ReverseBytesIfLE(bytes)),
+                    "uint" => UnsignedIntegerTransformer.ToValue(bytes),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
 
@@ -265,6 +246,8 @@ namespace GameHook.Application
         {
             if (IsReadOnly) throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
 
+            Console.WriteLine($"{Path} - Starting WriteValue {value} when bytes are {Bytes?.ToHexdecimalString()}.");
+
             byte[]? bytes = null;
 
             if (string.IsNullOrEmpty(Reference) == false)
@@ -285,10 +268,10 @@ namespace GameHook.Application
                     "bitArray" => BitFieldTransformer.FromValue(value.Split(' ').Select(bool.Parse).ToArray()),
                     "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
                     "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
-                    "nibble" => NibbleTransformer.FromValue(int.Parse(value), ReverseBytesIfLE(Bytes ?? throw new Exception("Bytes is NULL.")), (NibblePosition)(MapperVariables.Position ?? throw new Exception("Missing property variable: Position"))),
-                    "int" => ReverseBytesIfLE(IntegerTransformer.FromValue(int.Parse(value), Length)),
+                    "nibble" => NibbleTransformer.FromValue(int.Parse(value), Bytes ?? throw new Exception("Bytes is NULL."), (NibblePosition)(MapperVariables.Position ?? throw new Exception("Missing property variable: Position"))),
+                    "int" => IntegerTransformer.FromValue(int.Parse(value), Length),
                     "string" => StringTransformer.FromValue(value, Length, Glossary ?? throw new Exception("ReferenceList returned NULL")),
-                    "uint" => ReverseBytesIfLE(UnsignedIntegerTransformer.FromValue(uint.Parse(value), Length)),
+                    "uint" => UnsignedIntegerTransformer.FromValue(uint.Parse(value), Length),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
             }
@@ -314,7 +297,7 @@ namespace GameHook.Application
             if (Address == null) { throw new Exception("Address is not defined."); }
             if (bytes == null) { throw new Exception("Bytes is not defined."); }
 
-            await GameHookInstance.Driver.WriteBytes((uint)Address, bytes.Take(Length).ToArray().ToArray());
+            await GameHookInstance.Driver.WriteBytes(GameHookInstance.PlatformOptions, (uint)Address, bytes.Take(Length).ToArray());
 
             if (freeze == true)
             {
@@ -324,6 +307,8 @@ namespace GameHook.Application
             {
                 await UnfreezeProperty();
             }
+
+            Console.WriteLine($"{Path} - Completed writing {bytes.ToHexdecimalString()}");
 
             return bytes;
         }
@@ -345,12 +330,12 @@ namespace GameHook.Application
                 var writeResults = Preprocessors.write_data_block_a245dcac((uint)Address, bytes, dataBlock);
                 foreach (var result in writeResults)
                 {
-                    await GameHookInstance.GetDriver().WriteBytes(result.Address, result.Bytes);
+                    await GameHookInstance.GetDriver().WriteBytes(GameHookInstance.PlatformOptions, result.Address, result.Bytes);
                 }
             }
             else
             {
-                await GameHookInstance.GetDriver().WriteBytes((uint)Address, bytes);
+                await GameHookInstance.GetDriver().WriteBytes(GameHookInstance.PlatformOptions, (uint)Address, bytes);
             }
 
             if (freeze == true)
