@@ -77,7 +77,15 @@ namespace GameHook.Application
         private static readonly PropertyValueResult EmptyPropertyValueResult = new PropertyValueResult();
         public PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult)
         {
-            if (IsStaticValue) { return new PropertyValueResult(); }
+            if (IsStaticValue)
+            {
+                return new PropertyValueResult();
+            }
+
+            if (GameHookInstance == null || GameHookInstance.PlatformOptions == null)
+            {
+                throw new Exception("GameHookInstance is not initalized properly.");
+            }
 
             var preprocessorCache = GameHookInstance.PreprocessorCache ?? throw new Exception("GameHookInstance.PreprocessorCache is NULL.");
 
@@ -174,9 +182,9 @@ namespace GameHook.Application
                     "bit" => BitTransformer.ToValue(bytes, MapperVariables.Position ?? throw new Exception("Missing property variable: Position")),
                     "bool" => BooleanTransformer.ToValue(bytes),
                     "nibble" => NibbleTransformer.ToValue(bytes, (NibblePosition)(MapperVariables.Position ?? throw new Exception("Missing property variable: Position"))),
-                    "int" => IntegerTransformer.ToValue(bytes),
+                    "int" => IntegerTransformer.ToValue(bytes, GameHookInstance.PlatformOptions.EndianType),
                     "string" => StringTransformer.ToValue(bytes, Glossary ?? throw new Exception("ReferenceList returned NULL")),
-                    "uint" => UnsignedIntegerTransformer.ToValue(bytes),
+                    "uint" => UnsignedIntegerTransformer.ToValue(bytes, GameHookInstance.PlatformOptions.EndianType),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
 
@@ -244,9 +252,15 @@ namespace GameHook.Application
 
         public async Task<byte[]> WriteValue(string? value, bool? freeze)
         {
-            if (IsReadOnly) throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
+            if (IsReadOnly)
+            {
+                throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
+            }
 
-            Console.WriteLine($"{Path} - Starting WriteValue {value} when bytes are {Bytes?.ToHexdecimalString()}.");
+            if (GameHookInstance == null || GameHookInstance.PlatformOptions == null)
+            {
+                throw new Exception("GameHookInstance is not initalized properly.");
+            }
 
             byte[]? bytes = null;
 
@@ -262,6 +276,8 @@ namespace GameHook.Application
                     value = string.Empty;
                 }
 
+                var endianType = GameHookInstance.PlatformOptions.EndianType;
+
                 bytes = Type switch
                 {
                     "binaryCodedDecimal" => BinaryCodedDecimalTransformer.FromValue(int.Parse(value)),
@@ -269,9 +285,9 @@ namespace GameHook.Application
                     "bit" => BitTransformer.FromValue(Bytes ?? throw new Exception("Bytes is NULL."), MapperVariables.Position ?? throw new Exception("Position is NULL."), bool.Parse(value)),
                     "bool" => BooleanTransformer.FromValue(bool.Parse(value)),
                     "nibble" => NibbleTransformer.FromValue(int.Parse(value), Bytes ?? throw new Exception("Bytes is NULL."), (NibblePosition)(MapperVariables.Position ?? throw new Exception("Missing property variable: Position"))),
-                    "int" => IntegerTransformer.FromValue(int.Parse(value), Length),
+                    "int" => IntegerTransformer.FromValue(int.Parse(value), Length, endianType),
                     "string" => StringTransformer.FromValue(value, Length, Glossary ?? throw new Exception("ReferenceList returned NULL")),
-                    "uint" => UnsignedIntegerTransformer.FromValue(uint.Parse(value), Length),
+                    "uint" => UnsignedIntegerTransformer.FromValue(uint.Parse(value), Length, endianType),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
             }
@@ -297,7 +313,7 @@ namespace GameHook.Application
             if (Address == null) { throw new Exception("Address is not defined."); }
             if (bytes == null) { throw new Exception("Bytes is not defined."); }
 
-            await GameHookInstance.Driver.WriteBytes(GameHookInstance.PlatformOptions, (uint)Address, bytes.Take(Length).ToArray());
+            await GameHookInstance.Driver.WriteBytes((uint)Address, bytes.Take(Length).ToArray());
 
             if (freeze == true)
             {
@@ -308,14 +324,20 @@ namespace GameHook.Application
                 await UnfreezeProperty();
             }
 
-            Console.WriteLine($"{Path} - Completed writing {bytes.ToHexdecimalString()}");
-
             return bytes;
         }
 
         public async Task WriteBytes(byte[] bytes, bool? freeze)
         {
-            if (IsReadOnly) throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
+            if (IsReadOnly)
+            {
+                throw new Exception($"Property '{Path}' is read-only and cannot be modified.");
+            }
+
+            if (GameHookInstance == null || GameHookInstance.PlatformOptions == null)
+            {
+                throw new Exception("GameHookInstance is not initalized properly.");
+            }
 
             if (Address == null)
             {
@@ -330,12 +352,12 @@ namespace GameHook.Application
                 var writeResults = Preprocessors.write_data_block_a245dcac((uint)Address, bytes, dataBlock);
                 foreach (var result in writeResults)
                 {
-                    await GameHookInstance.GetDriver().WriteBytes(GameHookInstance.PlatformOptions, result.Address, result.Bytes);
+                    await GameHookInstance.GetDriver().WriteBytes(result.Address, result.Bytes);
                 }
             }
             else
             {
-                await GameHookInstance.GetDriver().WriteBytes(GameHookInstance.PlatformOptions, (uint)Address, bytes);
+                await GameHookInstance.GetDriver().WriteBytes((uint)Address, bytes);
             }
 
             if (freeze == true)

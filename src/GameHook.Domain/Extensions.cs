@@ -11,6 +11,22 @@ namespace GameHook.Domain
 
         public static IEnumerable<int> ToIntegerArray(this byte[] bytes) => bytes.Select(x => (int)x).ToArray();
 
+        public static byte[] ReverseBytesIfLE(this byte[] bytes, EndianTypes? endianType)
+        {
+            if (endianType == null || bytes.Length == 1) { return bytes; }
+
+            if (endianType == EndianTypes.LittleEndian)
+            {
+                var workingBytes = (byte[])bytes.Clone();
+
+                Array.Reverse(workingBytes);
+
+                return workingBytes;
+            }
+
+            return bytes;
+        }
+
         public static string GetRequiredValue(this IConfiguration configuration, string key)
         {
             var value = configuration[key];

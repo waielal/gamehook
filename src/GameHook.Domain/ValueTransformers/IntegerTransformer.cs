@@ -2,17 +2,17 @@
 {
     public static class IntegerTransformer
     {
-        public static byte[] FromValue(int value, int length)
+        public static byte[] FromValue(int value, int length, EndianTypes endianType)
         {
-            return BitConverter.GetBytes(value).Take(length).ToArray();
+            var bytes = BitConverter.GetBytes(value).Take(length).ToArray();
+            return bytes.ReverseBytesIfLE(endianType);
         }
 
-        public static int ToValue(byte[] data)
+        public static int ToValue(byte[] data, EndianTypes endianType)
         {
-            // Integers cannot currently exceed int32
+            // TODO: Integers cannot currently exceed int32
             byte[] value = new byte[8];
-            Array.Copy(data, value, data.Length);
-
+            Array.Copy(data.ReverseBytesIfLE(endianType), value, data.Length);
             return BitConverter.ToInt32(value, 0);
         }
     }

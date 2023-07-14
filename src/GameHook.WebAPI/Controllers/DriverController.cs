@@ -25,7 +25,7 @@ namespace GameHook.WebAPI.Controllers
         [SwaggerOperation("Write bytes back to the driver manually.")]
         public async Task<IActionResult> WriteMemory(UpdateMemoryModel model)
         {
-            await _driver.WriteBytes(_instance.PlatformOptions, model.Address, model.Bytes);
+            await _driver.WriteBytes(model.Address, model.Bytes);
 
             return Ok();
         }
