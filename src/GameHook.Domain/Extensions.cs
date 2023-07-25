@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace GameHook.Domain
 {
@@ -10,6 +12,23 @@ namespace GameHook.Domain
         public static string ToHexdecimalString(this byte[] value) => $"{string.Join(' ', value.Select(x => x.ToHexdecimalString()))}";
 
         public static IEnumerable<int> ToIntegerArray(this byte[] bytes) => bytes.Select(x => (int)x).ToArray();
+
+        public static string ToPascalCase(this string str)
+        {
+            string[] words = Regex.Split(str, @"[_\-]");
+            TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                string word = words[i];
+                if (!string.IsNullOrEmpty(word))
+                {
+                    words[i] = textInfo.ToTitleCase(word);
+                }
+            }
+
+            return string.Join("", words);
+        }
 
         public static byte[] ReverseBytesIfLE(this byte[] bytes, EndianTypes? endianType)
         {

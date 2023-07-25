@@ -41,45 +41,46 @@ public static class TsGenerator
         switch (el.Name.LocalName)
         {
             case "property":
-            {
-                var referenceType = el.GetOptionalAttributeValue("reference");
-                if (string.IsNullOrEmpty(referenceType) == false)
                 {
-                    var referenceNode = el?.Document?.Descendants("references")?.Descendants(referenceType)?.Single() ??
-                                        throw new Exception($"Unable to determine reference type {referenceType}.");
+                    var referenceType = el.GetOptionalAttributeValue("reference");
+                    if (string.IsNullOrEmpty(referenceType) == false)
+                    {
+                        var referenceNode = el?.Document?.Descendants("references")?.Descendants(referenceType)?.Single() ??
+                                            throw new Exception($"Unable to determine reference type {referenceType}.");
 
-                    var referenceNodeType = referenceNode.GetOptionalAttributeValue("type") ?? "string";
-                    if (referenceNodeType == "string")
-                    {
-                        return "GameHookProperty<string>";
+                        var referenceNodeType = referenceNode.GetOptionalAttributeValue("type") ?? "string";
+                        if (referenceNodeType == "string")
+                        {
+                            return "GameHookProperty<string>";
+                        }
+                        else if (referenceNodeType == "number")
+                        {
+                            return "GameHookProperty<number>";
+                        }
+                        else
+                        {
+                            throw new Exception(
+                                $"Unable to translate reference node type of {referenceNodeType} for reference {referenceType}.");
+                        }
                     }
-                    else if (referenceNodeType == "number")
-                    {
-                        return "GameHookProperty<number>";
-                    }
-                    else
-                    {
-                        throw new Exception(
-                            $"Unable to translate reference node type of {referenceNodeType} for reference {referenceType}.");
-                    }
+
+                    var attributeType = el.GetAttributeValue("type");
+
+                    if (attributeType == "binaryCodedDecimal") return "GameHookProperty<number>";
+                    else if (attributeType == "bitArray") return "GameHookProperty<boolean[]>";
+                    else if (attributeType == "bit") return "GameHookProperty<boolean>";
+                    else if (attributeType == "bool") return "GameHookProperty<boolean>";
+                    else if (attributeType == "int") return "GameHookProperty<number>";
+                    else if (attributeType == "string") return "GameHookProperty<string>";
+                    else if (attributeType == "uint") return "GameHookProperty<number>";
+                    else if (attributeType == "nibble") return "GameHookProperty<number>";
+                    else throw new Exception($"Invalid property type {attributeType}.");
                 }
-
-                var attributeType = el.GetAttributeValue("type");
-                
-                if (attributeType == "binaryCodedDecimal") return "GameHookProperty<number>";
-                else if (attributeType == "bitArray") return "GameHookProperty<boolean[]>";
-                else if (attributeType == "bit") return "GameHookProperty<boolean>";
-                else if (attributeType == "bool") return "GameHookProperty<boolean>";
-                else if (attributeType == "int") return "GameHookProperty<number>";
-                else if (attributeType == "string") return "GameHookProperty<string>";
-                else if (attributeType == "uint") return "GameHookProperty<number>";
-                else throw new Exception($"Invalid property type {attributeType}.");
-            }
             case "class":
-            {
-                var attributeType = el.GetAttributeValue("type");
-                return GetTypescriptInterface(attributeType);
-            }
+                {
+                    var attributeType = el.GetAttributeValue("type");
+                    return GetTypescriptInterface(attributeType);
+                }
             default:
                 throw new Exception($"Cannot get typescript type for element. ${el}");
         }
@@ -197,19 +198,14 @@ public static class TsGenerator
         }
     }
 
-    public static string FromMapper(XDocument doc, string? stateManagerFilename)
+    public static string FromMapper(XDocument doc)
     {
         var result = new StringBuilder();
 
-        result.AppendLine("import { GameHookMapper, GameHookProperty } from \"../core.js\"");
+        result.AppendLine("import { AbstractMapperClient, GameHookProperty } from \"../core.js\"");
 
-        if (string.IsNullOrEmpty(stateManagerFilename) == false)
-        {
-            result.AppendLine($"import {{ StateManager }} from \"{stateManagerFilename.Replace(".ts", ".js")}\";");
-        }
-        
         result.AppendLine(string.Empty);
-        
+
         // References
         var references = GameHookMapperXmlFactory.GetGlossary(doc);
         foreach (var reference in references)
@@ -243,7 +239,7 @@ public static class TsGenerator
 
             result.AppendLine($"}}");
         }
-        
+
         result.AppendLine(string.Empty);
 
         // Interfaces
@@ -264,16 +260,11 @@ public static class TsGenerator
 
         // Properties
         var meta = GameHookMapperXmlFactory.GetMetadata(doc);
-        result.AppendLine($"export class {meta.UniqueIdentifier}MapperClient extends GameHookMapper {{");
+        result.AppendLine($"export class MapperClient extends AbstractMapperClient {{");
 
         foreach (var el in doc.Descendants("properties").Elements())
         {
             TransverseProperties(el, result, 0);
-        }
-
-        if (string.IsNullOrEmpty(stateManagerFilename) == false)
-        {
-            result.AppendLine("state = new StateManager(this)");
         }
 
         result.AppendLine($"}}");
