@@ -99,6 +99,7 @@ namespace GameHook.Application
                     "GB" => new GB_PlatformOptions(),
                     "GBA" => new GBA_PlatformOptions(),
                     "PSX" => new PSX_PlatformOptions(),
+                    "NDS" => new NDS_PlatformOptions(),
                     _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
                 };
 

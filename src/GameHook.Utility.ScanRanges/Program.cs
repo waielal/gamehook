@@ -18,7 +18,7 @@ async Task ConsolePrompt(IServiceProvider services)
 {
     while (true)
     {
-        Console.WriteLine("Enter command >");
+        Console.WriteLine("Enter command [READ_CORE_MEMORY] >");
 
         var cmd = string.Empty;
         while (string.IsNullOrEmpty(cmd))

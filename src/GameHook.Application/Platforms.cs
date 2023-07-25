@@ -98,4 +98,13 @@ namespace GameHook.Application
             new MemoryAddressBlock(7, "BIOS", 0xbfc00000, 0xbfc7ffff)
         }.ToArray();
     }
+
+    public class NDS_PlatformOptions : IPlatformOptions
+    {
+        public EndianTypes EndianType { get; } = EndianTypes.LittleEndian;
+        public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
+        {
+            new MemoryAddressBlock(0, "Kernel", 0x00000000, 0x0000ffff)
+        }.ToArray();
+    }
 }
