@@ -12,8 +12,4 @@
       <ProjectReference Include="..\GameHook.Application\GameHook.Application.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Remove="Typescript.liquid" />
-    </ItemGroup>
-
 </Project>
