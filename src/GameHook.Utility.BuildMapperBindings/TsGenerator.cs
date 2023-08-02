@@ -51,11 +51,11 @@ public static class TsGenerator
                         var referenceNodeType = referenceNode.GetOptionalAttributeValue("type") ?? "string";
                         if (referenceNodeType == "string")
                         {
-                            return "GameHookProperty<string>";
+                            return "GameHookPropertyProxy<string>";
                         }
                         else if (referenceNodeType == "number")
                         {
-                            return "GameHookProperty<number>";
+                            return "GameHookPropertyProxy<number>";
                         }
                         else
                         {
@@ -66,14 +66,14 @@ public static class TsGenerator
 
                     var attributeType = el.GetAttributeValue("type");
 
-                    if (attributeType == "binaryCodedDecimal") return "GameHookProperty<number>";
-                    else if (attributeType == "bitArray") return "GameHookProperty<boolean[]>";
-                    else if (attributeType == "bit") return "GameHookProperty<boolean>";
-                    else if (attributeType == "bool") return "GameHookProperty<boolean>";
-                    else if (attributeType == "int") return "GameHookProperty<number>";
-                    else if (attributeType == "string") return "GameHookProperty<string>";
-                    else if (attributeType == "uint") return "GameHookProperty<number>";
-                    else if (attributeType == "nibble") return "GameHookProperty<number>";
+                    if (attributeType == "binaryCodedDecimal") return "GameHookPropertyProxy<number>";
+                    else if (attributeType == "bitArray") return "GameHookPropertyProxy<boolean[]>";
+                    else if (attributeType == "bit") return "GameHookPropertyProxy<boolean>";
+                    else if (attributeType == "bool") return "GameHookPropertyProxy<boolean>";
+                    else if (attributeType == "int") return "GameHookPropertyProxy<number>";
+                    else if (attributeType == "string") return "GameHookPropertyProxy<string>";
+                    else if (attributeType == "uint") return "GameHookPropertyProxy<number>";
+                    else if (attributeType == "nibble") return "GameHookPropertyProxy<number>";
                     else throw new Exception($"Invalid property type {attributeType}.");
                 }
             case "class":
@@ -97,7 +97,7 @@ public static class TsGenerator
         return $"[{string.Join(',', tupleTypes)}]";
     }
 
-    static void TransverseHierarchy(XElement el, StringBuilder result, int depth, string separator,
+    static void TransverseHierarchy(XElement el, StringBuilder result, string separator,
         string endingCharacter)
     {
         if (el.IsParentAnArray())
@@ -106,7 +106,7 @@ public static class TsGenerator
 
             foreach (var childEl in el.Elements())
             {
-                TransverseProperties(childEl, result, depth + 1);
+                TransverseProperties(childEl, result);
             }
 
             result.AppendLine("},");
@@ -119,7 +119,7 @@ public static class TsGenerator
 
                 foreach (var childEl in el.Elements())
                 {
-                    TransverseProperties(childEl, result, depth + 1);
+                    TransverseProperties(childEl, result);
                 }
 
                 result.AppendLine($"] as {GetTypescriptTupleTypes(el)}{endingCharacter}");
@@ -130,7 +130,7 @@ public static class TsGenerator
 
                 foreach (var childEl in el.Elements())
                 {
-                    TransverseProperties(childEl, result, depth + 1);
+                    TransverseProperties(childEl, result);
                 }
 
                 result.AppendLine($"}}{endingCharacter}");
@@ -138,10 +138,10 @@ public static class TsGenerator
         }
     }
 
-    static void TransverseProperties(XElement el, StringBuilder result, int depth)
+    static void TransverseProperties(XElement el, StringBuilder result)
     {
-        var separator = depth == 0 ? "=" : ":";
-        var endingCharacter = depth == 0 ? "" : ",";
+        var separator = ":";
+        var endingCharacter = ",";
 
         switch (el.Name.LocalName)
         {
@@ -162,7 +162,7 @@ public static class TsGenerator
                 // result.AppendLine(el.Value);
                 break;
             default:
-                TransverseHierarchy(el, result, depth, separator, endingCharacter);
+                TransverseHierarchy(el, result, separator, endingCharacter);
                 break;
         }
     }
@@ -202,7 +202,7 @@ public static class TsGenerator
     {
         var result = new StringBuilder();
 
-        result.AppendLine("import { AbstractMapperClient, GameHookProperty } from \"../core.js\"");
+        result.AppendLine("import { AbstractMapperClient, GameHookPropertyProxy } from \"../core.js\"");
 
         result.AppendLine(string.Empty);
 
@@ -245,7 +245,7 @@ public static class TsGenerator
         // Interfaces
         foreach (var x in doc.Descendants("classes").Elements())
         {
-            result.AppendLine($"export class {GetTypescriptInterface(x.Name.LocalName)} {{");
+            result.AppendLine($"export interface {GetTypescriptInterface(x.Name.LocalName)} {{");
 
             foreach (var y in x.Elements())
             {
@@ -260,14 +260,16 @@ public static class TsGenerator
 
         // Properties
         var meta = GameHookMapperXmlFactory.GetMetadata(doc);
-        result.AppendLine($"export class MapperClient extends AbstractMapperClient {{");
+        result.AppendLine("export class MapperClient extends AbstractMapperClient {");
 
+        result.AppendLine("properties = {");
         foreach (var el in doc.Descendants("properties").Elements())
         {
-            TransverseProperties(el, result, 0);
+            TransverseProperties(el, result);
         }
+        result.AppendLine("}");
 
-        result.AppendLine($"}}");
+        result.AppendLine("}");
 
         return result.ToString();
     }
