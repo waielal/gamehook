@@ -1,3 +1,5 @@
+src/BizHawk
+
 src/mappers/*.xml
 src/mappers/*.yml
 

@@ -51,6 +51,22 @@ namespace GameHook.WebAPI
             return route;
         }
 
+        public static ObjectResult BadRequestResult(string detail)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "BAD_REQUEST",
+                Detail = detail
+            };
+
+            return new ObjectResult(problemDetails)
+            {
+                ContentTypes = { "application/problem+json" },
+                StatusCode = 400,
+            };
+        }
+
         public static ObjectResult MapperNotLoaded()
         {
             var problemDetails = new ProblemDetails

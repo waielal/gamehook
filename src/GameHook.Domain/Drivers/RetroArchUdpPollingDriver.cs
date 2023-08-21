@@ -20,7 +20,7 @@ namespace GameHook.Domain.Drivers
         public byte[] Value { get; set; }
     }
 
-    public class RetroArchUdpPollingDriver : IGameHookDriver
+    public class RetroArchUdpPollingDriver : IGameHookDriver, IRetroArchUdpPollingDriver
     {
         private ILogger<RetroArchUdpPollingDriver> Logger { get; }
         private DriverOptions DriverOptions { get; }
@@ -160,7 +160,7 @@ namespace GameHook.Domain.Drivers
 
             if (valueStringArray[0] == "-1")
             {
-                throw new DriverErrorException(receiveString);
+                throw new Exception(receiveString);
             }
 
             var memoryAddress = Convert.ToUInt32(memoryAddressString, 16);
@@ -177,10 +177,22 @@ namespace GameHook.Domain.Drivers
             var results = await Task.WhenAll(blocks.Select(async x =>
             {
                 var data = await ReadMemoryAddress(x.StartingAddress, x.EndingAddress - x.StartingAddress);
-                return new MemoryAddressBlockResult(x.Index, x.Name, x.StartingAddress, x.EndingAddress, data);
+
+                return new MemoryAddressBlockResult()
+                {
+                    Name = x.Name,
+                    StartingAddress = x.StartingAddress,
+                    EndingAddress = x.EndingAddress,
+                    Data = data
+                };
             }));
 
             return results.ToList();
+        }
+
+        public Task EstablishConnection()
+        {
+            return Task.CompletedTask;
         }
     }
 }

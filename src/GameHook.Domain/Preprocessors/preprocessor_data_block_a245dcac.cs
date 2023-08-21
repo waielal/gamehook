@@ -1,5 +1,7 @@
 ﻿using GameHook.Domain.ValueTransformers;
 
+// GEN 3 - Block-shuffling
+
 namespace GameHook.Domain.Preprocessors
 {
     public class DataBlock_a245dcac_Cache
@@ -30,7 +32,7 @@ namespace GameHook.Domain.Preprocessors
     public static partial class Preprocessors
     {
         // Used beforehand to cache the data block.
-        private static int[] CalculateSubstructureOrder(uint substructureType)
+        static int[] CalculateSubstructureOrder_a245dcac(uint substructureType)
         {
             return substructureType switch
             {
@@ -83,7 +85,7 @@ namespace GameHook.Domain.Preprocessors
             // as shown below, where G, A, E, and M stand for the substructures growth, attacks, EVs and condition, and miscellaneous, respectively.
             var substructureType = personalityValue % 24;
 
-            var substructureOrder = CalculateSubstructureOrder(substructureType);
+            var substructureOrder = CalculateSubstructureOrder_a245dcac(substructureType);
 
             // To obtain the 32-bit decryption key, the entire OTID number must be XORed with the personality value of the entry.
             var decryptionKey = originalTrainerId ^ personalityValue;

@@ -87,7 +87,8 @@ namespace GameHook.WebAPI
             services.AddSingleton<DriverOptions>();
             services.AddSingleton<IMapperFilesystemProvider, MapperFilesystemProvider>();
             services.AddSingleton<IMapperUpdateManager, MapperUpdateManager>();
-            services.AddSingleton<IGameHookDriver, RetroArchUdpPollingDriver>();
+            services.AddSingleton<IBizhawkMemoryMapDriver, BizhawkMemoryMapDriver>();
+            services.AddSingleton<IRetroArchUdpPollingDriver, RetroArchUdpPollingDriver>();
             services.AddSingleton<GameHookInstance>();
             services.AddSingleton<IClientNotifier, WebSocketClientNotifier>();
             services.AddSingleton<IClientNotifier, FilesystemClientNotifier>();

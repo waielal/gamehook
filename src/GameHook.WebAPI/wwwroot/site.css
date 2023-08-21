@@ -90,7 +90,7 @@ body {
 }
 
     #header .header-menu-item {
-        width: 64px;
+        padding-right: 48px;
     }
 
         #header .header-menu-item:hover {

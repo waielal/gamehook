@@ -10,8 +10,13 @@ namespace GameHook.Domain.Interfaces
     {
         string ProperName { get; }
 
+        Task EstablishConnection();
+
         Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks);
 
         Task WriteBytes(MemoryAddress startingMemoryAddress, byte[] values);
     }
+
+    public interface IBizhawkMemoryMapDriver : IGameHookDriver { }
+    public interface IRetroArchUdpPollingDriver : IGameHookDriver { }
 }

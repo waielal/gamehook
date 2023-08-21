@@ -13,6 +13,11 @@ namespace GameHook.IntegrationTests.Fakes
 
         private IEnumerable<MemoryAddressBlockResult> LoadedFake { get; set; } = new List<MemoryAddressBlockResult>();
 
+        public Task EstablishConnection()
+        {
+            return Task.CompletedTask;
+        }
+
         public void LoadFakeMemoryAddressBlockResult(string filename)
         {
             var json = File.ReadAllText($"./Data/MemoryAddressBlocks/{filename}");

@@ -7,6 +7,30 @@ namespace GameHook.Domain
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Read two bytes as integer.
+        /// </summary>
+        public static int DATA16_BE(this byte[] data, int offset = 0) =>
+            (data[offset] << 8) | data[offset + 1];
+
+        /// <summary>
+        /// Read four bytes as integer.
+        /// </summary>
+        public static int DATA32_BE(this byte[] data, int offset = 0) =>
+            (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
+
+        /// <summary>
+        /// Read two bytes as integer.
+        /// </summary>
+        public static int DATA16_LE(this byte[] data, int offset = 0) =>
+            (data[offset] << 0) | (data[offset + 1] << 8);
+
+        /// <summary>
+        /// Read four bytes as integer.
+        /// </summary>
+        public static int DATA32_LE(this byte[] data, int offset = 0) =>
+            (data[offset] << 0) | (data[offset + 1] << 8) | (data[offset + 2] << 16) | (data[offset + 3] << 24);
+
         public static string ToHexdecimalString(this MemoryAddress value) => $"0x{value:X2}";
         public static string ToHexdecimalString(this byte value) => ((uint)value).ToHexdecimalString();
         public static string ToHexdecimalString(this byte[] value) => $"{string.Join(' ', value.Select(x => x.ToHexdecimalString()))}";

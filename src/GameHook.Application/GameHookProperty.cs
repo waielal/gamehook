@@ -35,6 +35,10 @@ namespace GameHook.Application
                 {
                     return GameHookInstance.Mapper.Glossary.Single(x => x.Name == "defaultCharacterMap");
                 }
+                else if (Type == "string2" && string.IsNullOrEmpty(MapperVariables.Reference))
+                {
+                    return GameHookInstance.Mapper.Glossary.Single(x => x.Name == "defaultCharacterMap");
+                }
 
                 if (string.IsNullOrEmpty(MapperVariables.Reference)) { return null; }
                 return GameHookInstance.Mapper.Glossary.Single(x => x.Name == MapperVariables.Reference);
@@ -117,6 +121,25 @@ namespace GameHook.Application
                     throw new Exception($"Unable to process preprocessor {MapperVariables.Preprocessor}.", ex);
                 }
             }
+            else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("data_block_fa7545e6"))
+            {
+                try
+                {
+                    if (MapperVariables.Address == null) { throw new Exception($"Property {Path} does not have a MapperVariables.Address."); }
+
+                    var baseAddress = (MemoryAddress)MapperVariables.Address;
+                    var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(0);
+
+                    var preprocessorResult = Preprocessor_fa7545e6.read_data_block(baseAddress, driverResult.GetAddressData(baseAddress, 236), offset, MapperVariables.Length);
+                    address = preprocessorResult.Address;
+                    rawBytes = preprocessorResult.EncryptedData;
+                    bytes = preprocessorResult.DecryptedData;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unable to process preprocessor {MapperVariables.Preprocessor}.", ex);
+                }
+            }
             else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("dma_967d10cc"))
             {
                 try
@@ -184,6 +207,7 @@ namespace GameHook.Application
                     "nibble" => NibbleTransformer.ToValue(bytes, (NibblePosition)(MapperVariables.Position ?? throw new Exception("Missing property variable: Position"))),
                     "int" => IntegerTransformer.ToValue(bytes, GameHookInstance.PlatformOptions.EndianType),
                     "string" => StringTransformer.ToValue(bytes, Glossary ?? throw new Exception("ReferenceList returned NULL")),
+                    "string2" => String2Transformer.ToValue(bytes, Glossary ?? throw new Exception("ReferenceList returned NULL")),
                     "uint" => UnsignedIntegerTransformer.ToValue(bytes, GameHookInstance.PlatformOptions.EndianType),
                     _ => throw new Exception($"Unknown type defined for {Path}, {Type}")
                 };
@@ -354,6 +378,10 @@ namespace GameHook.Application
                 {
                     await GameHookInstance.GetDriver().WriteBytes(result.Address, result.Bytes);
                 }
+            }
+            else if (MapperVariables.Preprocessor != null && MapperVariables.Preprocessor.Contains("data_block_fa7545e6"))
+            {
+                throw new NotImplementedException();
             }
             else
             {

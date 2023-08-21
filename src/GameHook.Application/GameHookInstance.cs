@@ -19,6 +19,9 @@ namespace GameHook.Application
         public IGameHookMapper? Mapper { get; private set; }
         public PreprocessorCache? PreprocessorCache { get; private set; }
         public IPlatformOptions? PlatformOptions { get; private set; }
+
+        public bool Preprocessor_fa7545e6_Exists { get; private set; }
+
         public IEnumerable<MemoryAddressBlock>? BlocksToRead { get; private set; }
         public const int DELAY_MS_BETWEEN_READS = 25;
 
@@ -62,6 +65,8 @@ namespace GameHook.Application
 
                 Driver = driver;
 
+                await Driver.EstablishConnection();
+
                 // Load the mapper file.
                 if (string.IsNullOrEmpty(mapperId))
                 {
@@ -102,6 +107,8 @@ namespace GameHook.Application
                     "NDS" => new NDS_PlatformOptions(),
                     _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
                 };
+
+                Preprocessor_fa7545e6_Exists = Mapper.Properties.Any(x => x.MapperVariables.Preprocessor?.Contains("fa7545e6") ?? false);
 
                 // Calculate the blocks to read from the mapper memory addresses.
                 var addressesToWatch = Mapper.Properties
@@ -190,15 +197,17 @@ namespace GameHook.Application
                 PreprocessorCache = new PreprocessorCache();
             }
 
+            if (Preprocessor_fa7545e6_Exists) Preprocessor_fa7545e6.ClearCache();
+
             // data_block_a245dcac
             var dataBlock_a245dcac_Properties = Mapper.Properties
                 .Where(x => x.MapperVariables.Preprocessor?.StartsWith("data_block_a245dcac(") ?? false)
                 .GroupBy(x => x.MapperVariables.Address ?? 0)
                 .ToList();
 
-            // Key is the starting memory address block.
             dataBlock_a245dcac_Properties.ForEach(x =>
             {
+                // Key is the starting memory address block.
                 PreprocessorCache.data_block_a245dcac.TryGetValue(x.Key, out var existingCache);
                 PreprocessorCache.data_block_a245dcac[x.Key] = Preprocessors.decrypt_data_block_a245dcac(existingCache, driverResult, x.Key);
             });

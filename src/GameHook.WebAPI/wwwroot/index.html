@@ -29,6 +29,22 @@
                 </div>
 
                 <div class="dropdown is-hoverable">
+                    <div class="dropdown-trigger header-menu-item">Emulator Driver</div>
+                    <div class="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                            <a href="#" class="dropdown-item pl-4" v-on:click="changeUserSettingDriver('retroarch')">
+                                <svg class="sprite"><use xlink:href="#check" v-if="userSettings.driver === 'retroarch'"></use></svg>
+                                RetroArch
+                            </a>
+                            <a href="#" class="dropdown-item pl-4" v-on:click="changeUserSettingDriver('bizhawk')">
+                                <svg class="sprite"><use xlink:href="#check" v-if="userSettings.driver === 'bizhawk'"></use></svg>
+                                BizHawk
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dropdown is-hoverable">
                     <div class="dropdown-trigger header-menu-item">View</div>
                     <div class="dropdown-menu" role="menu">
                         <div class="dropdown-content">
@@ -487,6 +503,7 @@
                     editingProperty: null,
                     editingPropertyError: null,
                     userSettings: {
+                        driver: 'retroarch',
                         displayBytesMode: 'hexdecimalUpper'
                     }
                 }
@@ -619,6 +636,10 @@
                     this.userSettings.displayBytesMode = newValue
                     this.saveData()
                 },
+                changeUserSettingDriver: function (newValue) {
+                    this.userSettings.driver = newValue
+                    this.saveData()
+                },
                 getPinnedProperties: function () {
                     if (this.mapper._properties) {
                         return this.mapper._properties.filter(x => this.pinnedPropertyPaths.includes(x.path))
@@ -648,7 +669,7 @@
                         const result = await fetch(`${this.mapper._connectionString}/mapper`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id: id })
+                            body: JSON.stringify({ id: id, driver: this.userSettings.driver })
                         })
 
                         if (result.ok == false) {

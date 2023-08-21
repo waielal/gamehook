@@ -1,5 +1,6 @@
 using GameHook.Application;
 using GameHook.Domain;
+using GameHook.Domain.Drivers;
 using GameHook.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -61,7 +62,7 @@ namespace GameHook.WebAPI.Controllers
         public object? Value { get; init; }
     }
 
-    public record MapperReplaceModel(string Id);
+    public record MapperReplaceModel(string Id, string Driver);
 
     public class PropertyModel
     {
@@ -114,12 +115,15 @@ namespace GameHook.WebAPI.Controllers
     public class MapperController : ControllerBase
     {
         public GameHookInstance Instance { get; }
-        public IGameHookDriver Driver { get; }
+        public readonly IBizhawkMemoryMapDriver _bizhawkMemoryMapDriver;
+        public readonly IRetroArchUdpPollingDriver _retroArchUdpPollingDriver;
 
-        public MapperController(GameHookInstance gameHookInstance, IGameHookDriver driver)
+        public MapperController(GameHookInstance gameHookInstance, IBizhawkMemoryMapDriver bizhawkMemoryMapDriver, IRetroArchUdpPollingDriver retroArchUdpPollingDriver)
         {
             Instance = gameHookInstance;
-            Driver = driver;
+
+            _bizhawkMemoryMapDriver = bizhawkMemoryMapDriver;
+            _retroArchUdpPollingDriver = retroArchUdpPollingDriver;
         }
 
         [HttpGet]
@@ -150,7 +154,18 @@ namespace GameHook.WebAPI.Controllers
         {
             try
             {
-                await Instance.Load(Driver, model.Id);
+                if (model.Driver == "bizhawk")
+                {
+                    await Instance.Load(_bizhawkMemoryMapDriver, model.Id);
+                }
+                else if (model.Driver == "retroarch")
+                {
+                    await Instance.Load(_retroArchUdpPollingDriver, model.Id);
+                }
+                else
+                {
+                    return ApiHelper.BadRequestResult("A valid driver was not supplied.");
+                }
 
                 return Ok();
             }
