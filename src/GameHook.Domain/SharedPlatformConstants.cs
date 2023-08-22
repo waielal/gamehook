@@ -1,5 +1,4 @@
 ﻿namespace GameHook.Domain;
-
 public static class SharedPlatformConstants
 {
     public record PlatformEntry
@@ -62,6 +61,32 @@ public static class SharedPlatformConstants
         new PlatformEntry()
         {
             IsBigEndian = false,
+            BizhawkIdentifier = "GB",
+            MemoryLayout = new PlatformMemoryLayoutEntry[]
+            {
+                new PlatformMemoryLayoutEntry {
+                    BizhawkIdentifier = "WRAM",
+                    CustomPacketTransmitPosition = 0,
+                    PhysicalStartingAddress = 0xC000,
+                    Length = 0x2000
+                },
+                new PlatformMemoryLayoutEntry {
+                    BizhawkIdentifier = "VRAM",
+                    CustomPacketTransmitPosition = 0x2000 + 1,
+                    PhysicalStartingAddress = 0x8000,
+                    Length = 0x1FFF
+                },
+                new PlatformMemoryLayoutEntry {
+                    BizhawkIdentifier = "HRAM",
+                    CustomPacketTransmitPosition = 0x1000 + 0x1FFF + 1,
+                    PhysicalStartingAddress = 0xFF80,
+                    Length = 0x7E
+                }
+            }
+        },
+        new PlatformEntry()
+        {
+            IsBigEndian = false,
             BizhawkIdentifier = "GBC",
             MemoryLayout = new PlatformMemoryLayoutEntry[]
             {
@@ -69,13 +94,19 @@ public static class SharedPlatformConstants
                     BizhawkIdentifier = "WRAM",
                     CustomPacketTransmitPosition = 0,
                     PhysicalStartingAddress = 0xC000,
-                    Length = 0x8000
+                    Length = 0x2000
                 },
                 new PlatformMemoryLayoutEntry {
                     BizhawkIdentifier = "VRAM",
-                    CustomPacketTransmitPosition = 0x8000 + 1,
+                    CustomPacketTransmitPosition = 0x2000 + 1,
                     PhysicalStartingAddress = 0x8000,
                     Length = 0x1FFF
+                },
+                new PlatformMemoryLayoutEntry {
+                    BizhawkIdentifier = "HRAM",
+                    CustomPacketTransmitPosition = 0x2000 + 0x1FFF + 1,
+                    PhysicalStartingAddress = 0xFF80,
+                    Length = 0x7E
                 }
             }
         },
