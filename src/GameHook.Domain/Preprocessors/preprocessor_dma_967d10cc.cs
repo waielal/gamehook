@@ -1,11 +1,10 @@
-﻿using GameHook.Domain.Interfaces;
-using GameHook.Domain.ValueTransformers;
+﻿using GameHook.Domain.ValueTransformers;
 
 namespace GameHook.Domain.Preprocessors
 {
-    public static partial class Preprocessors
+    public static partial class Preprocessor_967d10cc
     {
-        public static MemoryAddress? dma_967d10cc(MemoryAddress memoryAddress, int size, int offset, MemoryAddressBlockResult memoryAddressBlockResult)
+        public static MemoryAddress? Read(MemoryAddress memoryAddress, int size, int offset, MemoryAddressBlockResult memoryAddressBlockResult)
         {
             var dmaMemoryAddressBytes = memoryAddressBlockResult.GetRelativeAddress(memoryAddress, size);
             var dmaMemoryAddressValue = UnsignedIntegerTransformer.ToValue(dmaMemoryAddressBytes, EndianTypes.BigEndian);

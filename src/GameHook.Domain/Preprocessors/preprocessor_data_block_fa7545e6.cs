@@ -2,22 +2,22 @@
 
 namespace GameHook.Domain.Preprocessors
 {
-    public class DataBlock_fa7545e6_ReadResult
-    {
-        public MemoryAddress Address { get; init; }
-
-        public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
-        public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
-    }
-
-    public class DataBlock_fa7545e6_WriteResult
-    {
-        public MemoryAddress Address { get; init; }
-        public byte[] Bytes { get; init; } = Array.Empty<byte>();
-    }
-
     public static class Preprocessor_fa7545e6
     {
+        public class ReadResult
+        {
+            public MemoryAddress Address { get; init; }
+
+            public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
+            public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
+        }
+
+        public class WriteResult
+        {
+            public MemoryAddress Address { get; init; }
+            public byte[] Bytes { get; init; } = Array.Empty<byte>();
+        }
+
         private static byte[]? DecryptedDataCache { get; set; } = null;
 
         static uint PrngNext(ref uint prngSeed)
@@ -36,10 +36,9 @@ namespace GameHook.Domain.Preprocessors
             return (uint)((data[offset] << 0) | (data[offset + 1] << 8) | (data[offset + 2] << 16) | (data[offset + 3] << 24));
         }
 
-        public static DataBlock_fa7545e6_ReadResult read_data_block(MemoryAddress startingAddress, byte[] encryptedData, int offset, int size)
+        public static ReadResult Read(MemoryAddress startingAddress, byte[] encryptedData, int offset, int size)
         {
             byte[] decryptedData = new byte[encryptedData.Length];
-            uint prngSeed = 0;
 
             // first 8 bytes are not encrypted
             for (int i = 0; i < 8; i++)
@@ -51,7 +50,7 @@ namespace GameHook.Domain.Preprocessors
             var checksum = DATA16_LE(encryptedData, 0x06);
 
             // decrypt blocks
-            prngSeed = checksum;
+            uint prngSeed = checksum;
             for (int i = 0x08; i < 0x88; i += 2)
             {
                 var key = PrngNext(ref prngSeed);
@@ -107,7 +106,7 @@ namespace GameHook.Domain.Preprocessors
                 decryptedData[i + 1] = (byte)(data >> 16);
             }
 
-            return new DataBlock_fa7545e6_ReadResult()
+            return new ReadResult()
             {
                 Address = startingAddress + (uint)offset,
                 EncryptedData = encryptedData[offset..(offset + size)],
@@ -120,7 +119,7 @@ namespace GameHook.Domain.Preprocessors
             DecryptedDataCache = null;
         }
 
-        public static IEnumerable<DataBlock_fa7545e6_WriteResult> write_data_block(MemoryAddress startingAddress, int offset, byte[] bytes)
+        public static IEnumerable<WriteResult> Write(MemoryAddress startingAddress, int offset, byte[] bytes)
         {
             throw new NotImplementedException();
         }

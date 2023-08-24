@@ -1,36 +1,36 @@
 ﻿using GameHook.Domain.ValueTransformers;
 
-// GEN 3 - Block-shuffling
+// G3 - Encrypted Block-shuffling
 
 namespace GameHook.Domain.Preprocessors
 {
-    public class DataBlock_a245dcac_Cache
+    public static partial class Preprocessor_a245dcac
     {
-        public MemoryAddress Address { get; init; }
-        public uint DecryptionKey { get; init; }
-        public uint Checksum { get; init; }
-        public int[] SubstructureOrdering { get; init; } = Array.Empty<int>();
+        public class Cache
+        {
+            public MemoryAddress Address { get; init; }
+            public uint DecryptionKey { get; init; }
+            public uint Checksum { get; init; }
+            public int[] SubstructureOrdering { get; init; } = Array.Empty<int>();
 
-        public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
-        public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
-    }
+            public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
+            public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
+        }
 
-    public class DataBlock_a245dcac_ReadResult
-    {
-        public MemoryAddress Address { get; init; }
+        public class ReadResult
+        {
+            public MemoryAddress Address { get; init; }
 
-        public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
-        public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
-    }
+            public byte[] EncryptedData { get; init; } = Array.Empty<byte>();
+            public byte[] DecryptedData { get; init; } = Array.Empty<byte>();
+        }
 
-    public class DataBlock_a245dcac_WriteResult
-    {
-        public MemoryAddress Address { get; init; }
-        public byte[] Bytes { get; init; } = Array.Empty<byte>();
-    }
+        public class WriteResult
+        {
+            public MemoryAddress Address { get; init; }
+            public byte[] Bytes { get; init; } = Array.Empty<byte>();
+        }
 
-    public static partial class Preprocessors
-    {
         // Used beforehand to cache the data block.
         static int[] CalculateSubstructureOrder_a245dcac(uint substructureType)
         {
@@ -64,7 +64,7 @@ namespace GameHook.Domain.Preprocessors
             };
         }
 
-        public static DataBlock_a245dcac_Cache decrypt_data_block_a245dcac(DataBlock_a245dcac_Cache? existingCache, IEnumerable<MemoryAddressBlockResult> blocks, MemoryAddress startingAddress)
+        public static Cache Decrypt(Cache? existingCache, IEnumerable<MemoryAddressBlockResult> blocks, MemoryAddress startingAddress)
         {
             // Starting Address is the start of the P data structure.
             var memoryAddressBlock = blocks.GetResultWithinRange(startingAddress) ?? throw new Exception($"Unable to retrieve memory block for address {startingAddress.ToHexdecimalString()}.");
@@ -101,7 +101,7 @@ namespace GameHook.Domain.Preprocessors
                 .ToArray();
 
             // Return the byte array decrypted.
-            return new DataBlock_a245dcac_Cache()
+            return new Cache()
             {
                 Address = encryptedDataStructureStartingAddress,
                 DecryptionKey = decryptionKey,
@@ -112,13 +112,13 @@ namespace GameHook.Domain.Preprocessors
             };
         }
 
-        public static DataBlock_a245dcac_ReadResult read_data_block_a245dcac(int structureIndex, int offset, int size, DataBlock_a245dcac_Cache decryptedDataBlock)
+        public static ReadResult Read(int structureIndex, int offset, int size, Cache decryptedDataBlock)
         {
             var structurePositionForProperty = decryptedDataBlock.SubstructureOrdering[structureIndex];
             var propertyStartingOffset = (structurePositionForProperty * 12) + offset;
             var propertyEndingOffset = propertyStartingOffset + size;
 
-            return new DataBlock_a245dcac_ReadResult()
+            return new ReadResult()
             {
                 Address = decryptedDataBlock.Address + (uint)propertyStartingOffset,
                 EncryptedData = decryptedDataBlock.EncryptedData[propertyStartingOffset..propertyEndingOffset],
@@ -126,7 +126,7 @@ namespace GameHook.Domain.Preprocessors
             };
         }
 
-        public static IEnumerable<DataBlock_a245dcac_WriteResult> write_data_block_a245dcac(uint address, byte[] bytes, DataBlock_a245dcac_Cache dataBlock)
+        public static IEnumerable<WriteResult> Write(uint address, byte[] bytes, Cache dataBlock)
         {
             var newDecryptedData = (byte[])dataBlock.DecryptedData.Clone();
             bytes.CopyTo(newDecryptedData, address - dataBlock.Address);
@@ -142,10 +142,10 @@ namespace GameHook.Domain.Preprocessors
             var newChecksum = newDecryptedData.Chunk(2).Select(x => IntegerTransformer.ToValue(x, EndianTypes.BigEndian)).Sum();
             var newChecksumBytes = UnsignedIntegerTransformer.FromValue((uint)newChecksum, 2, EndianTypes.BigEndian).ToArray();
 
-            return new List<DataBlock_a245dcac_WriteResult>()
+            return new List<WriteResult>()
             {
-                new DataBlock_a245dcac_WriteResult() { Address = dataBlock.Address, Bytes = encryptedByteArray },
-                new DataBlock_a245dcac_WriteResult() { Address = dataBlock.Address - 4, Bytes = newChecksumBytes }
+                new WriteResult() { Address = dataBlock.Address, Bytes = encryptedByteArray },
+                new WriteResult() { Address = dataBlock.Address - 4, Bytes = newChecksumBytes }
             };
         }
     }

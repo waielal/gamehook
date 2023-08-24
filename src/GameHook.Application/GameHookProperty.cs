@@ -111,7 +111,7 @@ namespace GameHook.Application
                     var structureIndex = MapperVariables.Preprocessor.GetIntParameterFromFunction(0);
                     var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(1);
 
-                    var preprocessorResult = Preprocessors.read_data_block_a245dcac(structureIndex, offset, MapperVariables.Length, decryptedDataBlock);
+                    var preprocessorResult = Preprocessor_a245dcac.Read(structureIndex, offset, MapperVariables.Length, decryptedDataBlock);
                     address = preprocessorResult.Address;
                     rawBytes = preprocessorResult.EncryptedData;
                     bytes = preprocessorResult.DecryptedData;
@@ -130,7 +130,7 @@ namespace GameHook.Application
                     var baseAddress = (MemoryAddress)MapperVariables.Address;
                     var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(0);
 
-                    var preprocessorResult = Preprocessor_fa7545e6.read_data_block(baseAddress, driverResult.GetAddressData(baseAddress, 236), offset, MapperVariables.Length);
+                    var preprocessorResult = Preprocessor_fa7545e6.Read(baseAddress, driverResult.GetAddressData(baseAddress, 236), offset, MapperVariables.Length);
                     address = preprocessorResult.Address;
                     rawBytes = preprocessorResult.EncryptedData;
                     bytes = preprocessorResult.DecryptedData;
@@ -153,7 +153,7 @@ namespace GameHook.Application
                         throw new Exception($"Unable to retrieve memory block for property {Path} at address {memoryAddress.ToHexdecimalString()}.");
                     }
 
-                    var dmaAddress = Preprocessors.dma_967d10cc(memoryAddress, size: 4, offset, memoryBlock);
+                    var dmaAddress = Preprocessor_967d10cc.Read(memoryAddress, size: 4, offset, memoryBlock);
                     if (dmaAddress == null) { return EmptyPropertyValueResult; }
 
                     address = dmaAddress;
@@ -373,7 +373,7 @@ namespace GameHook.Application
                 var baseAddress = MapperVariables.Address ?? throw new Exception($"Property {Path} does not have a base address.");
                 var dataBlock = GameHookInstance.PreprocessorCache?.data_block_a245dcac[baseAddress] ?? throw new Exception($"Unable to retrieve data_block_a245dcac for property {Path} and address {Address?.ToHexdecimalString()}.");
 
-                var writeResults = Preprocessors.write_data_block_a245dcac((uint)Address, bytes, dataBlock);
+                var writeResults = Preprocessor_a245dcac.Write((uint)Address, bytes, dataBlock);
                 foreach (var result in writeResults)
                 {
                     await GameHookInstance.GetDriver().WriteBytes(result.Address, result.Bytes);

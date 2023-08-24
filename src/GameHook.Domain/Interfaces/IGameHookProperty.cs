@@ -1,10 +1,10 @@
-﻿using GameHook.Domain.Preprocessors;
+﻿using static GameHook.Domain.Preprocessors.Preprocessor_a245dcac;
 
 namespace GameHook.Domain.Interfaces
 {
     public class PreprocessorCache
     {
-        public Dictionary<MemoryAddress, DataBlock_a245dcac_Cache> data_block_a245dcac { get; set; } = new Dictionary<MemoryAddress, DataBlock_a245dcac_Cache>();
+        public Dictionary<MemoryAddress, Cache> data_block_a245dcac { get; set; } = new Dictionary<MemoryAddress, Cache>();
     }
 
     public class PropertyValueResult

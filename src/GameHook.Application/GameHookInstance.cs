@@ -209,7 +209,7 @@ namespace GameHook.Application
             {
                 // Key is the starting memory address block.
                 PreprocessorCache.data_block_a245dcac.TryGetValue(x.Key, out var existingCache);
-                PreprocessorCache.data_block_a245dcac[x.Key] = Preprocessors.decrypt_data_block_a245dcac(existingCache, driverResult, x.Key);
+                PreprocessorCache.data_block_a245dcac[x.Key] = Preprocessor_a245dcac.Decrypt(existingCache, driverResult, x.Key);
             });
 
             // Processor
