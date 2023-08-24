@@ -4,6 +4,15 @@ namespace GameHook.Domain.Preprocessors
 {
     public static class Preprocessor_fa7545e6
     {
+        public enum PointerMode
+        {
+            Party = 1,
+            Partner = 2,
+            Enemy1 = 3,
+            Enemy2 = 4,
+            Wild = 5
+        }
+
         public class ReadResult
         {
             public MemoryAddress Address { get; init; }
@@ -36,8 +45,10 @@ namespace GameHook.Domain.Preprocessors
             return (uint)((data[offset] << 0) | (data[offset + 1] << 8) | (data[offset + 2] << 16) | (data[offset + 3] << 24));
         }
 
-        public static ReadResult Read(MemoryAddress startingAddress, byte[] encryptedData, int offset, int size)
+        public static ReadResult Read(MemoryAddress startingAddress, IEnumerable<MemoryAddressBlockResult> driverResult, int offset, int size, PointerMode pointerMode)
         {
+            var encryptedData = driverResult.GetAddressData(startingAddress, 236) ?? throw new Exception($"Unable to read encrypted data from {startingAddress.ToHexdecimalString()} + 236.");
+
             byte[] decryptedData = new byte[encryptedData.Length];
 
             // first 8 bytes are not encrypted

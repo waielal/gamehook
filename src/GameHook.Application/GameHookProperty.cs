@@ -3,6 +3,7 @@ using GameHook.Domain.Interfaces;
 using GameHook.Domain.Preprocessors;
 using GameHook.Domain.ValueTransformers;
 using NCalc;
+using static GameHook.Domain.Preprocessors.Preprocessor_fa7545e6;
 
 namespace GameHook.Application
 {
@@ -127,10 +128,11 @@ namespace GameHook.Application
                 {
                     if (MapperVariables.Address == null) { throw new Exception($"Property {Path} does not have a MapperVariables.Address."); }
 
-                    var baseAddress = (MemoryAddress)MapperVariables.Address;
+                    var startingAddress = (MemoryAddress)MapperVariables.Address;
                     var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(0);
+                    var pointerMode = MapperVariables.Preprocessor.GetIntParameterFromFunction(1);
 
-                    var preprocessorResult = Preprocessor_fa7545e6.Read(baseAddress, driverResult.GetAddressData(baseAddress, 236), offset, MapperVariables.Length);
+                    var preprocessorResult = Preprocessor_fa7545e6.Read(startingAddress, driverResult, offset, MapperVariables.Length, (PointerMode)pointerMode);
                     address = preprocessorResult.Address;
                     rawBytes = preprocessorResult.EncryptedData;
                     bytes = preprocessorResult.DecryptedData;
