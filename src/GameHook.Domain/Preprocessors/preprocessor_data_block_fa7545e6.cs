@@ -45,8 +45,46 @@ namespace GameHook.Domain.Preprocessors
             return (uint)((data[offset] << 0) | (data[offset + 1] << 8) | (data[offset + 2] << 16) | (data[offset + 3] << 24));
         }
 
-        public static ReadResult Read(MemoryAddress startingAddress, IEnumerable<MemoryAddressBlockResult> driverResult, int offset, int size, PointerMode pointerMode)
+        public static ReadResult Read(IEnumerable<MemoryAddressBlockResult> driverResult, PointerMode pointerMode, int slotIndex, int offset, int size)
         {
+            var base_ptr = DATA32_LE(driverResult.GetAddressData(0x2101D2C, 4) ?? throw new Exception("First"), 0);
+            if (base_ptr < 0x2000000)
+            {
+                return new ReadResult()
+                {
+                    Address = 0 + (uint)offset,
+                    EncryptedData = new byte[size],
+                    DecryptedData = new byte[size],
+                };
+            }
+            var other_ptr_bytes = driverResult.GetAddressData(base_ptr + 0x352F4, 4);
+            if (other_ptr_bytes == null)
+            {
+                return new ReadResult()
+                {
+                    Address = 0 + (uint)offset,
+                    EncryptedData = new byte[size],
+                    DecryptedData = new byte[size],
+                };
+            }
+            var other_ptr = DATA32_LE(other_ptr_bytes, 0);
+
+            uint party_ptr = (uint)(base_ptr + 0xD094 + 236 * slotIndex);
+            uint partner_ptr = (uint)(other_ptr + 0x0D50 + 236 * slotIndex);
+            uint enemy1_ptr = (uint)(other_ptr + 0x07A0 + 236 * slotIndex);
+            uint enemy2_ptr = (uint)(other_ptr + 0x1300 + 236 * slotIndex);
+            uint wild_ptr = (uint)(base_ptr + 0x35AC4);
+
+            var startingAddress = pointerMode switch
+            {
+                PointerMode.Party => party_ptr,
+                PointerMode.Partner => partner_ptr,
+                PointerMode.Enemy1 => enemy1_ptr,
+                PointerMode.Enemy2 => enemy2_ptr,
+                PointerMode.Wild => wild_ptr,
+                _ => throw new NotImplementedException()
+            };
+
             var encryptedData = driverResult.GetAddressData(startingAddress, 236) ?? throw new Exception($"Unable to read encrypted data from {startingAddress.ToHexdecimalString()} + 236.");
 
             byte[] decryptedData = new byte[encryptedData.Length];

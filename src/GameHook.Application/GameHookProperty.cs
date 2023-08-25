@@ -129,10 +129,11 @@ namespace GameHook.Application
                     if (MapperVariables.Address == null) { throw new Exception($"Property {Path} does not have a MapperVariables.Address."); }
 
                     var startingAddress = (MemoryAddress)MapperVariables.Address;
-                    var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(0);
-                    var pointerMode = MapperVariables.Preprocessor.GetIntParameterFromFunction(1);
+                    var pointerMode = MapperVariables.Preprocessor.GetIntParameterFromFunction(0);
+                    var slotIndex = MapperVariables.Preprocessor.GetIntParameterFromFunction(1);
+                    var offset = MapperVariables.Preprocessor.GetIntParameterFromFunction(2);
 
-                    var preprocessorResult = Preprocessor_fa7545e6.Read(startingAddress, driverResult, offset, MapperVariables.Length, (PointerMode)pointerMode);
+                    var preprocessorResult = Preprocessor_fa7545e6.Read(driverResult, (PointerMode)pointerMode, slotIndex, offset, MapperVariables.Length);
                     address = preprocessorResult.Address;
                     rawBytes = preprocessorResult.EncryptedData;
                     bytes = preprocessorResult.DecryptedData;
