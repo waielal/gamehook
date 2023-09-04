@@ -51,11 +51,11 @@ public static class TsGenerator
                         var referenceNodeType = referenceNode.GetOptionalAttributeValue("type") ?? "string";
                         if (referenceNodeType == "string")
                         {
-                            return "GameHookPropertyProxy<string>";
+                            return "GameHookProperty<string>";
                         }
                         else if (referenceNodeType == "number")
                         {
-                            return "GameHookPropertyProxy<number>";
+                            return "GameHookProperty<number>";
                         }
                         else
                         {
@@ -66,14 +66,14 @@ public static class TsGenerator
 
                     var attributeType = el.GetAttributeValue("type");
 
-                    if (attributeType == "binaryCodedDecimal") return "GameHookPropertyProxy<number>";
-                    else if (attributeType == "bitArray") return "GameHookPropertyProxy<boolean[]>";
-                    else if (attributeType == "bit") return "GameHookPropertyProxy<boolean>";
-                    else if (attributeType == "bool") return "GameHookPropertyProxy<boolean>";
-                    else if (attributeType == "int") return "GameHookPropertyProxy<number>";
-                    else if (attributeType == "string") return "GameHookPropertyProxy<string>";
-                    else if (attributeType == "uint") return "GameHookPropertyProxy<number>";
-                    else if (attributeType == "nibble") return "GameHookPropertyProxy<number>";
+                    if (attributeType == "binaryCodedDecimal") return "GameHookProperty<number>";
+                    else if (attributeType == "bitArray") return "GameHookProperty<boolean[]>";
+                    else if (attributeType == "bit") return "GameHookProperty<boolean>";
+                    else if (attributeType == "bool") return "GameHookProperty<boolean>";
+                    else if (attributeType == "int") return "GameHookProperty<number>";
+                    else if (attributeType == "string") return "GameHookProperty<string>";
+                    else if (attributeType == "uint") return "GameHookProperty<number>";
+                    else if (attributeType == "nibble") return "GameHookProperty<number>";
                     else throw new Exception($"Invalid property type {attributeType}.");
                 }
             case "class":
@@ -202,7 +202,7 @@ public static class TsGenerator
     {
         var result = new StringBuilder();
 
-        result.AppendLine("import { AbstractMapperClient, GameHookPropertyProxy } from \"../core.js\"");
+        result.AppendLine("import { AbstractMapperClient, GameHookProperty } from \"../core.js\"");
 
         result.AppendLine(string.Empty);
 
