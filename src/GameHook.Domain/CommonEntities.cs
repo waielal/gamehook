@@ -22,14 +22,6 @@ namespace GameHook.Domain
         public MemoryAddress EndingAddress { get; init; }
     }
 
-    public record MemoryAddressBlockResult
-    {
-        public string Name { get; init; }
-        public MemoryAddress StartingAddress { get; init; }
-        public MemoryAddress EndingAddress { get; init; }
-        public byte[] Data { get; init; }
-    }
-
     public class DriverOptions
     {
         public DriverOptions(IConfiguration configuration)
@@ -46,29 +38,38 @@ namespace GameHook.Domain
 
     public class GlossaryList
     {
-        public string Name { get; set; } = string.Empty;
-        public string? Type { get; set; }
-        public IEnumerable<GlossaryListItem> Values { get; set; } = new List<GlossaryListItem>();
+        public string Name { get; init; } = string.Empty;
+        public string? Type { get; init; }
 
-        public GlossaryListItem? GetFirstOrDefaultByValue(object? value)
+        public IEnumerable<GlossaryListItem> Values { get; init; } = new List<GlossaryListItem>();
+
+        public GlossaryListItem? GetSingleOrDefaultByValue(object? value)
         {
-            return Values.FirstOrDefault(x => x.Value == value);
+            return Values.SingleOrDefault(x => string.Equals(x.Value?.ToString(), value?.ToString(), StringComparison.Ordinal));
         }
-
-        public GlossaryListItem? GetFirstOrDefaultByKey(string key)
+        public GlossaryListItem? GetSingleOrDefaultByKey(ulong key)
         {
-            return Values.FirstOrDefault(x => x.Key.ToString() == key);
+            return Values.SingleOrDefault(x => x.Key == key);
         }
-
-        public GlossaryListItem? GetFirstOrDefaultByKey(ulong key)
+        public GlossaryListItem GetSingleByValue(object? value)
         {
-            return Values.FirstOrDefault(x => x.Key == key);
+            return GetSingleOrDefaultByValue(value) ?? throw new Exception($"Missing dictionary value for '{value}', value was not found in reference list {Name}.");
+        }
+        public GlossaryListItem GetSingleByKey(ulong key)
+        {
+            return GetSingleOrDefaultByKey(key) ?? throw new Exception($"Missing dictionary key for '{key}', key was not found in reference list {Name}.");
         }
     }
 
     public class GlossaryListItem
     {
-        public ulong Key { get; set; }
-        public object? Value { get; set; }
+        public GlossaryListItem(ulong key, object? value)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        public ulong Key { get; }
+        public object? Value { get; }
     }
 }

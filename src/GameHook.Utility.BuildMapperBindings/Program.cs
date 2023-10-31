@@ -1,7 +1,6 @@
 ﻿using GameHook.Application;
 using GameHook.Domain;
 using GameHook.Utility.BuildMapperBindings;
-using System.Xml.Linq;
 
 // Load XML file paths.
 var mapperInputDirectoryPath = Path.GetFullPath($"{AppContext.BaseDirectory}../../../../../../mappers");
@@ -12,10 +11,9 @@ foreach (var xmlFilePath in filePaths)
 {
     try
     {
+        var instance = new GameHookFakeInstance();
         var contents = await File.ReadAllTextAsync(xmlFilePath);
-
-        var doc = XDocument.Parse(contents);
-        var mapper = GameHookMapperXmlFactory.LoadMapperFromFile(null, doc);
+        var mapper = GameHookMapperXmlFactory.LoadMapperFromFile(instance, contents, null);
 
         // Create child directory if not exists.
         if (mapper.Metadata.GamePlatform.Any(x => char.IsLetter(x) == false && char.IsNumber(x) == false))
@@ -31,7 +29,7 @@ foreach (var xmlFilePath in filePaths)
         var tsFilePath = Path.Combine(tsDirectory, $"{Path.GetFileNameWithoutExtension(xmlFilePath).ToPascalCase()}.ts");
 
         // Generate typescript bindings.
-        var tsResult = TsGenerator.FromMapper(doc);
+        var tsResult = TsGenerator.FromMapper(contents);
         await File.WriteAllTextAsync(tsFilePath, tsResult);
     }
     catch (Exception ex)

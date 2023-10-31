@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json.Serialization;
-using GameHook.Application;
+﻿using GameHook.Application;
 using GameHook.Domain;
 using GameHook.Domain.Drivers;
 using GameHook.Domain.Infrastructure;
@@ -12,18 +10,24 @@ using Hellang.Middleware.ProblemDetails.Mvc;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace GameHook.WebAPI
 {
+    class AppSettings
+    {
+        public string Urls { get; init; } = string.Empty;
+        public bool OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM { get; init; }
+    }
+
     public class Startup
     {
-        private GameHookConfiguration Configuration { get; }
-        private IHostEnvironment Environment { get; }
+        private AppSettings AppSettings { get; }
 
-        public Startup(IConfiguration configuration, IHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            Configuration = new GameHookConfiguration(configuration);
-            Environment = env;
+            AppSettings = configuration.Get<AppSettings>() ?? throw new Exception("Unable to bind application settings to AppSettings.");
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -89,13 +93,18 @@ namespace GameHook.WebAPI
             services.AddSingleton<IMapperUpdateManager, MapperUpdateManager>();
             services.AddSingleton<IBizhawkMemoryMapDriver, BizhawkMemoryMapDriver>();
             services.AddSingleton<IRetroArchUdpPollingDriver, RetroArchUdpPollingDriver>();
+            services.AddSingleton<IStaticMemoryDriver, StaticMemoryDriver>();
             services.AddSingleton<GameHookInstance>();
+            services.AddSingleton<ScriptConsole>();
             services.AddSingleton<IClientNotifier, WebSocketClientNotifier>();
-            services.AddSingleton<IClientNotifier, FilesystemClientNotifier>();
-            services.AddSingleton<GameHookConfiguration>();
+
+            if (AppSettings.OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM)
+            {
+                services.AddSingleton<IClientNotifier, OutputPropertiesToFilesystem>();
+            }
         }
 
-        public void Configure(IApplicationBuilder app, ILogger<Startup> logger, GameHookConfiguration configuration, IMapperUpdateManager updateManager)
+        public void Configure(IApplicationBuilder app, ILogger<Startup> logger, IConfiguration configuration, IMapperUpdateManager updateManager)
         {
             if (BuildEnvironment.IsTestingBuild)
             {
@@ -165,11 +174,11 @@ namespace GameHook.WebAPI
             });
 
             logger.LogInformation("GameHook is now online.");
-            logger.LogInformation($"UI accessible via {string.Join(", ", configuration.Urls)}");
+            logger.LogInformation($"UI accessible via {string.Join(", ", AppSettings.Urls)}");
 
-            if (configuration.OutputAllPropertiesToFilesystem)
+            if (AppSettings.OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM)
             {
-                logger.LogInformation("Outputting all properties to filesystem.");
+                logger.LogInformation("Outputting all properties to the filesystem.");
             }
         }
     }

@@ -1,12 +1,14 @@
-﻿using GameHook.Domain.ValueTransformers;
+﻿// G3 - Encrypted Block-shuffling
 
-// G3 - Encrypted Block-shuffling
+using GameHook.Domain.Interfaces;
 
 namespace GameHook.Domain.Preprocessors
 {
     public static partial class Preprocessor_a245dcac
     {
-        public class Cache
+        static CacheContainer? Cache;
+
+        public class CacheContainer
         {
             public MemoryAddress Address { get; init; }
             public uint DecryptionKey { get; init; }
@@ -64,22 +66,19 @@ namespace GameHook.Domain.Preprocessors
             };
         }
 
-        public static Cache Decrypt(Cache? existingCache, IEnumerable<MemoryAddressBlockResult> blocks, MemoryAddress startingAddress)
+        public static void Decrypt(IMemoryManager memoryContainer, MemoryAddress startingAddress)
         {
-            // Starting Address is the start of the P data structure.
-            var memoryAddressBlock = blocks.GetResultWithinRange(startingAddress) ?? throw new Exception($"Unable to retrieve memory block for address {startingAddress.ToHexdecimalString()}.");
-
             // The encrypted data block starts 32 bytes from the start of the p structure.
             var encryptedDataStructureStartingAddress = startingAddress + 32;
-            var encryptedData = memoryAddressBlock.GetRelativeAddress(encryptedDataStructureStartingAddress, 48);
+            var encryptedData = memoryContainer.DefaultNamespace.GetBytes(encryptedDataStructureStartingAddress, 48);
 
-            if (existingCache != null && existingCache.EncryptedData.SequenceEqual(encryptedData))
+            if (Cache != null && Cache.EncryptedData.SequenceEqual(encryptedData.Data))
             {
-                return existingCache;
+                return;
             }
 
-            var personalityValue = UnsignedIntegerTransformer.ToValue(memoryAddressBlock.GetRelativeAddress(startingAddress, 4), EndianTypes.BigEndian);
-            var originalTrainerId = UnsignedIntegerTransformer.ToValue(memoryAddressBlock.GetRelativeAddress(startingAddress + 4, 4), EndianTypes.BigEndian);
+            var personalityValue = memoryContainer.DefaultNamespace.get_uint32_be(startingAddress);
+            var originalTrainerId = memoryContainer.DefaultNamespace.get_uint32_be(startingAddress + 4);
 
             // The order of the structures is determined by the personality value of the P modulo 24,
             // as shown below, where G, A, E, and M stand for the substructures growth, attacks, EVs and condition, and miscellaneous, respectively.
@@ -91,62 +90,47 @@ namespace GameHook.Domain.Preprocessors
             var decryptionKey = originalTrainerId ^ personalityValue;
 
             // Checksum is used later if we ever need to write back to this P structure.
-            var checksum = UnsignedIntegerTransformer.ToValue(memoryAddressBlock.GetRelativeAddress(startingAddress + 28, 2), EndianTypes.BigEndian);
+            var checksum = memoryContainer.DefaultNamespace.get_uint16_be(startingAddress + 28);
 
             // This key can then be used to decrypt the encrypted data block (starting at offset 32)
             // by XORing it, 32 bits (or 4 bytes) at a time.
             var decryptedData = encryptedData
                 .Chunk(4)
-                .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x, EndianTypes.BigEndian) ^ decryptionKey, 4, EndianTypes.BigEndian))
+                .SelectMany(x => BitConverter.GetBytes(x.get_uint32_be() ^ decryptionKey))
                 .ToArray();
 
             // Return the byte array decrypted.
-            return new Cache()
+            Cache = new CacheContainer()
             {
                 Address = encryptedDataStructureStartingAddress,
                 DecryptionKey = decryptionKey,
                 Checksum = checksum,
                 SubstructureOrdering = substructureOrder,
-                EncryptedData = encryptedData,
+                EncryptedData = encryptedData.Data,
                 DecryptedData = decryptedData
             };
         }
 
-        public static ReadResult Read(int structureIndex, int offset, int size, Cache decryptedDataBlock)
+        public static ReadResult Read(IMemoryManager memoryContainer, MemoryAddress startingAddress, int structureIndex, int offset, int size)
         {
-            var structurePositionForProperty = decryptedDataBlock.SubstructureOrdering[structureIndex];
+            if (Cache == null) { Decrypt(memoryContainer, startingAddress); }
+            if (Cache == null) { throw new Exception("Cache is null, but should have been filled."); }
+
+            var structurePositionForProperty = Cache.SubstructureOrdering[structureIndex];
             var propertyStartingOffset = (structurePositionForProperty * 12) + offset;
             var propertyEndingOffset = propertyStartingOffset + size;
 
             return new ReadResult()
             {
-                Address = decryptedDataBlock.Address + (uint)propertyStartingOffset,
-                EncryptedData = decryptedDataBlock.EncryptedData[propertyStartingOffset..propertyEndingOffset],
-                DecryptedData = decryptedDataBlock.DecryptedData[propertyStartingOffset..propertyEndingOffset]
+                Address = Cache.Address + (uint)propertyStartingOffset,
+                EncryptedData = Cache.EncryptedData[propertyStartingOffset..propertyEndingOffset],
+                DecryptedData = Cache.DecryptedData[propertyStartingOffset..propertyEndingOffset]
             };
         }
 
-        public static IEnumerable<WriteResult> Write(uint address, byte[] bytes, Cache dataBlock)
+        public static IEnumerable<WriteResult> Write(uint address, byte[] bytes)
         {
-            var newDecryptedData = (byte[])dataBlock.DecryptedData.Clone();
-            bytes.CopyTo(newDecryptedData, address - dataBlock.Address);
-
-            var encryptedByteArray = newDecryptedData
-                .Chunk(4)
-                .SelectMany(x => UnsignedIntegerTransformer.FromValue(UnsignedIntegerTransformer.ToValue(x, EndianTypes.BigEndian) ^ dataBlock.DecryptionKey, 4, EndianTypes.BigEndian))
-                .ToArray();
-
-            // Take the decrypted data, sum the entire data block -- by word (2 bytes) at a time.
-            // The checksum returns a uint (32 bits) because IntegerTransformer works that way.
-            // We instead only need a short (16 bits) so we only take the first two bytes, discard the rest.
-            var newChecksum = newDecryptedData.Chunk(2).Select(x => IntegerTransformer.ToValue(x, EndianTypes.BigEndian)).Sum();
-            var newChecksumBytes = UnsignedIntegerTransformer.FromValue((uint)newChecksum, 2, EndianTypes.BigEndian).ToArray();
-
-            return new List<WriteResult>()
-            {
-                new WriteResult() { Address = dataBlock.Address, Bytes = encryptedByteArray },
-                new WriteResult() { Address = dataBlock.Address - 4, Bytes = newChecksumBytes }
-            };
+            throw new NotImplementedException();
         }
     }
 }

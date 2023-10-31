@@ -1,6 +1,8 @@
+using GameHook.Application.GameHookProperties;
 using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using YamlDotNet.Serialization;
 
 namespace GameHook.Application
@@ -71,7 +73,7 @@ namespace GameHook.Application
             };
 
             // Load properties.
-            var properties = new List<GameHookProperty>();
+            var properties = new List<IGameHookProperty>();
 
             TranserveMapperFile(instance, data, properties, data.properties, null, null);
 
@@ -83,18 +85,14 @@ namespace GameHook.Application
                 {
                     Name = x.Key,
                     Type = null,
-                    Values = x.Value.Select(y => new GlossaryListItem()
-                    {
-                        Key = y.Key,
-                        Value = y.Value
-                    })
+                    Values = x.Value.Select(y => new GlossaryListItem(y.Key, y.Value))
                 });
             }
 
-            return new GameHookMapper(metadata, properties, references);
+            return new GameHookMapper(MapperFormats.YAML, metadata, properties, references, null, false, false);
         }
 
-        private static void TranserveMapperFile(IGameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
+        private static void TranserveMapperFile(IGameHookInstance instance, YamlRoot root, List<IGameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
         {
             var insideMacro = macroPointer != null;
 
@@ -175,7 +173,7 @@ namespace GameHook.Application
             return dictionary.ContainsKey(key) ? string.IsNullOrEmpty(dictionary[key].ToString()) == false : false;
         }
 
-        private static void ParseProperty(IGameHookInstance instance, YamlRoot root, List<GameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
+        private static void ParseProperty(IGameHookInstance instance, YamlRoot root, List<IGameHookProperty> properties, IDictionary<object, object> source, string? key, MacroPointer? macroPointer)
         {
             if (string.IsNullOrEmpty(key))
                 throw new Exception("Key cannot be null.");
@@ -231,7 +229,7 @@ namespace GameHook.Application
             // Validation rules.
             if (type != "string" && string.IsNullOrEmpty(characterMap) == false)
             {
-                throw new MapperParsingException($"Type {type} should not have the property characterMap.");
+                throw new MapperInitException($"Type {type} should not have the property characterMap.");
             }
 
             if (type == "macro")
@@ -251,19 +249,29 @@ namespace GameHook.Application
                     Path = key,
 
                     Type = type,
-                    Address = address,
+                    Address = address.ToString(),
                     Length = size,
                     Position = position,
                     Reference = reference,
                     Description = description,
-                    Expression = expression,
-                    Preprocessor = preprocessor,
-                    PostprocessorReader = postprocessorReader,
-                    PostprocessorWriter = postprocessorWriter,
+                    YamlPreprocessor = preprocessor,
+                    YamlPostprocessorReader = postprocessorReader,
+                    YamlPostprocessorWriter = postprocessorWriter,
                     StaticValue = staticValue
                 };
 
-                properties.Add(new GameHookProperty(instance, variables));
+                IGameHookProperty property;
+                if (type == "binaryCodedDecimal") property = new BinaryCodedDecimalProperty(instance, variables);
+                else if (type == "bitField") property = new BitFieldProperty(instance, variables);
+                else if (type == "bit") property = new BitProperty(instance, variables);
+                else if (type == "booleanProperty") property = new BooleanProperty(instance, variables);
+                else if (type == "int") property = new IntegerProperty(instance, variables);
+                else if (type == "nibble") property = new NibbleProperty(instance, variables);
+                else if (type == "string") property = new StringProperty(instance, variables);
+                else if (type == "uint") property = new UnsignedIntegerProperty(instance, variables);
+                else throw new Exception($"Unknown property type {type}.");
+
+                properties.Add(property);
             }
         }
     }

@@ -36,27 +36,9 @@ public static class BuildEnvironment
         }
     }
 
-    public static string? GetSolutionMapperFolder()
-    {
-        string exePath = Assembly.GetExecutingAssembly().Location;
-        string solutionDir = Path.GetDirectoryName(exePath);
-
-        if (solutionDir == null)
-        {
-            return null;
-        }
-
-        string solutionPath = Path.GetFullPath(Path.Combine(solutionDir, @"..\..\..\..\..\"));
-        if (solutionPath.EndsWith("src\\") == false)
-        {
-            return null;
-        }
-
-        return Path.Combine(solutionPath, "Mappers");
-    }
-
     private static string BinaryDirectory =>
-        Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new Exception("Could not determine the binary directory.");
+        Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ??
+        throw new Exception("Could not determine the binary directory.");
 
     public static string ConfigurationDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameHook");
@@ -64,14 +46,17 @@ public static class BuildEnvironment
     // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
     public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
 
-    public static string TransformedMapperFilePath => Path.Combine(ConfigurationDirectory, "transformed.xml");
+    public static string ConfigurationDirectoryAppsettingsFilePath =>
+        Path.Combine(ConfigurationDirectory, "appsettings.json");
 
-    public static string ConfigurationDirectoryAppsettingsFilePath => Path.Combine(ConfigurationDirectory, "appsettings.json");
-    public static string ConfigurationDirectoryWpfConfigFilePath => Path.Combine(ConfigurationDirectory, "gamehook.wpf.config");
+    public static string ConfigurationDirectoryWpfConfigFilePath =>
+        Path.Combine(ConfigurationDirectory, "gamehook.wpf.config");
+
     public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
 
     // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
-    public static string ConfigurationDirectoryUiBuilderScreenDirectory => Path.Combine(ConfigurationDirectory, "UiBuilderScreens");
+    public static string ConfigurationDirectoryUiBuilderScreenDirectory =>
+        Path.Combine(ConfigurationDirectory, "UiBuilderScreens");
 
 
 #if DEBUG

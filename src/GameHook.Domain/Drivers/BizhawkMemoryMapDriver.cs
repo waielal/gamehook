@@ -1,4 +1,5 @@
-﻿using GameHook.Domain.Interfaces;
+﻿using GameHook.Domain.Implementations;
+using GameHook.Domain.Interfaces;
 using System.IO.MemoryMappedFiles;
 using System.Text;
 
@@ -63,19 +64,16 @@ namespace GameHook.Domain.Drivers
             return Task.CompletedTask;
         }
 
-        public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
+        public Task<MemoryFragmentLayout> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
         {
             var platform = SharedPlatformConstants.Information.SingleOrDefault(x => x.BizhawkIdentifier == SystemName) ?? throw new Exception($"System {SystemName} is not yet supported.");
 
             var data = GetFromMemoryMappedFile("GAMEHOOK_BIZHAWK_DATA.bin", DATA_Length);
 
-            return platform.MemoryLayout.Select(x => new MemoryAddressBlockResult()
-            {
-                Name = x.BizhawkIdentifier,
-                StartingAddress = (uint)x.PhysicalStartingAddress,
-                EndingAddress = (uint)x.PhysicalEndingAddress,
-                Data = data[x.CustomPacketTransmitPosition..(x.CustomPacketTransmitPosition + x.Length)]
-            }).ToArray();
+            return Task.FromResult(platform.MemoryLayout.ToDictionary(
+                x => (MemoryAddress)x.PhysicalStartingAddress,
+                x => data[x.CustomPacketTransmitPosition..(x.CustomPacketTransmitPosition + x.Length)]
+            ));
         }
 
         public Task WriteBytes(uint startingMemoryAddress, byte[] values)

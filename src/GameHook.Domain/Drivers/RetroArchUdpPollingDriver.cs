@@ -1,3 +1,4 @@
+using GameHook.Domain.Implementations;
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -172,22 +173,15 @@ namespace GameHook.Domain.Drivers
             Logger.LogDebug($"[Incoming Packet] Set response {receiveKey}");
         }
 
-        public async Task<IEnumerable<MemoryAddressBlockResult>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
+        public async Task<MemoryFragmentLayout> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
         {
             var results = await Task.WhenAll(blocks.Select(async x =>
             {
                 var data = await ReadMemoryAddress(x.StartingAddress, x.EndingAddress - x.StartingAddress);
-
-                return new MemoryAddressBlockResult()
-                {
-                    Name = x.Name,
-                    StartingAddress = x.StartingAddress,
-                    EndingAddress = x.EndingAddress,
-                    Data = data
-                };
+                return new KeyValuePair<MemoryAddress, byte[]>(x.StartingAddress, data);
             }));
 
-            return results.ToList();
+            return results.ToDictionary(x => x.Key, x => x.Value);
         }
 
         public Task EstablishConnection()

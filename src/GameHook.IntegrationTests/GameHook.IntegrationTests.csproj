@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -9,34 +9,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Data\005fdd01-8921-468c-aca3-d4fa864d5911-1.json" />
-		<None Remove="Data\MemoryAddressBlocks\005fdd01-8921-468c-aca3-d4fa864d5911-1.json" />
-		<None Remove="Data\MemoryAddressBlocks\005fdd01-8921-468c-aca3-d4fa864d5911-2.json" />
-		<None Remove="Data\MemoryAddressBlocks\b2b7d2d6-5cf0-4db1-9152-1efc7fe36926-0.json" />
-		<None Remove="OpenAPI\swagger.json" />
-		<None Remove="testsettings.json" />
+		<Content Include="testsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="Data\MemoryAddressBlocks\005fdd01-8921-468c-aca3-d4fa864d5911-0.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Data\MemoryAddressBlocks\005fdd01-8921-468c-aca3-d4fa864d5911-1.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Data\MemoryAddressBlocks\005fdd01-8921-468c-aca3-d4fa864d5911-2.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Data\MemoryAddressBlocks\b2b7d2d6-5cf0-4db1-9152-1efc7fe36926-0.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="testsettings.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	</ItemGroup>
-
-	<ItemGroup>
-		<OpenApiReference Include="OpenAPI\swagger.json" CodeGenerator="NSwagCSharp" Namespace="OpenAPI.GameHook" ClassName="GameHookClient" />
+		<OpenApiReference Include="../swagger.json" CodeGenerator="NSwagCSharp" Namespace="OpenAPI.GameHook" ClassName="GameHookClient" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -61,5 +40,4 @@
 		<ProjectReference Include="..\GameHook.Domain\GameHook.Domain.csproj" />
 		<ProjectReference Include="..\GameHook.WebAPI\GameHook.WebAPI.csproj" />
 	</ItemGroup>
-
 </Project>

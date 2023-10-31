@@ -198,8 +198,9 @@ public static class TsGenerator
         }
     }
 
-    public static string FromMapper(XDocument doc)
+    public static string FromMapper(string contents)
     {
+        var doc = XDocument.Parse(contents);
         var result = new StringBuilder();
 
         result.AppendLine("import { AbstractMapperClient, GameHookProperty } from \"../core.js\"");

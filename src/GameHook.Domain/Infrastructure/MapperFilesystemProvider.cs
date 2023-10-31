@@ -1,11 +1,11 @@
 ﻿using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text;
 
 namespace GameHook.Domain.Infrastructure
 {
-    public static class MapperFilesystemHelper
+    static class MapperFilesystemHelper
     {
         public static IEnumerable<FileInfo> GetFilesByExtensions(this DirectoryInfo dir, params string[] extensions)
         {
@@ -19,18 +19,27 @@ namespace GameHook.Domain.Infrastructure
     public class MapperFilesystemProvider : IMapperFilesystemProvider
     {
         private ILogger<MapperFilesystemProvider> Logger { get; }
-        private const string Salt = "a1b3d4e8-81cc-4771-a564-f90c669d952e";
 
-        public string OfficialMapperFolder { get; } = Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
-        public string? CustomMapperFolder { get; }
+        public string MapperFolder { get; }
+        public string? BinaryMapperFolder { get; }
 
         public IEnumerable<MapperFilesystemDTO> MapperFiles { get; private set; } = new List<MapperFilesystemDTO>();
 
-        public MapperFilesystemProvider(ILogger<MapperFilesystemProvider> logger)
+        public MapperFilesystemProvider(ILogger<MapperFilesystemProvider> logger, IConfiguration configuration)
         {
             Logger = logger;
 
-            CustomMapperFolder = GetCustomMappersFolder();
+            MapperFolder = Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
+            BinaryMapperFolder = GetCustomMappersFolder();
+
+            if (BuildEnvironment.IsDebug)
+            {
+                var alternativeMapperDirectory = configuration["ALTERNATIVE_MAPPER_DIRECTORY"];
+                if (string.IsNullOrEmpty(alternativeMapperDirectory) == false)
+                {
+                    MapperFolder = alternativeMapperDirectory;
+                }
+            }
 
             RefreshMapperFiles();
         }
@@ -58,18 +67,17 @@ namespace GameHook.Domain.Infrastructure
             return folder;
         }
 
-        private string MD5(string x)
+        private string GetId(MapperFilesystemTypes type, string directory, string filePath)
         {
-            using var provider = System.Security.Cryptography.MD5.Create();
-            StringBuilder builder = new StringBuilder();
+            if (directory.Contains('.') || directory.Contains(".."))
+            {
+                throw new Exception("Invalid characters in file path.");
+            }
 
-            foreach (byte b in provider.ComputeHash(Encoding.UTF8.GetBytes(x + Salt)))
-                builder.Append(b.ToString("x2").ToLower());
-
-            return builder.ToString();
+            return $"{type}_{filePath.Replace(directory, string.Empty)[1..].Replace(".", "_").Replace("\\", "_")}".ToLower();
         }
 
-        private string GetMapperDisplayName(string directory, string filePath)
+        private string GetDisplayName(string directory, string filePath)
         {
             return filePath.Replace(directory, string.Empty)[1..].Replace("\\", " - ");
         }
@@ -81,51 +89,41 @@ namespace GameHook.Domain.Infrastructure
         /// <returns></returns>
         private IEnumerable<MapperFilesystemDTO> GetAllMapperFiles()
         {
-            var mappers = new DirectoryInfo(OfficialMapperFolder)
+            if (MapperFolder.Contains('.') || MapperFolder.Contains(".."))
+            {
+                throw new Exception("Invalid characters in mapper folder path.");
+            }
+
+            var mappers = new DirectoryInfo(MapperFolder)
                 .GetFilesByExtensions(".xml", ".yml")
                 .Select(x => new MapperFilesystemDTO()
                 {
-                    Id = MD5(x.FullName),
+                    Id = GetId(MapperFilesystemTypes.Official, MapperFolder, x.FullName),
                     Type = MapperFilesystemTypes.Official,
                     AbsolutePath = x.FullName,
-                    DisplayName = $"{GetMapperDisplayName(OfficialMapperFolder, x.FullName)}"
+                    DisplayName = $"{GetDisplayName(MapperFolder, x.FullName)}"
                 })
                 .ToList();
 
-            if (CustomMapperFolder != null)
+            if (BinaryMapperFolder != null)
             {
-                var customMappers = new DirectoryInfo(CustomMapperFolder)
+                if (BinaryMapperFolder.Contains('.') || BinaryMapperFolder.Contains(".."))
+                {
+                    throw new Exception("Invalid characters in mapper folder path.");
+                }
+
+                var localMappers = new DirectoryInfo(BinaryMapperFolder)
                     .GetFilesByExtensions(".xml", ".yml")
                     .Select(x => new MapperFilesystemDTO()
                     {
-                        Id = MD5(x.FullName),
-                        Type = MapperFilesystemTypes.Custom,
+                        Id = GetId(MapperFilesystemTypes.Local, BinaryMapperFolder, x.FullName),
+                        Type = MapperFilesystemTypes.Local,
                         AbsolutePath = x.FullName,
-                        DisplayName = $"(Custom) {GetMapperDisplayName(CustomMapperFolder, x.FullName)}"
+                        DisplayName = $"(Local) {GetDisplayName(BinaryMapperFolder, x.FullName)}"
                     })
                     .ToList();
 
-                mappers.AddRange(customMappers);
-            }
-
-            if (BuildEnvironment.IsDebug)
-            {
-                var solutionMapperFolder = BuildEnvironment.GetSolutionMapperFolder();
-                if (string.IsNullOrEmpty(solutionMapperFolder) == false)
-                {
-                    var customMappers = new DirectoryInfo(solutionMapperFolder)
-                        .GetFilesByExtensions(".xml")
-                        .Select(x => new MapperFilesystemDTO()
-                        {
-                            Id = MD5(x.FullName),
-                            Type = MapperFilesystemTypes.Custom,
-                            AbsolutePath = x.FullName,
-                            DisplayName = $"(Solution) {GetMapperDisplayName(solutionMapperFolder, x.FullName)}"
-                        })
-                        .ToList();
-
-                    mappers.AddRange(customMappers);
-                }
+                mappers.AddRange(localMappers);
             }
 
             return mappers;

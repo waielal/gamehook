@@ -37,8 +37,6 @@ namespace GameHook.Application
 
         public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
         {
-            new MemoryAddressBlock("ROM Bank 00", 0x0000, 0x3FFF),
-            new MemoryAddressBlock("ROM Bank 01", 0x4000, 0x7FFF),
             new MemoryAddressBlock("VRAM", 0x8000, 0x9FFF),
             new MemoryAddressBlock("External RAM (Part 1)", 0xA000, 0xAFFF),
             new MemoryAddressBlock("External RAM (Part 2)", 0xB000, 0xBFFF),
@@ -49,8 +47,6 @@ namespace GameHook.Application
             // RAM Banks 0x02:D000 to 0x07:D000 for GBC
             new MemoryAddressBlock("Work RAM (Bank 2)", 0x10000, 0x10FFF),
             new MemoryAddressBlock("Work RAM (Bank 3)", 0x11000, 0x11FFF),
-            new MemoryAddressBlock("Work RAM (Bank 4)", 0x12000, 0x12FFF),
-            new MemoryAddressBlock("Work RAM (Bank 5)", 0x13000, 0x13FFF),
             new MemoryAddressBlock("Work RAM (Bank 6)", 0x14000, 0x14FFF),
             new MemoryAddressBlock("Work RAM (Bank 7)", 0x15000, 0x15FFF)
         }.ToArray();

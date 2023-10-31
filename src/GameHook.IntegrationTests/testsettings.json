@@ -3,6 +3,8 @@
   "DRIVER_LISTEN_PORT": "55355",
   "DRIVER_TIMEOUT_COUNTER": 10,
 
+  "ALTERNATIVE_MAPPER_DIRECTORY": "C:\\Users\\Owner\\Desktop\\Repos\\gamehook-io\\mappers",
+
   "OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM": false,
 
   "AUTOMATIC_MAPPER_UPDATES": false,

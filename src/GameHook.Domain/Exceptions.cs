@@ -7,6 +7,11 @@ namespace GameHook.Domain
         }
     }
 
+    public class MapperInitException : VisibleException
+    {
+        public MapperInitException(string message, Exception? innerException = null) : base(message, innerException) { }
+    }
+
     public class DriverTimeoutException : Exception
     {
         public MemoryAddress MemoryAddress { get; }
@@ -21,10 +26,5 @@ namespace GameHook.Domain
     public class PropertyProcessException : Exception
     {
         public PropertyProcessException(string message, Exception? innerException) : base(message, innerException) { }
-    }
-
-    public class MapperParsingException : Exception
-    {
-        public MapperParsingException(string message, Exception? innerException = null) : base(message, innerException) { }
     }
 }

@@ -1,43 +1,50 @@
-﻿using System.Xml.Linq;
-using GameHook.Domain;
+﻿using GameHook.Domain;
+using GameHook.Domain.Implementations;
 using GameHook.Domain.Interfaces;
-using GameHook.Domain.Preprocessors;
+using Jint;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace GameHook.Application
 {
     public class GameHookInstance : IGameHookInstance
     {
+        private IConfiguration Configuration { get; }
         private ILogger<GameHookInstance> Logger { get; }
-        public GameHookConfiguration Configuration { get; }
+        private ScriptConsole ScriptConsoleAdapter { get; }
+        private CancellationTokenSource? ReadLoopToken { get; set; }
         private IMapperFilesystemProvider MapperFilesystemProvider { get; }
-        private bool OutputDriverJson { get; set; } = false;
+        private IEnumerable<MemoryAddressBlock>? BlocksToRead { get; set; }
         public List<IClientNotifier> ClientNotifiers { get; }
         public bool Initalized { get; private set; }
-        private CancellationTokenSource? ReadLoopToken { get; set; }
         public IGameHookDriver? Driver { get; private set; }
         public IGameHookMapper? Mapper { get; private set; }
-        public PreprocessorCache? PreprocessorCache { get; private set; }
         public IPlatformOptions? PlatformOptions { get; private set; }
+        public IMemoryManager MemoryContainerManager { get; private set; }
+        public Dictionary<string, object?> State { get; private set; }
+        public Dictionary<string, object?> Variables { get; private set; }
+        private Engine? GlobalScriptEngine { get; set; }
 
-        public bool Preprocessor_fa7545e6_Exists { get; private set; }
+#if DEBUG
+        private bool DebugOutputMemoryLayoutToFilesystem { get; set; } = false;
+#endif
 
-        public IEnumerable<MemoryAddressBlock>? BlocksToRead { get; private set; }
-        public const int DELAY_MS_BETWEEN_READS = 25;
-
-        public GameHookInstance(ILogger<GameHookInstance> logger, GameHookConfiguration configuration, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
+        public GameHookInstance(IConfiguration configuration, ILogger<GameHookInstance> logger, ScriptConsole scriptConsoleAdapter, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
         {
-            Logger = logger;
             Configuration = configuration;
+            Logger = logger;
+            ScriptConsoleAdapter = scriptConsoleAdapter;
             MapperFilesystemProvider = provider;
             ClientNotifiers = clientNotifiers.ToList();
+
+            MemoryContainerManager = new MemoryManager();
+            State = new Dictionary<string, object?>();
+            Variables = new Dictionary<string, object?>();
         }
 
-        public IPlatformOptions GetPlatformOptions() => PlatformOptions ?? throw new Exception("PlatformOptions is null.");
-        public IGameHookDriver GetDriver() => Driver ?? throw new Exception("Driver is null.");
-        public IGameHookMapper GetMapper() => Mapper ?? throw new Exception("Mapper is null.");
-
-        public async Task ResetState()
+        private async Task ResetState()
         {
             if (ReadLoopToken != null && ReadLoopToken.Token.CanBeCanceled)
             {
@@ -52,7 +59,147 @@ namespace GameHook.Application
             PlatformOptions = null;
             BlocksToRead = null;
 
+            GlobalScriptEngine = null;
+            State = new Dictionary<string, object?>();
+            Variables = new Dictionary<string, object?>();
+
             await ClientNotifiers.ForEachAsync(async x => await x.SendInstanceReset());
+        }
+
+        private async Task ReadLoop()
+        {
+            if (Configuration.GetRequiredValue("SHOW_READ_LOOP_STATISTICS").ToLower() == "true")
+            {
+                while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
+                {
+                    try
+                    {
+                        Stopwatch stopwatch = new();
+                        stopwatch.Start();
+
+                        await Read();
+
+                        stopwatch.Stop();
+
+                        var stateJson = JsonSerializer.Serialize(State);
+                        var variablesJson = JsonSerializer.Serialize(Variables);
+                        Logger.LogInformation($"Stopwatch took {stopwatch.ElapsedMilliseconds} ms.\nGlobal State: {stateJson}\nGlobal Variables: {variablesJson}");
+
+                        await Task.Delay(1);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "An error occured when read looping the mapper.");
+
+                        await ResetState();
+                    }
+                }
+            }
+            else
+            {
+                while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
+                {
+                    try
+                    {
+                        await Read();
+                        await Task.Delay(1);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "An error occured when read looping the mapper.");
+
+                        await ResetState();
+                    }
+                }
+            }
+        }
+
+        private async Task Read()
+        {
+            if (Driver == null) throw new Exception("Driver is null.");
+            if (PlatformOptions == null) throw new Exception("Platform options are null.");
+            if (Mapper == null) throw new Exception("Mapper is null.");
+            if (BlocksToRead == null) throw new Exception("BlocksToRead is null.");
+
+            var driverResult = await Driver.ReadBytes(BlocksToRead);
+
+            foreach (var result in driverResult)
+            {
+                MemoryContainerManager.DefaultNamespace.Fill(result.Key, result.Value);
+            }
+
+#if DEBUG
+            if (MemoryContainerManager is not IStaticMemoryDriver && DebugOutputMemoryLayoutToFilesystem)
+            {
+                var memoryContainerPath = Path.GetFullPath(Path.Combine(BuildEnvironment.BinaryDirectoryGameHookFilePath, "..", "..", "..", "..", "..", "..", "GameHook.IntegrationTests", "Data", $"{Mapper.Metadata.Id}-0.json"));
+
+                File.WriteAllText(memoryContainerPath, JsonSerializer.Serialize(MemoryContainerManager.DefaultNamespace.Fragments));
+                DebugOutputMemoryLayoutToFilesystem = false;
+            }
+#endif
+
+            // Setup at start of loop
+            foreach (var property in Mapper.Properties.Values)
+            {
+                property.FieldsChanged.Clear();
+            }
+
+            // Preprocessor
+            if (Mapper.HasGlobalPreprocessor)
+            {
+                if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
+
+                GlobalScriptEngine.Invoke("preprocessor");
+            }
+
+            // Processor
+            foreach (var property in Mapper.Properties.Values)
+            {
+                try
+                {
+                    property.ProcessLoop(MemoryContainerManager);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Property {property.Path} failed to run processor.");
+                    throw new PropertyProcessException($"Property {property.Path} failed to run processor.", ex);
+                }
+            }
+
+            // Postprocessor
+            if (Mapper.HasGlobalPostprocessor)
+            {
+                if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
+
+                GlobalScriptEngine.Invoke("postprocessor");
+            }
+
+            // Fields Changed
+            foreach (var property in Mapper.Properties.Values)
+            {
+                try
+                {
+                    if (property.FieldsChanged.Any())
+                    {
+                        if (property.Frozen && property.BytesFrozen != null)
+                        {
+                            await property.WriteBytes(property.BytesFrozen, null);
+                        }
+                        else
+                        {
+                            foreach (var notifier in ClientNotifiers)
+                            {
+                                await notifier.SendPropertyChanged(property, property.FieldsChanged.ToArray());
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, $"Property {property.Path} failed to run fields changed section.");
+                    throw new PropertyProcessException($"Property {property.Path} failed to run fields changed section.", ex);
+                }
+            }
         }
 
         public async Task Load(IGameHookDriver driver, string mapperId)
@@ -89,8 +236,15 @@ namespace GameHook.Application
                 }
                 else if (mapperFile.AbsolutePath.EndsWith(".xml"))
                 {
-                    var mapperXDocument = XDocument.Parse(mapperContents);
-                    Mapper = GameHookMapperXmlFactory.LoadMapperFromFile(this, mapperXDocument);
+                    var scriptContentsAbsolutePath = mapperFile.AbsolutePath.Replace(".xml", ".js");
+                    string? scriptContents = null;
+
+                    if (File.Exists(scriptContentsAbsolutePath))
+                    {
+                        scriptContents = await File.ReadAllTextAsync(scriptContentsAbsolutePath);
+                    }
+
+                    Mapper = GameHookMapperXmlFactory.LoadMapperFromFile(this, mapperContents, scriptContents);
                 }
                 else
                 {
@@ -108,28 +262,16 @@ namespace GameHook.Application
                     _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
                 };
 
-                Preprocessor_fa7545e6_Exists = Mapper.Properties.Any(x => x.MapperVariables.Preprocessor?.Contains("fa7545e6") ?? false);
+                GlobalScriptEngine = new Engine().Execute(Mapper.GlobalScript ?? string.Empty);
+                GlobalScriptEngine.SetValue("console", ScriptConsoleAdapter);
+                GlobalScriptEngine.SetValue("state", State);
+                GlobalScriptEngine.SetValue("variables", Variables);
+                GlobalScriptEngine.SetValue("mapper", Mapper);
+                GlobalScriptEngine.SetValue("memory", MemoryContainerManager);
+                GlobalScriptEngine.SetValue("driver", Driver);
 
                 // Calculate the blocks to read from the mapper memory addresses.
-                var addressesToWatch = Mapper.Properties
-                    .Where(x => x.MapperVariables.Address != null)
-                    .Select(x => x.MapperVariables.Address)
-                    .ToList();
-
-                var addressesFromDma = Mapper.Properties
-                    .Where(x => x.MapperVariables.Preprocessor?.Contains("dma_967d10cc") ?? false)
-                    .Select(x => x.MapperVariables.Preprocessor?.GetMemoryAddressFromFunction(0))
-                    .ToList();
-
-                addressesToWatch.AddRange(addressesFromDma);
-                addressesToWatch = addressesToWatch.Distinct().ToList();
-
-                BlocksToRead = PlatformOptions.Ranges
-                                .Where(x => addressesToWatch.Any(y => y?.Between(x.StartingAddress, x.EndingAddress) ?? false))
-                                .ToList();
-
-                Logger.LogDebug($"Requested {BlocksToRead.Count()}/{PlatformOptions.Ranges.Count()} ranges of memory.");
-                Logger.LogDebug($"Requested ranges: {string.Join(", ", BlocksToRead.Select(x => x.Name))}");
+                BlocksToRead = PlatformOptions.Ranges.ToList();
 
                 await Read();
 
@@ -153,93 +295,20 @@ namespace GameHook.Application
             }
         }
 
-        public async Task ReadLoop()
+        public object? Evalulate(string function, object? x, object? y)
         {
-            while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
-            {
-                try
-                {
-                    await Read();
-                    await Task.Delay(DELAY_MS_BETWEEN_READS);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "An error occured when read looping the mapper.");
+            if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
 
-                    await ResetState();
-                }
+            try
+            {
+                return GlobalScriptEngine.SetValue("x", x).SetValue("y", y).Evaluate(function).ToObject();
             }
-        }
-
-        public async Task Read()
-        {
-            if (Driver == null) throw new Exception("Driver is null.");
-            if (PlatformOptions == null) throw new Exception("Platform options are null.");
-            if (Mapper == null) throw new Exception("Mapper is null.");
-            if (BlocksToRead == null) throw new Exception("BlocksToRead is null.");
-
-            var driverResult = await Driver.ReadBytes(BlocksToRead);
-
-            /*
-            #if DEBUG
-                        if (OutputDriverJson == false)
-                        {
-                            File.WriteAllText(Path.Combine(BuildEnvironment.ConfigurationDirectory, "driver.json"), System.Text.Json.JsonSerializer.Serialize(driverResult));
-                            OutputDriverJson = true;
-                        }
-            #endif
-            */
-
-            // Preprocessor Cache
-            // Certain preprocessors are costly to run for every property, so cache them here.
-            if (PreprocessorCache == null)
+            catch (Exception ex)
             {
-                PreprocessorCache = new PreprocessorCache();
+                Logger.LogError("Javascript evalulate engine exception.", ex);
+
+                throw;
             }
-
-            if (Preprocessor_fa7545e6_Exists) Preprocessor_fa7545e6.ClearCache();
-
-            // data_block_a245dcac
-            var dataBlock_a245dcac_Properties = Mapper.Properties
-                .Where(x => x.MapperVariables.Preprocessor?.StartsWith("data_block_a245dcac(") ?? false)
-                .GroupBy(x => x.MapperVariables.Address ?? 0)
-                .ToList();
-
-            dataBlock_a245dcac_Properties.ForEach(x =>
-            {
-                // Key is the starting memory address block.
-                PreprocessorCache.data_block_a245dcac.TryGetValue(x.Key, out var existingCache);
-                PreprocessorCache.data_block_a245dcac[x.Key] = Preprocessor_a245dcac.Decrypt(existingCache, driverResult, x.Key);
-            });
-
-            // Processor
-            Task.WaitAll(Mapper.Properties.Select(async x =>
-            {
-                try
-                {
-                    var result = x.Process(driverResult);
-
-                    if (result.FieldsChanged.Any())
-                    {
-                        if (x.Frozen && x.BytesFrozen != null)
-                        {
-                            await x.WriteBytes(x.BytesFrozen, null);
-                        }
-                        else
-                        {
-                            Task.WaitAll(ClientNotifiers.Select(async notifier =>
-                            {
-                                await notifier.SendPropertyChanged(x, result.FieldsChanged.ToArray());
-                            }).ToArray());
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, $"Failed to process propery {x.Path}.");
-                    throw new PropertyProcessException($"Failed to process propery {x.Path}.", ex);
-                }
-            }).ToArray());
         }
     }
 }

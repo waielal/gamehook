@@ -1,23 +1,28 @@
 ﻿namespace GameHook.Domain.Interfaces
 {
+    public enum MapperFormats
+    {
+        NONE,
+        YAML,
+        XML
+    }
+
     public class MapperMetadata
     {
         public Guid Id { get; init; } = Guid.Empty;
-        public string UniqueIdentifier => GameName.Replace(" ", string.Empty);
         public string GameName { get; init; } = string.Empty;
         public string GamePlatform { get; init; } = string.Empty;
     }
 
     public interface IGameHookMapper
     {
-        public Guid Id { get; }
+        public MapperFormats Format { get; }
+        MapperMetadata Metadata { get; }
+        Dictionary<string, IGameHookProperty> Properties { get; }
+        Dictionary<string, GlossaryList> Glossary { get; }
 
-        public MapperMetadata Metadata { get; init; }
-
-        public IEnumerable<IGameHookProperty> Properties { get; init; }
-
-        public IEnumerable<GlossaryList> Glossary { get; init; }
-
-        IGameHookProperty GetPropertyByPath(string path);
+        string? GlobalScript { get; }
+        bool HasGlobalPreprocessor { get; }
+        bool HasGlobalPostprocessor { get; }
     }
 }

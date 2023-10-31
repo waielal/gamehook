@@ -3,7 +3,7 @@
     public enum MapperFilesystemTypes
     {
         Official,
-        Custom
+        Local
     }
 
     public class MapperFilesystemDTO

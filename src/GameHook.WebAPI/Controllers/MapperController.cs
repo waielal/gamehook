@@ -16,16 +16,18 @@ namespace GameHook.WebAPI.Controllers
                 Path = x.Path,
                 Type = x.Type,
                 Address = x.Address,
+                IsReadOnly = x.IsReadOnly,
                 Length = x.Length,
                 Position = x.MapperVariables.Position,
                 Reference = x.MapperVariables.Reference,
                 Value = x.Value,
                 Frozen = x.Frozen,
                 Bytes = x.Bytes?.ToIntegerArray(),
-                Description = x.MapperVariables.Description
+                Description = x.MapperVariables.Description,
             };
 
-        public static Dictionary<string, IEnumerable<GlossaryItemModel>> MapToDictionaryGlossaryItemModel(this IEnumerable<GlossaryList> glossaryList)
+        public static Dictionary<string, IEnumerable<GlossaryItemModel>> MapToDictionaryGlossaryItemModel(
+            this IEnumerable<GlossaryList> glossaryList)
         {
             var dictionary = new Dictionary<string, IEnumerable<GlossaryItemModel>>();
 
@@ -70,7 +72,7 @@ namespace GameHook.WebAPI.Controllers
 
         public string Type { get; init; } = string.Empty;
 
-        public int Length { get; init; }
+        public int? Length { get; init; }
 
         public uint? Address { get; init; }
 
@@ -86,6 +88,8 @@ namespace GameHook.WebAPI.Controllers
         public bool? Frozen { get; init; }
 
         public string? Description { get; init; }
+
+        public bool IsReadOnly { get; init; }
     }
 
     public class UpdatePropertyValueModel
@@ -117,13 +121,18 @@ namespace GameHook.WebAPI.Controllers
         public GameHookInstance Instance { get; }
         public readonly IBizhawkMemoryMapDriver _bizhawkMemoryMapDriver;
         public readonly IRetroArchUdpPollingDriver _retroArchUdpPollingDriver;
+        public readonly IStaticMemoryDriver _staticMemoryDriver;
 
-        public MapperController(GameHookInstance gameHookInstance, IBizhawkMemoryMapDriver bizhawkMemoryMapDriver, IRetroArchUdpPollingDriver retroArchUdpPollingDriver)
+        public MapperController(GameHookInstance gameHookInstance,
+            IBizhawkMemoryMapDriver bizhawkMemoryMapDriver,
+            IRetroArchUdpPollingDriver retroArchUdpPollingDriver,
+            IStaticMemoryDriver nullDriver)
         {
             Instance = gameHookInstance;
 
             _bizhawkMemoryMapDriver = bizhawkMemoryMapDriver;
             _retroArchUdpPollingDriver = retroArchUdpPollingDriver;
+            _staticMemoryDriver = nullDriver;
         }
 
         [HttpGet]
@@ -141,8 +150,8 @@ namespace GameHook.WebAPI.Controllers
                     GameName = Instance.Mapper.Metadata.GameName,
                     GamePlatform = Instance.Mapper.Metadata.GamePlatform
                 },
-                Properties = Instance.Mapper.Properties.Select(x => x.MapToPropertyModel()).ToArray(),
-                Glossary = Instance.Mapper.Glossary.MapToDictionaryGlossaryItemModel()
+                Properties = Instance.Mapper.Properties.Values.Select(x => x.MapToPropertyModel()).ToArray(),
+                Glossary = Instance.Mapper.Glossary.Values.MapToDictionaryGlossaryItemModel()
             };
 
             return Ok(model);
@@ -162,6 +171,10 @@ namespace GameHook.WebAPI.Controllers
                 {
                     await Instance.Load(_retroArchUdpPollingDriver, model.Id);
                 }
+                else if (model.Driver == "staticMemory")
+                {
+                    await Instance.Load(_staticMemoryDriver, model.Id);
+                }
                 else
                 {
                     return ApiHelper.BadRequestResult("A valid driver was not supplied.");
@@ -171,11 +184,14 @@ namespace GameHook.WebAPI.Controllers
             }
             catch (PropertyProcessException ex)
             {
-                return StatusCode(500, new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper.", Detail = ex.Message });
+                return StatusCode(500,
+                    new ProblemDetails()
+                    { Status = 500, Title = "An error occured when loading the mapper.", Detail = ex.Message });
             }
             catch
             {
-                return StatusCode(500, new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper." });
+                return StatusCode(500,
+                    new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper." });
             }
         }
 
@@ -207,7 +223,7 @@ namespace GameHook.WebAPI.Controllers
 
             path = path.StripEndingRoute().FromRouteToPath();
 
-            var prop = Instance.Mapper.GetPropertyByPath(path);
+            var prop = Instance.Mapper.Properties[path];
 
             if (prop == null)
             {
@@ -229,7 +245,7 @@ namespace GameHook.WebAPI.Controllers
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            return Ok(Instance.Mapper.Properties.Select(x => x.MapToPropertyModel()));
+            return Ok(Instance.Mapper.Properties.Values.Select(x => x.MapToPropertyModel()));
         }
 
         [HttpGet("properties/{**path}/")]
@@ -241,7 +257,7 @@ namespace GameHook.WebAPI.Controllers
 
             path = path.StripEndingRoute().FromRouteToPath();
 
-            var prop = Instance.Mapper.GetPropertyByPath(path);
+            var prop = Instance.Mapper.Properties[path];
 
             if (prop == null)
             {
@@ -260,11 +276,16 @@ namespace GameHook.WebAPI.Controllers
 
             var path = model.Path.StripEndingRoute().FromRouteToPath();
 
-            var prop = Instance.Mapper.GetPropertyByPath(path);
+            var prop = Instance.Mapper.Properties[path];
 
             if (prop == null)
             {
                 return NotFound();
+            }
+
+            if (prop.IsReadOnly)
+            {
+                return ApiHelper.BadRequestResult("Property is read only.");
             }
 
             await prop.WriteValue(model.Value?.ToString(), model.Freeze);
@@ -282,11 +303,16 @@ namespace GameHook.WebAPI.Controllers
             var path = model.Path.StripEndingRoute().FromRouteToPath();
             var actualBytes = model.Bytes.Select(x => (byte)x).ToArray();
 
-            var prop = Instance.Mapper.GetPropertyByPath(path);
+            var prop = Instance.Mapper.Properties[path];
 
             if (prop == null)
             {
                 return NotFound();
+            }
+
+            if (prop.IsReadOnly)
+            {
+                return ApiHelper.BadRequestResult("Property is read only.");
             }
 
             await prop.WriteBytes(actualBytes, model.Freeze);
@@ -303,11 +329,16 @@ namespace GameHook.WebAPI.Controllers
 
             var path = model.Path.StripEndingRoute().FromRouteToPath();
 
-            var prop = Instance.Mapper.GetPropertyByPath(path);
+            var prop = Instance.Mapper.Properties[path];
 
             if (prop == null)
             {
                 return NotFound();
+            }
+
+            if (prop.IsReadOnly)
+            {
+                return ApiHelper.BadRequestResult("Property is read only.");
             }
 
             if (model.Freeze)
@@ -329,7 +360,7 @@ namespace GameHook.WebAPI.Controllers
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            return Ok(Instance.Mapper.Glossary.MapToDictionaryGlossaryItemModel());
+            return Ok(Instance.Mapper.Glossary.Values.MapToDictionaryGlossaryItemModel());
         }
 
         [HttpGet("glossary/{key}")]
@@ -341,7 +372,7 @@ namespace GameHook.WebAPI.Controllers
 
             key = key.StripEndingRoute();
 
-            var glossaryItem = Instance.Mapper.Glossary.SingleOrDefault(x => x.Name == key);
+            var glossaryItem = Instance.Mapper.Glossary[key];
             if (glossaryItem == null)
             {
                 return NotFound();

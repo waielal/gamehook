@@ -38,7 +38,17 @@ namespace GameHook.Domain.Infrastructure
             Logger = logger;
             HttpClientFactory = httpClientFactory;
 
-            AutomaticMapperUpdates = bool.Parse(configuration.GetRequiredValue("AUTOMATIC_MAPPER_UPDATES"));
+            if (BuildEnvironment.IsDebug && configuration["ALTERNATIVE_MAPPER_DIRECTORY"] != null)
+            {
+                Logger.LogInformation("Using alternative mapper directory, not performing automatic updates.");
+                AutomaticMapperUpdates = false;
+            }
+            else
+            {
+                AutomaticMapperUpdates = bool.Parse(configuration.GetRequiredValue("AUTOMATIC_MAPPER_UPDATES"));
+
+            }
+
             CheckForMapperUpdatesMinutes = int.Parse(configuration.GetRequiredValue("CHECK_FOR_MAPPER_UPDATES_MINUTES"));
 
             if (Directory.Exists(BuildEnvironment.ConfigurationDirectory) == false)
@@ -56,7 +66,6 @@ namespace GameHook.Domain.Infrastructure
             {
                 MapperData = new MapperData();
             }
-
         }
 
         private async Task WriteMapperData() => await File.WriteAllTextAsync(MapperDataFilepath, JsonSerializer.Serialize(MapperData));

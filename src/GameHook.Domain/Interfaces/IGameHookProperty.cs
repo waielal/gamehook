@@ -1,12 +1,5 @@
-﻿using static GameHook.Domain.Preprocessors.Preprocessor_a245dcac;
-
-namespace GameHook.Domain.Interfaces
+﻿namespace GameHook.Domain.Interfaces
 {
-    public class PreprocessorCache
-    {
-        public Dictionary<MemoryAddress, Cache> data_block_a245dcac { get; set; } = new Dictionary<MemoryAddress, Cache>();
-    }
-
     public class PropertyValueResult
     {
         public IEnumerable<string> FieldsChanged { get; init; } = new List<string>();
@@ -14,21 +7,25 @@ namespace GameHook.Domain.Interfaces
 
     public class GameHookMapperVariables
     {
-        public string Path { get; init; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
 
-        public string Type { get; init; } = string.Empty;
-        public MemoryAddress? Address { get; init; }
-        public int Length { get; init; } = 1;
-        public int? Position { get; init; }
-        public string? Reference { get; init; }
-        public string? Description { get; init; }
+        public string Type { get; set; } = string.Empty;
+        public string? MemoryContainer { get; set; } = string.Empty;
+        public string? Address { get; set; }
+        public int? Length { get; set; } = 1;
+        public int? Size { get; set; }
+        public int? Position { get; set; }
+        public string? Reference { get; set; }
+        public string? Description { get; set; }
 
-        public string? Expression { get; init; }
-        public string? Preprocessor { get; init; }
-        public string? PostprocessorReader { get; init; }
-        public string? PostprocessorWriter { get; init; }
+        public string? StaticValue { get; set; }
 
-        public string? StaticValue { get; init; }
+        public string? YamlPreprocessor { get; set; }
+        public string? YamlPostprocessorReader { get; set; }
+        public string? YamlPostprocessorWriter { get; set; }
+
+        public string? ReadFunction { get; set; }
+        public string? WriteFunction { get; set; }
     }
 
     public interface IGameHookProperty
@@ -38,15 +35,14 @@ namespace GameHook.Domain.Interfaces
 
         string Path { get; }
         string Type { get; }
-        int Length { get; }
+        int? Length { get; }
         uint? Address { get; }
-        bool IsDynamicAddress { get; }
 
         int? Position { get; }
 
         string? Reference { get; }
 
-        object? Value { get; }
+        object? Value { get; set; }
         byte[]? Bytes { get; }
         byte[]? BytesFrozen { get; }
 
@@ -54,10 +50,18 @@ namespace GameHook.Domain.Interfaces
 
         string? Description { get; }
 
-        PropertyValueResult Process(IEnumerable<MemoryAddressBlockResult> driverResult);
-        Task<byte[]> WriteValue(string? value, bool? freeze);
+        bool IsReadOnly { get; }
+
+        HashSet<string> FieldsChanged { get; }
+
+        void ProcessLoop(IMemoryManager container);
+
+        Task<byte[]> WriteValue(string value, bool? freeze);
         Task WriteBytes(byte[] bytes, bool? freeze);
+
         Task FreezeProperty(byte[] bytesFrozen);
         Task UnfreezeProperty();
     }
+
+
 }

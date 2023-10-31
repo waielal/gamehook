@@ -5,23 +5,34 @@ namespace GameHook.Application
 {
     public class GameHookMapper : IGameHookMapper
     {
-        public GameHookMapper(MapperMetadata metadata,
+        public GameHookMapper(
+            MapperFormats format,
+            MapperMetadata metadata,
             IEnumerable<IGameHookProperty> properties,
-            IEnumerable<GlossaryList> glossary)
+            IEnumerable<GlossaryList> glossary,
+            string? globalScript,
+            bool hasGlobalPreprocessor,
+            bool hasGlobalPostprocessor)
         {
+            Format = format;
             Metadata = metadata;
-            Properties = properties;
-            Glossary = glossary;
+            Properties = properties.ToDictionary(x => x.Path, x => x);
+            Glossary = glossary.ToDictionary(x => x.Name, x => x);
+
+            GlobalScript = globalScript;
+            HasGlobalPreprocessor = hasGlobalPreprocessor;
+            HasGlobalPostprocessor = hasGlobalPostprocessor;
         }
 
-        public Guid Id => Metadata.Id;
-        public MapperMetadata Metadata { get; init; }
-        public IEnumerable<IGameHookProperty> Properties { get; init; }
-        public IEnumerable<GlossaryList> Glossary { get; init; }
+        public MapperFormats Format { get; }
+        public MapperMetadata Metadata { get; }
+        public Dictionary<string, IGameHookProperty> Properties { get; }
+        public Dictionary<string, GlossaryList> Glossary { get; }
 
-        public IGameHookProperty GetPropertyByPath(string path)
-        {
-            return Properties.Single(x => x.Path == path);
-        }
+        public string? GlobalScript { get; }
+        public bool HasGlobalPreprocessor { get; }
+        public bool HasGlobalPostprocessor { get; }
+
+        public IGameHookProperty[] GetAllProperties() => Properties.Values.ToArray();
     }
 }

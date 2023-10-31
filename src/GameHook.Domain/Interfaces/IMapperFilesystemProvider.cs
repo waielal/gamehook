@@ -4,9 +4,9 @@ namespace GameHook.Domain.Interfaces
 {
     public interface IMapperFilesystemProvider
     {
-        string OfficialMapperFolder { get; }
+        string MapperFolder { get; }
 
-        string? CustomMapperFolder { get; }
+        string? BinaryMapperFolder { get; }
 
         IEnumerable<MapperFilesystemDTO> MapperFiles { get; }
 

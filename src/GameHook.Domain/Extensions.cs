@@ -7,35 +7,31 @@ namespace GameHook.Domain
 {
     public static class Extensions
     {
-        /// <summary>
-        /// Read two bytes as integer.
-        /// </summary>
-        public static int DATA16_BE(this byte[] data, int offset = 0) =>
-            (data[offset] << 8) | data[offset + 1];
-
-        /// <summary>
-        /// Read four bytes as integer.
-        /// </summary>
-        public static int DATA32_BE(this byte[] data, int offset = 0) =>
-            (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
-
-        /// <summary>
-        /// Read two bytes as integer.
-        /// </summary>
-        public static int DATA16_LE(this byte[] data, int offset = 0) =>
-            (data[offset] << 0) | (data[offset + 1] << 8);
-
-        /// <summary>
-        /// Read four bytes as integer.
-        /// </summary>
-        public static int DATA32_LE(this byte[] data, int offset = 0) =>
-            (data[offset] << 0) | (data[offset + 1] << 8) | (data[offset + 2] << 16) | (data[offset + 3] << 24);
-
         public static string ToHexdecimalString(this MemoryAddress value) => $"0x{value:X2}";
         public static string ToHexdecimalString(this byte value) => ((uint)value).ToHexdecimalString();
-        public static string ToHexdecimalString(this byte[] value) => $"{string.Join(' ', value.Select(x => x.ToHexdecimalString()))}";
+        public static string ToHexdecimalString(this IEnumerable<int> value, string joinCharacter = " ") => string.Join(joinCharacter, value.Select(x => ((uint)x).ToHexdecimalString()));
 
         public static IEnumerable<int> ToIntegerArray(this byte[] bytes) => bytes.Select(x => (int)x).ToArray();
+
+        public static string NormalizeMemoryAddresses(this string value)
+        {
+            if (value.Contains("0x"))
+            {
+                return Regex.Replace(value, @"0x[a-fA-F\d]+", match =>
+                {
+                    try
+                    {
+                        return Convert.ToUInt32(match.Value, 16).ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Unable to translate {match.Value} into a memory address / uint32.", ex);
+                    }
+                });
+            }
+
+            return value;
+        }
 
         public static string ToPascalCase(this string str)
         {
@@ -54,22 +50,6 @@ namespace GameHook.Domain
             return string.Join("", words);
         }
 
-        public static byte[] ReverseBytesIfLE(this byte[] bytes, EndianTypes? endianType)
-        {
-            if (endianType == null || bytes.Length == 1) { return bytes; }
-
-            if (endianType == EndianTypes.LittleEndian)
-            {
-                var workingBytes = (byte[])bytes.Clone();
-
-                Array.Reverse(workingBytes);
-
-                return workingBytes;
-            }
-
-            return bytes;
-        }
-
         public static string GetRequiredValue(this IConfiguration configuration, string key)
         {
             var value = configuration[key];
@@ -83,24 +63,6 @@ namespace GameHook.Domain
         public static bool Between(this MemoryAddress value, MemoryAddress min, MemoryAddress max)
         {
             return value >= min && value <= max;
-        }
-
-        public static MemoryAddressBlockResult? GetResultWithinRange(this IEnumerable<MemoryAddressBlockResult> blocks, MemoryAddress address)
-        {
-            return blocks.SingleOrDefault(x => address >= x.StartingAddress && address <= x.EndingAddress);
-        }
-
-        public static byte[] GetRelativeAddress(this MemoryAddressBlockResult block, MemoryAddress memoryAddress, int length)
-        {
-            var startingOffset = (int)(memoryAddress - block.StartingAddress);
-            var endingOffset = startingOffset + length;
-
-            return block.Data[startingOffset..endingOffset];
-        }
-
-        public static byte[]? GetAddressData(this IEnumerable<MemoryAddressBlockResult> blocks, uint address, int length)
-        {
-            return GetResultWithinRange(blocks, address)?.GetRelativeAddress(address, length);
         }
 
         public static MemoryAddress ToMemoryAddress(this string memoryAddress)
