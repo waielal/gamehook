@@ -43,6 +43,22 @@ namespace GameHook.Application
             new MemoryAddressBlock("Work RAM (Bank 0)", 0xC000, 0xCFFF),
             new MemoryAddressBlock("Work RAM (Bank 1)", 0xD000, 0xDFFF),
             new MemoryAddressBlock("I/O Registers", 0xFF00, 0xFF7F),
+            new MemoryAddressBlock("High RAM", 0xFF80, 0xFFFF)
+        }.ToArray();
+    }
+
+    public class GBC_PlatformOptions : IPlatformOptions
+    {
+        public EndianTypes EndianType { get; } = EndianTypes.LittleEndian;
+
+        public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
+        {
+            new MemoryAddressBlock("VRAM", 0x8000, 0x9FFF),
+            new MemoryAddressBlock("External RAM (Part 1)", 0xA000, 0xAFFF),
+            new MemoryAddressBlock("External RAM (Part 2)", 0xB000, 0xBFFF),
+            new MemoryAddressBlock("Work RAM (Bank 0)", 0xC000, 0xCFFF),
+            new MemoryAddressBlock("Work RAM (Bank 1)", 0xD000, 0xDFFF),
+            new MemoryAddressBlock("I/O Registers", 0xFF00, 0xFF7F),
             new MemoryAddressBlock("High RAM", 0xFF80, 0xFFFF),
             // RAM Banks 0x02:D000 to 0x07:D000 for GBC
             new MemoryAddressBlock("Work RAM (Bank 2)", 0x10000, 0x10FFF),

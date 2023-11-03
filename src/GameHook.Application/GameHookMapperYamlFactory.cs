@@ -264,7 +264,7 @@ namespace GameHook.Application
                 if (type == "binaryCodedDecimal") property = new BinaryCodedDecimalProperty(instance, variables);
                 else if (type == "bitField") property = new BitFieldProperty(instance, variables);
                 else if (type == "bit") property = new BitProperty(instance, variables);
-                else if (type == "booleanProperty") property = new BooleanProperty(instance, variables);
+                else if (type == "bool") property = new BooleanProperty(instance, variables);
                 else if (type == "int") property = new IntegerProperty(instance, variables);
                 else if (type == "nibble") property = new NibbleProperty(instance, variables);
                 else if (type == "string") property = new StringProperty(instance, variables);

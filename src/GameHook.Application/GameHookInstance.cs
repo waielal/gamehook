@@ -133,7 +133,7 @@ namespace GameHook.Application
             {
                 var memoryContainerPath = Path.GetFullPath(Path.Combine(BuildEnvironment.BinaryDirectoryGameHookFilePath, "..", "..", "..", "..", "..", "..", "GameHook.IntegrationTests", "Data", $"{Mapper.Metadata.Id}-0.json"));
 
-                File.WriteAllText(memoryContainerPath, JsonSerializer.Serialize(MemoryContainerManager.DefaultNamespace.Fragments));
+                File.WriteAllText(memoryContainerPath, JsonSerializer.Serialize(driverResult));
                 DebugOutputMemoryLayoutToFilesystem = false;
             }
 #endif
@@ -256,6 +256,7 @@ namespace GameHook.Application
                     "NES" => new NES_PlatformOptions(),
                     "SNES" => new SNES_PlatformOptions(),
                     "GB" => new GB_PlatformOptions(),
+                    "GBC" => new GBC_PlatformOptions(),
                     "GBA" => new GBA_PlatformOptions(),
                     "PSX" => new PSX_PlatformOptions(),
                     "NDS" => new NDS_PlatformOptions(),

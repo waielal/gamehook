@@ -55,8 +55,8 @@ namespace GameHook.WebAPI
                     Title = "GameHook API",
                     Contact = new OpenApiContact
                     {
-                        Name = "GameHook Team",
-                        Url = new Uri("https://github.com/gamehook-io/gamehook")
+                        Name = "GameHook",
+                        Url = new Uri("https://gamehook.io/")
                     },
                     License = new OpenApiLicense
                     {

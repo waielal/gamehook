@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenAPI.GameHook;
 using Serilog;
@@ -52,6 +53,7 @@ namespace GameHook.IntegrationTests
         private IHost Server { get; }
         protected IStaticMemoryDriver StaticMemoryDriver { get; }
         protected GameHookClient GameHookClient { get; }
+        protected ILogger<BaseTest> Logger { get; }
 
         public BaseTest()
         {
@@ -73,6 +75,12 @@ namespace GameHook.IntegrationTests
 
             StaticMemoryDriver = Server.Services.GetRequiredService<IStaticMemoryDriver>();
             GameHookClient = new GameHookClient("http://localhost:8085", Server.GetTestClient());
+            Logger = Server.Services.GetRequiredService<ILogger<BaseTest>>();
+        }
+
+        protected async Task LoadRamState(string name, int n = 0)
+        {
+            await StaticMemoryDriver.SetMemoryFragment($"{name}_{n}.json".ToLower());
         }
 
         protected async Task LoadMapperAndRamState(string name, string extension, int n)
@@ -86,7 +94,8 @@ namespace GameHook.IntegrationTests
             });
         }
 
-        protected async Task Load_GBC_PokemonCrystal(string mapperFileExtension = "xml", int n = 0) => await LoadMapperAndRamState("gb_pokemon_crystal", mapperFileExtension, n);
+        protected async Task Load_GB_PokemonRed(string mapperFileExtension = "xml", int n = 0) => await LoadMapperAndRamState("gb_pokemon_red_blue", mapperFileExtension, n);
+        protected async Task Load_GBC_PokemonCrystal(string mapperFileExtension = "xml", int n = 0) => await LoadMapperAndRamState("gbc_pokemon_crystal", mapperFileExtension, n);
         protected async Task Load_GBA_PokemonEmerald(string mapperFileExtension = "xml", int n = 0) => await LoadMapperAndRamState("gba_pokemon_emerald", mapperFileExtension, n);
         protected async Task Load_NDS_PokemonPlatinum(string mapperFileExtension = "xml", int n = 0) => await LoadMapperAndRamState("nds_pokemon_platinum", mapperFileExtension, n);
     }

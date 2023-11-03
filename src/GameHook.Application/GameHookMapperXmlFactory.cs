@@ -95,7 +95,6 @@ namespace GameHook.Application
                         else if (type == "bitArray") return new BitFieldProperty(instance, variables);
                         else if (type == "bit") return new BitProperty(instance, variables);
                         else if (type == "bool") return new BooleanProperty(instance, variables);
-                        else if (type == "booleanProperty") return new BooleanProperty(instance, variables);
                         else if (type == "int") return new IntegerProperty(instance, variables);
                         else if (type == "nibble") return new NibbleProperty(instance, variables);
                         else if (type == "string") return new StringProperty(instance, variables);

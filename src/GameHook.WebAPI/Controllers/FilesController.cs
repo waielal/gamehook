@@ -25,7 +25,7 @@ namespace GameHook.WebAPI.Controllers
 
         [SwaggerOperation("Returns a list of all mapper files available inside of the /mappers folder.")]
         [HttpGet("mappers")]
-        public ActionResult<IEnumerable<string>> GetMapperFiles()
+        public ActionResult<IEnumerable<MapperFileModel>> GetMapperFiles()
         {
             MapperFilesystemProvider.RefreshMapperFiles();
 
