@@ -9,30 +9,51 @@ namespace GameHook.IntegrationTests.Tests
     public class MapperTests : BaseTest
     {
         [TestMethod]
-        public async Task AllMappersLoad_OK()
-        {
-            var mappers = await GameHookClient.GetMapperFilesAsync();
+        public async Task GB_PokemonRed() => await LoadState("gb_pokemon_red_blue", "gb_pokemon_red_blue");
 
-            foreach (var mapper in mappers)
-            {
-                // TODO: dma_967d10cc may be broken?
-                if (mapper.Id == "official_gba_pokemon_emerald_yml") { continue; }
+        [TestMethod]
+        public async Task GB_PokemonBlue() => await LoadState("gb_pokemon_red_blue", "gb_pokemon_red_blue");
 
-                Logger.LogInformation($"Checking {mapper.Id} {mapper.DisplayName}.");
+        [TestMethod]
+        public async Task GB_PokemonYellow() => await LoadState("gb_pokemon_red_blue", "gb_pokemon_yellow");
 
-                // Load generic memory for the system.
-                if (mapper.Id.StartsWith("official_gb_")) { await LoadRamState("gb_pokemon_red_blue"); }
-                else if (mapper.Id.StartsWith("official_gbc_")) { await LoadRamState("gbc_pokemon_crystal"); }
-                else if (mapper.Id.StartsWith("official_gba_")) { await LoadRamState("gba_pokemon_emerald"); }
-                else if (mapper.Id.StartsWith("official_nds_")) { await LoadRamState("nds_pokemon_platinum"); }
+        [TestMethod]
+        public async Task GBA_MetroidFusion() => await LoadState("gba_metroid_fusion");
 
-                await GameHookClient.ChangeMapperAsync(new MapperReplaceModel()
-                {
-                    Id = mapper.Id,
-                    Driver = "staticMemory"
-                });
-            }
-        }
+        [TestMethod]
+        public async Task GBA_PokemonEmerald() => await LoadState("gba_metroid_fusion");
 
+        [TestMethod]
+        public async Task GBA_PokemonFireRed() => await LoadState("gba_metroid_fusion");
+
+        [TestMethod]
+        public async Task GBA_PokemonRuby() => await LoadState("gba_metroid_fusion");
+
+        [TestMethod]
+        public async Task GBA_PokemonSapphire() => await LoadState("gba_metroid_fusion");
+
+        [TestMethod]
+        public async Task GBC_PokemonGold() => await LoadState("gba_metroid_fusion");
+
+        [TestMethod]
+        public async Task GBC_PokemonSilver() => await LoadState("gba_metroid_fusion");
+
+        [TestMethod]
+        public async Task GBC_PokemonCrystal() => await LoadState("gba_metroid_fusion");
+
+        [TestMethod]
+        public async Task GBC_LinksAwakening_YAML() => await LoadState("gba_metroid_fusion", "");
+
+        [TestMethod]
+        public async Task N64_MarioKart64() => await LoadState("gba_metroid_fusion", "");
+
+        [TestMethod]
+        public async Task NDS_PokemonPlatinum() => await LoadState("gba_metroid_fusion", "");
+
+        [TestMethod]
+        public async Task NES_DragonQuest1_YAML() => await LoadState("gba_metroid_fusion", "");
+
+        [TestMethod]
+        public async Task PSX_ResidentEvil3Nemesis() => await LoadState("gba_metroid_fusion", "");
     }
 }

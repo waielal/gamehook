@@ -62,11 +62,14 @@ namespace GameHook.WebAPI.ClientNotifiers
 
         public Task SendDriverError(ProblemDetailsForClientDTO _) => Task.CompletedTask;
 
-        public async Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged)
+        public async Task SendPropertiesChanged(IEnumerable<IGameHookProperty> properties)
         {
-            if (fieldsChanged.Contains("value"))
+            foreach (var property in properties)
             {
-                await OutputPropertyToFilesystem(property);
+                if (property.FieldsChanged.Contains("value"))
+                {
+                    await OutputPropertyToFilesystem(property);
+                }
             }
         }
 

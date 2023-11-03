@@ -317,21 +317,27 @@ namespace GameHook.Application.GameHookProperties
 
         public async Task FreezeProperty(byte[] bytesFrozen)
         {
+            FieldsChanged.Add("frozen");
+
             BytesFrozen = bytesFrozen;
 
+            var propertyArray = new IGameHookProperty[] { this };
             foreach (var notifier in Instance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(this, new string[] { "frozen" });
+                await notifier.SendPropertiesChanged(propertyArray);
             }
         }
 
         public async Task UnfreezeProperty()
         {
+            FieldsChanged.Remove("frozen");
+
             BytesFrozen = null;
 
+            var propertyArray = new IGameHookProperty[] { this };
             foreach (var notifier in Instance.ClientNotifiers)
             {
-                await notifier.SendPropertyChanged(this, new string[] { "frozen" });
+                await notifier.SendPropertiesChanged(propertyArray);
             }
         }
     }

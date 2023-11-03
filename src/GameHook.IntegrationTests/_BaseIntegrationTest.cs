@@ -83,6 +83,17 @@ namespace GameHook.IntegrationTests
             await StaticMemoryDriver.SetMemoryFragment($"{name}_{n}.json".ToLower());
         }
 
+        protected async Task LoadState(string srmName, string? mapperName = null, string extension = "xml", int n = 0)
+        {
+            await StaticMemoryDriver.SetMemoryFragment($"{srmName}_{n}.json".ToLower());
+
+            await GameHookClient.ChangeMapperAsync(new MapperReplaceModel()
+            {
+                Id = $"official_{mapperName ?? srmName}_{extension}".ToLower(),
+                Driver = "staticMemory"
+            });
+        }
+
         protected async Task LoadMapperAndRamState(string name, string extension, int n)
         {
             await StaticMemoryDriver.SetMemoryFragment($"{name}_{n}.json".ToLower());

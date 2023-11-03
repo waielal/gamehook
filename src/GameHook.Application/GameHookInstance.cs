@@ -179,29 +179,20 @@ namespace GameHook.Application
             }
 
             // Fields Changed
-            foreach (var property in Mapper.Properties.Values)
+            var propertiesChanged = Mapper.Properties.Values.Where(x => x.FieldsChanged.Any()).ToArray();
+            if (propertiesChanged.Length > 0)
             {
                 try
                 {
-                    if (property.FieldsChanged.Any())
+                    foreach (var notifier in ClientNotifiers)
                     {
-                        if (property.Frozen && property.BytesFrozen != null)
-                        {
-                            await property.WriteBytes(property.BytesFrozen, null);
-                        }
-                        else
-                        {
-                            foreach (var notifier in ClientNotifiers)
-                            {
-                                await notifier.SendPropertyChanged(property, property.FieldsChanged.ToArray());
-                            }
-                        }
+                        await notifier.SendPropertiesChanged(propertiesChanged);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, $"Property {property.Path} failed to run fields changed section.");
-                    throw new PropertyProcessException($"Property {property.Path} failed to run fields changed section.", ex);
+                    Logger.LogError(ex, $"Could not send {propertiesChanged.Length} property change events.");
+                    throw new PropertyProcessException($"Could not send {propertiesChanged.Length} property change events.", ex);
                 }
             }
         }

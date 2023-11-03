@@ -1,4 +1,3 @@
-using GameHook.Domain;
 using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
 using GameHook.WebAPI.Hubs;
@@ -26,10 +25,15 @@ namespace GameHook.WebAPI.ClientNotifiers
         public Task SendDriverError(ProblemDetailsForClientDTO problemDetails) =>
             _hubContext.Clients.All.SendAsync("DriverError", problemDetails);
 
-        public Task SendPropertyChanged(IGameHookProperty property, string[] fieldsChanged) =>
-            _hubContext.Clients.All.SendAsync("PropertyChanged", property.Path, property.Address, property.Value, property.Bytes?.ToIntegerArray(), property.Frozen, fieldsChanged);
-
-        public Task SendUiBuilderScreenSaved(Guid id) =>
-            _hubContext.Clients.All.SendAsync("UiBuilderScreenSaved", id);
+        public Task SendPropertiesChanged(IEnumerable<IGameHookProperty> properties) =>
+            _hubContext.Clients.All.SendAsync("PropertiesChanged", properties.Select(x => new
+            {
+                path = x.Path,
+                address = x.Address,
+                frozen = x.Frozen,
+                value = x.Value,
+                bytes = x.Bytes,
+                fieldsChanged = x.FieldsChanged
+            }));
     }
 }

@@ -202,56 +202,58 @@ class GameHookMapperClient {
             await this._establishConnection()
         })
 
-        this._signalrClient.on('PropertyChanged', (path, address, value, bytes, frozen, fieldsChanged) => {
+        this._signalrClient.on('PropertiesChanged', (propertiesChanged) => {
             if (that._properties && that._properties.length > 0) {
-                let property = that._properties.find(x => x.path === path)
-                if (!property) {
-                    console.warn(`[GameHook Client] Could not find a related property in PropertyUpdated event for: ${path} ${value} ${bytes} ${frozen}`)
-                    return
-                }
-
-                let oldProperty = { address: property.address, value: property.value, bytes: property.bytes, frozen: property.frozen }
-
-                property.address = address
-                property.value = value
-                property.bytes = bytes
-                property.frozen = frozen
-
-                // Only trigger the property's change events when
-                // the value has changed.
-
-                // This is functionally 'weird', but users are really
-                // only interested in when the value changed.
-
-                // If they need to know about other fields changing,
-                // they can register to the global GameHook event handler.
-
-                if (fieldsChanged.includes('value')) {
-                    // Trigger the property.change events if any.
-                    const changeArray = that._change[property.path]
-                    if (changeArray && changeArray.length > 0) {
-                        changeArray.forEach(x => {
-                            x(property, oldProperty)
-                        })
+                for (const propertyChanged of propertiesChanged) {
+                    let property = that._properties.find(x => x.path === propertyChanged.path)
+                    if (!property) {
+                        console.warn(`[GameHook Client] Could not find a related property in PropertyUpdated event for: ${propertyChanged.path}`)
+                        return
                     }
 
-                    // Trigger the property.once events if any.
-                    const onceArray = that._once[property.path]
-                    if (onceArray && onceArray.length > 0) {
-                        onceArray.forEach(x => {
-                            x(property, oldProperty)
-                        })
+                    let oldProperty = { address: property.address, value: property.value, bytes: property.bytes, frozen: property.frozen }
 
-                        that._once[property.path] = []
+                    property.address = propertyChanged.address
+                    property.value = propertyChanged.value
+                    property.bytes = propertyChanged.bytes
+                    property.frozen = propertyChanged.frozen
+
+                    // Only trigger the property's change events when
+                    // the value has changed.
+
+                    // This is functionally 'weird', but users are really
+                    // only interested in when the value changed.
+
+                    // If they need to know about other fields changing,
+                    // they can register to the global GameHook event handler.
+
+                    if (propertyChanged.fieldsChanged.includes('value')) {
+                        // Trigger the property.change events if any.
+                        const changeArray = that._change[property.path]
+                        if (changeArray && changeArray.length > 0) {
+                            changeArray.forEach(x => {
+                                x(property, oldProperty)
+                            })
+                        }
+
+                        // Trigger the property.once events if any.
+                        const onceArray = that._once[property.path]
+                        if (onceArray && onceArray.length > 0) {
+                            onceArray.forEach(x => {
+                                x(property, oldProperty)
+                            })
+
+                            that._once[property.path] = []
+                        }
                     }
-                }
 
-                // Trigger the global property changed event.
-                if (that.onPropertyChanged) {
-                    that.onPropertyChanged(property, oldProperty, fieldsChanged)
+                    // Trigger the global property changed event.
+                    if (that.onPropertyChanged) {
+                        that.onPropertyChanged(property, oldProperty, propertyChanged.fieldsChanged)
+                    }
                 }
             } else {
-                console.debug(`[GameHook Client] Mapper is not loaded, throwing away event. PropertyUpdated ${path} ${value} ${bytes} ${frozen}`)
+                console.debug('[GameHook Client] Mapper is not loaded, throwing away PropertiesChanged event.')
             }
         })
 
