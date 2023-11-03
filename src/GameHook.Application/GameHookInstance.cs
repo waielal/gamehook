@@ -149,7 +149,11 @@ namespace GameHook.Application
             {
                 if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
 
-                GlobalScriptEngine.Invoke("preprocessor");
+                if (GlobalScriptEngine.Invoke("preprocessor").ToObject() as bool? == false)
+                {
+                    // The preprocessor returned false, which means we do not want to run anything this loop.
+                    return;
+                }
             }
 
             // Processor
@@ -171,7 +175,7 @@ namespace GameHook.Application
             {
                 if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
 
-                GlobalScriptEngine.Invoke("postprocessor");
+                GlobalScriptEngine.Evaluate("postprocessor").ToObject();
             }
 
             // Fields Changed
