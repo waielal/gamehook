@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GameHook.IntegrationTests.Tests
+namespace GameHook.IntegrationTests
 {
     [TestClass]
-    public class FullYmlTests : BaseTest
+    public class XmlSpecificTests : BaseTest
     {
         [Ignore]
         [TestMethod]

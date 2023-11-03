@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading.Tasks;
 
-namespace GameHook.IntegrationTests.Tests
+namespace GameHook.IntegrationTests
 {
     [TestClass]
     public class PokemonRed : BaseTest

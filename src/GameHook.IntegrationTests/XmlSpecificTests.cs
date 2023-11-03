@@ -2,7 +2,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GameHook.IntegrationTests.Tests
+namespace GameHook.IntegrationTests
 {
     // TODO: Write badge write tests to flip different badges to true / false.
 
