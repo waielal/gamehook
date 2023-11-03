@@ -2,7 +2,6 @@
 %% Read
 flowchart TB
     classDef js stroke:#f00
-    classDef exp stroke:#f00
 
     StartRead[["GameHookInstance.cs\nRead()"]] -->
     JsGlobalPreprocessor[js fn: global preprocessor]:::js --> StartForEachProperty
@@ -16,7 +15,7 @@ flowchart TB
         ReadBytes["Read bytes from memory (if required)"] -->
 
         ReadValue[Set the value based off of type] -->
-        AfterReadValueExpression[cs exp: after-read-value-expression]:::exp -->
+        AfterReadValueExpression[js fn: read-function]:::js -->
 
         RefIsDefinedQ[/Reference is defined?/] 
         RefIsDefinedQ --> |Yes| RefIsDefinedQY[Set value to reference value] --> EndForEachProperty
