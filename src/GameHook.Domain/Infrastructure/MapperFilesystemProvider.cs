@@ -69,7 +69,7 @@ namespace GameHook.Domain.Infrastructure
 
         private string GetId(MapperFilesystemTypes type, string directory, string filePath)
         {
-            if (directory.Contains('.') || directory.Contains(".."))
+            if (directory.Contains(".."))
             {
                 throw new Exception("Invalid characters in file path.");
             }
@@ -89,7 +89,7 @@ namespace GameHook.Domain.Infrastructure
         /// <returns></returns>
         private IEnumerable<MapperFilesystemDTO> GetAllMapperFiles()
         {
-            if (MapperFolder.Contains('.') || MapperFolder.Contains(".."))
+            if (MapperFolder.Contains(".."))
             {
                 throw new Exception("Invalid characters in mapper folder path.");
             }
