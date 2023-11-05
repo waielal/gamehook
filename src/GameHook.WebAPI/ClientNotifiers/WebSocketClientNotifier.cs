@@ -32,7 +32,7 @@ namespace GameHook.WebAPI.ClientNotifiers
                 address = x.Address,
                 frozen = x.Frozen,
                 value = x.Value,
-                bytes = x.Bytes,
+                bytes = x.Bytes?.Select(x => (int)x).ToArray(),
                 fieldsChanged = x.FieldsChanged
             }));
     }
