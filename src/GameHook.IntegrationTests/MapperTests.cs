@@ -30,7 +30,7 @@ namespace GameHook.IntegrationTests
         [DataRow("gbc_pokemon_gold_silver_xml", "gbc_pokemon_crystal_0")]
         [DataRow("gbc_pokemon_gold_silver_yml", "gbc_pokemon_crystal_0")]
 
-        [DataRow("gbc_zelda_links_awakening_dx_xml", "gbc_pokemon_crystal_0")]
+        [DataRow("gbc_zelda_links_awakening_dx_yml", "gbc_pokemon_crystal_0")]
         #endregion
 
         #region Gameboy Advance
