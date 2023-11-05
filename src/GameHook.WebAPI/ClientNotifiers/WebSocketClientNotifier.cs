@@ -34,6 +34,6 @@ namespace GameHook.WebAPI.ClientNotifiers
                 value = x.Value,
                 bytes = x.Bytes?.Select(x => (int)x).ToArray(),
                 fieldsChanged = x.FieldsChanged
-            }));
+            }).ToArray());
     }
 }
