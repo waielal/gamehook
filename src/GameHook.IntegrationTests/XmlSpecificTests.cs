@@ -169,5 +169,9 @@ namespace GameHook.IntegrationTests
         {
             await Task.CompletedTask;
         }
+
+        // TODO: Test writing a value.
+        // TODO: Test writing a string that is 8 characters with AAA. Should insert AAA + termination character at the end.
+        // TODO: Test writing a string that is 8 characters with AAAAAAAA. Should insert the termination character at the end, replacing the last A.
     }
 }

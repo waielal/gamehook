@@ -308,6 +308,10 @@ namespace GameHook.Application.GameHookProperties
             if (Instance == null) throw new Exception("Instance is NULL.");
             if (Instance.Driver == null) throw new Exception("Driver is NULL.");
             if (Address == null) throw new Exception($"{Path} does not have an address. Cannot write data to an empty address.");
+            if (Length == null) throw new Exception($"{Path}'s length is NULL, so we can't write bytes.");
+
+            // Make sure we can't write outside the bounds of the property.
+            bytes = bytes.Take((int)Length).ToArray();
 
             await Instance.Driver.WriteBytes((MemoryAddress)Address, bytes);
 
