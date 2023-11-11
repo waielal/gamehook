@@ -116,7 +116,7 @@ namespace GameHook.Application.GameHookProperties
             }
         }
 
-        public async void ProcessLoop(IMemoryManager memoryContainer)
+        public void ProcessLoop(IMemoryManager memoryContainer)
         {
             if (Instance == null) { throw new Exception("Instance is NULL."); }
             if (Instance.Mapper == null) { throw new Exception("Instance.Mapper is NULL."); }
@@ -232,7 +232,8 @@ namespace GameHook.Application.GameHookProperties
             {
                 // Bytes have changed, but property is frozen, so force the bytes back to the original value.
                 // Pretend nothing has changed. :)
-                await Instance.Driver.WriteBytes((MemoryAddress)address, BytesFrozen);
+
+                _ = Instance.Driver.WriteBytes((MemoryAddress)address, BytesFrozen);
 
                 return;
             }
