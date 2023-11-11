@@ -30,7 +30,7 @@ namespace GameHook.WebAPI.ClientNotifiers
             {
                 path = x.Path,
                 address = x.Address,
-                frozen = x.Frozen,
+                frozen = x.BytesFrozen != null,
                 value = x.Value,
                 bytes = x.Bytes?.Select(x => (int)x).ToArray(),
                 fieldsChanged = x.FieldsChanged

@@ -24,6 +24,7 @@ namespace GameHook.Application.GameHookProperties
         private MemoryAddress? _address { get; set; }
         private object? _value { get; set; }
         private byte[]? _bytes { get; set; }
+        private byte[]? _bytesFrozen { get; set; }
 
         private bool IsAddressMathSolved { get; set; }
         private bool ShouldRunReferenceTransformer
@@ -96,19 +97,30 @@ namespace GameHook.Application.GameHookProperties
             get => _bytes;
             private set
             {
-                if (_bytes == value) return;
+                if (_bytes != null && value != null && _bytes.SequenceEqual(value)) return;
 
                 FieldsChanged.Add("bytes");
                 _bytes = value;
             }
         }
 
-        public byte[]? BytesFrozen { get; private set; }
-        public bool Frozen => BytesFrozen != null;
-
-        public void ProcessLoop(IMemoryManager memoryContainer)
+        public byte[]? BytesFrozen
         {
+            get => _bytesFrozen;
+            private set
+            {
+                if (_bytesFrozen != null && value != null && _bytesFrozen.SequenceEqual(value)) return;
+
+                FieldsChanged.Add("frozen");
+                _bytesFrozen = value;
+            }
+        }
+
+        public async void ProcessLoop(IMemoryManager memoryContainer)
+        {
+            if (Instance == null) { throw new Exception("Instance is NULL."); }
             if (Instance.Mapper == null) { throw new Exception("Instance.Mapper is NULL."); }
+            if (Instance.Driver == null) { throw new Exception("Instance.Driver is NULL."); }
 
             MemoryAddress? address = Address;
             byte[]? previousBytes = Bytes;
@@ -216,6 +228,15 @@ namespace GameHook.Application.GameHookProperties
                     $"Unable to retrieve bytes for property '{Path}' at address {Address?.ToHexdecimalString()}. Is the address within the drivers' memory address block ranges?");
             }
 
+            if (address != null && BytesFrozen != null && bytes.SequenceEqual(BytesFrozen) == false)
+            {
+                // Bytes have changed, but property is frozen, so force the bytes back to the original value.
+                // Pretend nothing has changed. :)
+                await Instance.Driver.WriteBytes((MemoryAddress)address, BytesFrozen);
+
+                return;
+            }
+
             value = ToValue(bytes);
 
             if (string.IsNullOrEmpty(MapperVariables.ReadFunction) == false)
@@ -310,21 +331,36 @@ namespace GameHook.Application.GameHookProperties
             if (Address == null) throw new Exception($"{Path} does not have an address. Cannot write data to an empty address.");
             if (Length == null) throw new Exception($"{Path}'s length is NULL, so we can't write bytes.");
 
-            // Make sure we can't write outside the bounds of the property.
-            bytes = bytes.Take((int)Length).ToArray();
+            var buffer = new byte[Length ?? 1];
 
-            await Instance.Driver.WriteBytes((MemoryAddress)Address, bytes);
+            // Overlay the bytes onto the buffer.
+            // This ensures that we can't overflow the property.
+            // It also ensures it can't underflow the property, it copies the remaining from Bytes.
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (i < bytes.Length) buffer[i] = bytes[i];
+                else if (Bytes != null) buffer[i] = Bytes[i];
+            }
 
-            if (freeze == true) await FreezeProperty(bytes);
+            if (BytesFrozen != null)
+            {
+                // The property is frozen, but we want to write bytes anyway.
+                // So this should replace the existing frozen bytes.
+
+                BytesFrozen = buffer;
+            }
+
+            await Instance.Driver.WriteBytes((MemoryAddress)Address, buffer);
+
+            if (freeze == true) await FreezeProperty(buffer);
             else if (freeze == false) await UnfreezeProperty();
         }
 
         public async Task FreezeProperty(byte[] bytesFrozen)
         {
-            FieldsChanged.Add("frozen");
-
             BytesFrozen = bytesFrozen;
 
+            FieldsChanged.Add("frozen");
             var propertyArray = new IGameHookProperty[] { this };
             foreach (var notifier in Instance.ClientNotifiers)
             {
@@ -334,7 +370,7 @@ namespace GameHook.Application.GameHookProperties
 
         public async Task UnfreezeProperty()
         {
-            FieldsChanged.Remove("frozen");
+            FieldsChanged.Add("frozen");
 
             BytesFrozen = null;
 

@@ -46,8 +46,6 @@
         byte[]? Bytes { get; }
         byte[]? BytesFrozen { get; }
 
-        bool Frozen { get; }
-
         string? Description { get; }
 
         bool IsReadOnly { get; }

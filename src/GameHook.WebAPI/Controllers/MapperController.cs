@@ -21,7 +21,7 @@ namespace GameHook.WebAPI.Controllers
                 Position = x.MapperVariables.Position,
                 Reference = x.MapperVariables.Reference,
                 Value = x.Value,
-                Frozen = x.Frozen,
+                Frozen = x.BytesFrozen != null,
                 Bytes = x.Bytes?.ToIntegerArray(),
                 Description = x.MapperVariables.Description,
             };
