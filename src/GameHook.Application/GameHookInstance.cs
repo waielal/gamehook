@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace GameHook.Application
 {
@@ -237,6 +238,10 @@ namespace GameHook.Application
                     if (File.Exists(scriptContentsAbsolutePath))
                     {
                         scriptContents = await File.ReadAllTextAsync(scriptContentsAbsolutePath);
+
+                        // This is a bit nasty, but it's needed for the non-module script to load within Jint.
+                        var pattern = @"export\s*\{[^}]*\};"; // Regex pattern to match 'export { };' with any content inside
+                        scriptContents = Regex.Replace(scriptContents, pattern, string.Empty);
                     }
 
                     Mapper = GameHookMapperXmlFactory.LoadMapperFromFile(this, mapperContents, scriptContents);
