@@ -8,17 +8,17 @@ using System.Text.Json;
 namespace GameHook.Domain.Infrastructure
 {
 #pragma warning disable IDE1006 // Naming Styles
-    class LatestCommit
+    class LatestRelease
     {
-        public string sha { get; set; } = string.Empty;
+        public string tag_name { get; set; } = string.Empty;
     }
 #pragma warning restore IDE1006 // Naming Styles
 
     class MapperData
     {
         public DateTime? LastCheckedDate { get; set; }
-        public string? LastLocalVersion { get; set; }
-        public string? LastLocalCommit { get; set; }
+        public string? LastLocalApplicationVersion { get; set; }
+        public string? LastLocalMapperVersion { get; set; }
     }
 
     public class MapperUpdateManager : IMapperUpdateManager
@@ -30,15 +30,14 @@ namespace GameHook.Domain.Infrastructure
         private int CheckForMapperUpdatesMinutes { get; }
 
         private const string GithubMapperUrl = "https://github.com/gamehook-io/mappers";
-        private const string LatestCommitUrl = "https://api.github.com/repos/gamehook-io/mappers/commits/main";
-        private const string MapperLatestZipUrl = "https://github.com/gamehook-io/mappers/archive/refs/heads/main.zip";
+        private const string LatestReleaseUrl = "https://api.github.com/repos/gamehook-io/mappers/releases";
 
         public MapperUpdateManager(ILogger<MapperUpdateManager> logger, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             Logger = logger;
             HttpClientFactory = httpClientFactory;
 
-            if (BuildEnvironment.IsDebug && configuration["ALTERNATIVE_MAPPER_DIRECTORY"] != null)
+            if (BuildEnvironment.IsDebug && string.IsNullOrEmpty(configuration["ALTERNATIVE_MAPPER_DIRECTORY"]) == false)
             {
                 Logger.LogInformation("Using alternative mapper directory, not performing automatic updates.");
                 AutomaticMapperUpdates = false;
@@ -46,7 +45,6 @@ namespace GameHook.Domain.Infrastructure
             else
             {
                 AutomaticMapperUpdates = bool.Parse(configuration.GetRequiredValue("AUTOMATIC_MAPPER_UPDATES"));
-
             }
 
             CheckForMapperUpdatesMinutes = int.Parse(configuration.GetRequiredValue("CHECK_FOR_MAPPER_UPDATES_MINUTES"));
@@ -89,14 +87,14 @@ namespace GameHook.Domain.Infrastructure
             }
         }
 
-        private async Task DownloadLatestMappers(HttpClient httpClient)
+        private async Task DownloadMappers(HttpClient httpClient, string distUrl)
         {
             try
             {
                 CleanupTemporaryFiles();
 
                 // Download the ZIP from Github.
-                var bytes = await httpClient.GetByteArrayAsync(MapperLatestZipUrl);
+                var bytes = await httpClient.GetByteArrayAsync(distUrl);
                 File.WriteAllBytes(MapperZipTemporaryFilepath, bytes);
 
                 // Extract to the temporary directory.
@@ -109,7 +107,7 @@ namespace GameHook.Domain.Infrastructure
                 }
 
                 // Move from inside of the temporary directory into the main mapper folder.
-                Directory.Move(Path.Combine(MapperTemporaryExtractionDirectory, "mappers-main"), MapperLocalDirectory);
+                Directory.Move(MapperTemporaryExtractionDirectory, MapperLocalDirectory);
             }
             finally
             {
@@ -129,28 +127,31 @@ namespace GameHook.Domain.Infrastructure
                 }
                 else if (CheckForMapperUpdatesMinutes == 0 ||
                          (MapperData.LastCheckedDate.HasValue == false || MapperData.LastCheckedDate.HasValue && (DateTime.UtcNow - MapperData.LastCheckedDate.Value).Minutes > CheckForMapperUpdatesMinutes) ||
-                         MapperData.LastLocalVersion != BuildEnvironment.AssemblyProductVersion)
+                         MapperData.LastLocalApplicationVersion != BuildEnvironment.AssemblyProductVersion)
                 {
                     var httpClient = HttpClientFactory.CreateClient();
                     httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GameHook", BuildEnvironment.AssemblyProductVersion));
 
-                    var latestCommitJson = await httpClient.GetStringAsync(LatestCommitUrl);
-                    var latestCommit = JsonSerializer.Deserialize<LatestCommit>(latestCommitJson)?.sha;
+                    var latestReleaseJson = await httpClient.GetStringAsync(LatestReleaseUrl);
+
+                    var latestMapperRelease = JsonSerializer.Deserialize<LatestRelease[]>(latestReleaseJson)?.First().tag_name
+                        ?? throw new Exception("Cannot deserialize mapper release information.");
+
                     var latestVersion = BuildEnvironment.AssemblyProductVersion;
 
-                    if (MapperData.LastLocalCommit != latestCommit)
+                    if (MapperData.LastLocalMapperVersion != latestMapperRelease)
                     {
                         Logger.LogInformation($"Downloading mappers updates from our source repository {GithubMapperUrl}.");
 
-                        await DownloadLatestMappers(httpClient);
+                        await DownloadMappers(httpClient, $"https://github.com/gamehook-io/mappers/releases/download/{latestMapperRelease}/dist.zip");
 
-                        MapperData.LastLocalCommit = latestCommit;
+                        MapperData.LastLocalMapperVersion = latestMapperRelease;
                     }
 
                     Logger.LogInformation("GameHook will periodically check for mapper updates and download them.");
                     Logger.LogInformation("If you do not want this, please disable it in the configuration.");
 
-                    MapperData.LastLocalVersion = latestVersion;
+                    MapperData.LastLocalApplicationVersion = latestVersion;
                     MapperData.LastCheckedDate = DateTime.UtcNow;
 
                     await WriteMapperData();

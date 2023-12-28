@@ -35,6 +35,7 @@ namespace GameHook.Domain.Infrastructure
             if (BuildEnvironment.IsDebug)
             {
                 var alternativeMapperDirectory = configuration["ALTERNATIVE_MAPPER_DIRECTORY"];
+
                 if (string.IsNullOrEmpty(alternativeMapperDirectory) == false)
                 {
                     MapperFolder = alternativeMapperDirectory;

@@ -9,17 +9,20 @@ public class Program
 
         try
         {
-            var defaultLogPath = "GameHook.log";
-
-            // Clear existing default log file if it exists.
-            if (File.Exists(defaultLogPath))
+            // TODO: 12/27/2023 - Remove this at a future date. Logs are now stored within %APPDATA%\GameHook.
+            if (File.Exists("GameHook.log"))
             {
-                File.WriteAllText(defaultLogPath, string.Empty);
+                File.Delete("GameHook.log");
+            }
+
+            if (File.Exists(BuildEnvironment.LogFilePath))
+            {
+                File.WriteAllText(BuildEnvironment.LogFilePath, string.Empty);
             }
 
             Log.Logger = new LoggerConfiguration()
                                 .WriteTo.Console()
-                                .WriteTo.File(defaultLogPath)
+                                .WriteTo.File(BuildEnvironment.LogFilePath)
                                 .CreateBootstrapLogger();
 
             Host.CreateDefaultBuilder()

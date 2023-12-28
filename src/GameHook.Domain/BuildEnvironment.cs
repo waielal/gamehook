@@ -43,6 +43,9 @@ public static class BuildEnvironment
     public static string ConfigurationDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameHook");
 
+    public static string LogFilePath =>
+        Path.Combine(ConfigurationDirectory, "GameHook.log");
+
     // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
     public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
 
