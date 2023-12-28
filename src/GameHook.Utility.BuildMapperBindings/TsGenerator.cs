@@ -203,7 +203,7 @@ public static class TsGenerator
         var doc = XDocument.Parse(contents);
         var result = new StringBuilder();
 
-        result.AppendLine("import { AbstractMapperClient, GameHookProperty } from \"../core.js\"");
+        result.AppendLine("import { AbstractMapperClient, GameHookProperty } from \"../index.js\"");
 
         result.AppendLine(string.Empty);
 

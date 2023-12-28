@@ -258,13 +258,14 @@ namespace GameHook.Application
                     _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
                 };
 
-                GlobalScriptEngine = new Engine().Execute(Mapper.GlobalScript ?? string.Empty);
-                GlobalScriptEngine.SetValue("console", ScriptConsoleAdapter);
-                GlobalScriptEngine.SetValue("state", State);
-                GlobalScriptEngine.SetValue("variables", Variables);
-                GlobalScriptEngine.SetValue("mapper", Mapper);
-                GlobalScriptEngine.SetValue("memory", MemoryContainerManager);
-                GlobalScriptEngine.SetValue("driver", Driver);
+                GlobalScriptEngine = new Engine()
+                    .SetValue("__console", ScriptConsoleAdapter)
+                    .SetValue("__state", State)
+                    .SetValue("__variables", Variables)
+                    .SetValue("__mapper", Mapper)
+                    .SetValue("__memory", MemoryContainerManager)
+                    .SetValue("__driver", Driver)
+                    .Execute(Mapper.GlobalScript ?? string.Empty);
 
                 // Calculate the blocks to read from the mapper memory addresses.
                 BlocksToRead = PlatformOptions.Ranges.ToList();
