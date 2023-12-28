@@ -5,13 +5,13 @@
 		<Product>GameHook</Product>
 		<ProductVersion>0.0.0.0+dev</ProductVersion>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<TargetFramework>net6.0</TargetFramework>
-		<EnablePreviewFeatures>true</EnablePreviewFeatures>
+		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 		<PublishReadyToRun>true</PublishReadyToRun>
-		<PublishTrimmed>true</PublishTrimmed>
+		<PublishTrimmed>false</PublishTrimmed>
+		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<DebugType>embedded</DebugType>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
@@ -40,11 +40,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.4.0" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
-		<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.2.3" />
+		<PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -54,5 +53,24 @@
 
 	<ItemGroup>
 		<Resource Include="wwwroot\dist\gameHookMapperClient.js" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Properties\PublishProfiles\" />
 	</ItemGroup>
 </Project>

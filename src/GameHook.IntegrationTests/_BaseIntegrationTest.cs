@@ -66,10 +66,6 @@ namespace GameHook.IntegrationTests
                 {
                     host
                         .UseTestServer()
-                        .UseSerilog((ctx, conf) =>
-                        {
-                            conf.ReadFrom.Configuration(ctx.Configuration);
-                        })
                         .UseConfiguration(testConfiguration)
                         .UseStartup<Startup>();
                 })

@@ -104,7 +104,7 @@ namespace GameHook.WebAPI
             }
         }
 
-        public void Configure(IApplicationBuilder app, ILogger<Startup> logger, IConfiguration configuration, IMapperUpdateManager updateManager)
+        public void Configure(IApplicationBuilder app, ILogger<Startup> logger, IMapperUpdateManager updateManager)
         {
             if (BuildEnvironment.IsTestingBuild)
             {

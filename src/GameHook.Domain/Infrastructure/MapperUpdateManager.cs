@@ -133,8 +133,7 @@ namespace GameHook.Domain.Infrastructure
                     httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GameHook", BuildEnvironment.AssemblyProductVersion));
 
                     var latestReleaseJson = await httpClient.GetStringAsync(LatestReleaseUrl);
-
-                    var latestMapperRelease = JsonSerializer.Deserialize<LatestRelease[]>(latestReleaseJson)?.First().tag_name
+                    var latestMapperRelease = JsonSerializer.Deserialize<IEnumerable<LatestRelease>>(latestReleaseJson)?.FirstOrDefault()?.tag_name
                         ?? throw new Exception("Cannot deserialize mapper release information.");
 
                     var latestVersion = BuildEnvironment.AssemblyProductVersion;

@@ -2,7 +2,6 @@ using GameHook.Application.GameHookProperties;
 using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 using YamlDotNet.Serialization;
 
 namespace GameHook.Application

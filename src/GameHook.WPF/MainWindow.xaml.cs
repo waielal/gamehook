@@ -1,4 +1,5 @@
 ﻿using AutoUpdaterDotNET;
+using GameHook.WebAPI;
 using Microsoft.Web.WebView2.Core;
 using System.IO;
 using System.Net;
