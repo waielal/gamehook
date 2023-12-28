@@ -226,11 +226,7 @@ namespace GameHook.Application
                 }
 
                 var mapperContents = await File.ReadAllTextAsync(mapperFile.AbsolutePath);
-                if (mapperFile.AbsolutePath.EndsWith(".yml"))
-                {
-                    Mapper = GameHookMapperYamlFactory.ReadMapper(this, MapperFilesystemProvider, mapperFile.Id);
-                }
-                else if (mapperFile.AbsolutePath.EndsWith(".xml"))
+                if (mapperFile.AbsolutePath.EndsWith(".xml"))
                 {
                     var scriptContentsAbsolutePath = mapperFile.AbsolutePath.Replace(".xml", ".js");
                     string? scriptContents = null;
@@ -248,7 +244,7 @@ namespace GameHook.Application
                 }
                 else
                 {
-                    throw new Exception($"Invalid extension for mapper.");
+                    throw new Exception($"Invalid file extension for mapper.");
                 }
 
                 PlatformOptions = Mapper.Metadata.GamePlatform switch

@@ -12,6 +12,8 @@
 
   "OUTPUT_TRANSFORMED_MAPPER": false,
 
+  "TESTING_MODE": true,
+
   "Urls": "http://localhost:8085",
   "AllowedHosts": "*",
   "Serilog": {

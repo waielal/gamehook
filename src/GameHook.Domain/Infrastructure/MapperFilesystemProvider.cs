@@ -96,7 +96,7 @@ namespace GameHook.Domain.Infrastructure
             }
 
             var mappers = new DirectoryInfo(MapperFolder)
-                .GetFilesByExtensions(".xml", ".yml")
+                .GetFiles("*.xml", SearchOption.AllDirectories)
                 .Select(x => new MapperFilesystemDTO()
                 {
                     Id = GetId(MapperFilesystemTypes.Official, MapperFolder, x.FullName),
@@ -114,7 +114,7 @@ namespace GameHook.Domain.Infrastructure
                 }
 
                 var localMappers = new DirectoryInfo(BinaryMapperFolder)
-                    .GetFilesByExtensions(".xml", ".yml")
+                    .GetFiles("*.xml", SearchOption.AllDirectories)
                     .Select(x => new MapperFilesystemDTO()
                     {
                         Id = GetId(MapperFilesystemTypes.Local, BinaryMapperFolder, x.FullName),
