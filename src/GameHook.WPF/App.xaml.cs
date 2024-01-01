@@ -1,4 +1,5 @@
-﻿using RestoreWindowPlace;
+﻿using GameHook.Domain;
+using RestoreWindowPlace;
 using System.Windows;
 
 namespace GameHook.WPF

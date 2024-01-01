@@ -1,10 +1,11 @@
-﻿using GameHook.Domain.Interfaces;
+﻿using GameHook.Domain;
+using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace GameHook.Domain.Infrastructure
+namespace GameHook.Infrastructure
 {
 #pragma warning disable IDE1006 // Naming Styles
     class LatestRelease
@@ -114,7 +115,7 @@ namespace GameHook.Domain.Infrastructure
                 }
 
                 var httpClient = _httpClientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GameHook", BuildEnvironment.AssemblyProductVersion));
+                httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GameHook", BuildEnvironment.AssemblyVersion));
 
                 var releasesJson = await httpClient.GetStringAsync(GithubReleasesApiUrl);
                 var releases = JsonSerializer.Deserialize<IEnumerable<LatestRelease>>(releasesJson)
@@ -147,7 +148,7 @@ namespace GameHook.Domain.Infrastructure
                 {
                     await DownloadMappers(httpClient, $"https://github.com/gamehook-io/mappers/releases/download/{wantedMapperRelease}/dist.zip");
 
-                    MapperData.LastLocalApplicationVersion = BuildEnvironment.AssemblyProductVersion;
+                    MapperData.LastLocalApplicationVersion = BuildEnvironment.AssemblyVersion;
                     MapperData.LastLocalMapperVersion = wantedMapperRelease.tag_name;
                     await WriteMapperData();
 

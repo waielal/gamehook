@@ -2,7 +2,6 @@
 using GameHook.Domain.Implementations;
 using GameHook.Domain.Interfaces;
 using Jint;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text.Json;

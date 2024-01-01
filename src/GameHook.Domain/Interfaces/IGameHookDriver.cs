@@ -12,9 +12,9 @@ namespace GameHook.Domain.Interfaces
 
         Task EstablishConnection();
 
-        Task<MemoryFragmentLayout> ReadBytes(IEnumerable<MemoryAddressBlock> blocks);
+        Task<Dictionary<uint, byte[]>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks);
 
-        Task WriteBytes(MemoryAddress startingMemoryAddress, byte[] values);
+        Task WriteBytes(uint startingMemoryAddress, byte[] values);
     }
 
     public interface IBizhawkMemoryMapDriver : IGameHookDriver { }

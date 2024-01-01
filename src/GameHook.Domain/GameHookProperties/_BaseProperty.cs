@@ -1,7 +1,6 @@
-﻿using GameHook.Domain;
-using GameHook.Domain.Interfaces;
+﻿using GameHook.Domain.Interfaces;
 
-namespace GameHook.Application.GameHookProperties
+namespace GameHook.Domain.GameHookProperties
 {
     public abstract class BaseProperty : IGameHookProperty
     {

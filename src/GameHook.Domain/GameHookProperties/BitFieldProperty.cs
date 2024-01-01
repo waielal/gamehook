@@ -1,7 +1,7 @@
 ﻿using GameHook.Domain.Interfaces;
 using System.Collections;
 
-namespace GameHook.Application.GameHookProperties
+namespace GameHook.Domain.GameHookProperties
 {
     public class BitFieldProperty : BaseProperty, IGameHookProperty
     {

@@ -1,3 +1,4 @@
+using GameHook.Domain;
 using Serilog;
 
 namespace GameHook.WebAPI

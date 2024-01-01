@@ -1,4 +1,4 @@
-﻿using GameHook.Application.GameHookProperties;
+﻿using GameHook.Domain.GameHookProperties;
 using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using System.Data;

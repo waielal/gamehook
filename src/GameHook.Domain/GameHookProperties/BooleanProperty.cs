@@ -1,6 +1,6 @@
 ﻿using GameHook.Domain.Interfaces;
 
-namespace GameHook.Application.GameHookProperties
+namespace GameHook.Domain.GameHookProperties
 {
     public class BooleanProperty : BaseProperty, IGameHookProperty
     {

@@ -1,15 +1,16 @@
-﻿using GameHook.Domain.Interfaces;
+﻿using GameHook.Domain;
+using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
-namespace GameHook.Domain.Drivers
+namespace GameHook.Infrastructure.Drivers
 {
     public class StaticMemoryDriver : IStaticMemoryDriver
     {
         public string ProperName => "StaticMemory";
 
         private readonly ILogger<StaticMemoryDriver> _logger;
-        private MemoryFragmentLayout MemoryFragmentLayout { get; set; } = new MemoryFragmentLayout();
+        private Dictionary<uint, byte[]> MemoryFragmentLayout { get; set; } = [];
 
         public StaticMemoryDriver(ILogger<StaticMemoryDriver> logger)
         {
@@ -39,10 +40,10 @@ namespace GameHook.Domain.Drivers
             if (File.Exists(path) == false) throw new Exception($"Unable to load memory container file '{filename}'.");
 
             var contents = await File.ReadAllTextAsync(path);
-            MemoryFragmentLayout = JsonSerializer.Deserialize<MemoryFragmentLayout>(contents) ?? throw new Exception("Cannot deserialize memory fragment layout.");
+            MemoryFragmentLayout = JsonSerializer.Deserialize<Dictionary<uint, byte[]>>(contents) ?? throw new Exception("Cannot deserialize memory fragment layout.");
         }
 
-        public Task<MemoryFragmentLayout> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
+        public Task<Dictionary<uint, byte[]>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
         {
             if (BuildEnvironment.IsDebug == false)
             {

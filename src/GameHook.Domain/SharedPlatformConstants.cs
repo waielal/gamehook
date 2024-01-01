@@ -17,8 +17,8 @@ public static class SharedPlatformConstants
         public int CustomPacketTransmitPosition { get; set; } = 0;
         public int Length { get; set; } = 0;
 
-        public long PhysicalStartingAddress = 0x00;
-        public long PhysicalEndingAddress => PhysicalStartingAddress + Length;
+        public MemoryAddress PhysicalStartingAddress = 0x00;
+        public MemoryAddress PhysicalEndingAddress => (MemoryAddress)(PhysicalStartingAddress + Length);
     }
 
     public const int BIZHAWK_INTEGRATION_VERSION = 0x00;

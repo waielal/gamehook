@@ -1,10 +1,10 @@
-﻿using GameHook.Domain.Implementations;
+﻿using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using System.IO.MemoryMappedFiles;
 using System.Text;
 
 #pragma warning disable CA1416 // Validate platform compatibility
-namespace GameHook.Domain.Drivers
+namespace GameHook.Infrastructure.Drivers
 {
     public class BizhawkMemoryMapDriver : IGameHookDriver, IBizhawkMemoryMapDriver
     {
@@ -64,14 +64,14 @@ namespace GameHook.Domain.Drivers
             return Task.CompletedTask;
         }
 
-        public Task<MemoryFragmentLayout> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
+        public Task<Dictionary<uint, byte[]>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
         {
             var platform = SharedPlatformConstants.Information.SingleOrDefault(x => x.BizhawkIdentifier == SystemName) ?? throw new Exception($"System {SystemName} is not yet supported.");
 
             var data = GetFromMemoryMappedFile("GAMEHOOK_BIZHAWK_DATA.bin", DATA_Length);
 
             return Task.FromResult(platform.MemoryLayout.ToDictionary(
-                x => (MemoryAddress)x.PhysicalStartingAddress,
+                x => x.PhysicalStartingAddress,
                 x => data[x.CustomPacketTransmitPosition..(x.CustomPacketTransmitPosition + x.Length)]
             ));
         }

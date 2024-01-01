@@ -1,14 +1,15 @@
+using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace GameHook.Domain.Drivers
+namespace GameHook.Infrastructure.Drivers
 {
     record ReceivedPacket
     {
-        public ReceivedPacket(string command, MemoryAddress memoryAddress, byte[] value)
+        public ReceivedPacket(string command, uint memoryAddress, byte[] value)
         {
             Command = command;
             MemoryAddress = memoryAddress;
@@ -16,7 +17,7 @@ namespace GameHook.Domain.Drivers
         }
 
         public string Command { get; }
-        public MemoryAddress MemoryAddress { get; }
+        public uint MemoryAddress { get; }
         public byte[] Value { get; set; }
     }
 
@@ -91,7 +92,7 @@ namespace GameHook.Domain.Drivers
             else return $"{value:X2}".ToLower();
         }
 
-        public async Task WriteBytes(MemoryAddress memoryAddress, byte[] values)
+        public async Task WriteBytes(uint memoryAddress, byte[] values)
         {
             var bytes = string.Join(' ', values.Select(x => x.ToHexdecimalString()));
             await SendPacket("WRITE_CORE_MEMORY", $"{ToRetroArchHexdecimalString(memoryAddress)} {bytes}");
@@ -122,7 +123,7 @@ namespace GameHook.Domain.Drivers
             Logger.LogTrace($"[Outgoing Packet] {outgoingPayload}");
         }
 
-        private async Task<byte[]> ReadMemoryAddress(MemoryAddress memoryAddress, uint length)
+        private async Task<byte[]> ReadMemoryAddress(uint memoryAddress, uint length)
         {
             var command = $"READ_CORE_MEMORY {ToRetroArchHexdecimalString(memoryAddress)}";
             await SendPacket(command, $"{length}");
@@ -172,12 +173,12 @@ namespace GameHook.Domain.Drivers
             Logger.LogDebug($"[Incoming Packet] Set response {receiveKey}");
         }
 
-        public async Task<MemoryFragmentLayout> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
+        public async Task<Dictionary<uint, byte[]>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks)
         {
             var results = await Task.WhenAll(blocks.Select(async x =>
             {
                 var data = await ReadMemoryAddress(x.StartingAddress, x.EndingAddress - x.StartingAddress);
-                return new KeyValuePair<MemoryAddress, byte[]>(x.StartingAddress, data);
+                return new KeyValuePair<uint, byte[]>(x.StartingAddress, data);
             }));
 
             return results.ToDictionary(x => x.Key, x => x.Value);

@@ -1,7 +1,7 @@
 ﻿using GameHook.Domain.Interfaces;
 using System.ComponentModel.DataAnnotations;
 
-namespace GameHook.Application.GameHookProperties
+namespace GameHook.Domain.GameHookProperties
 {
     public enum NibblePosition
     {

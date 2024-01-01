@@ -1,7 +1,7 @@
-﻿using GameHook.Domain.DTOs;
+﻿using GameHook.Domain;
 using GameHook.Domain.Interfaces;
 
-namespace GameHook.Domain.Infrastructure
+namespace GameHook.Infrastructure
 {
     public class MapperFilesystemProvider : IMapperFilesystemProvider
     {

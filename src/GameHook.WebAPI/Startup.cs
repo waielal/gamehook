@@ -1,8 +1,8 @@
 ﻿using GameHook.Application;
 using GameHook.Domain;
-using GameHook.Domain.Drivers;
-using GameHook.Domain.Infrastructure;
 using GameHook.Domain.Interfaces;
+using GameHook.Infrastructure;
+using GameHook.Infrastructure.Drivers;
 using GameHook.WebAPI.ClientNotifiers;
 using GameHook.WebAPI.Hubs;
 using Hellang.Middleware.ProblemDetails;
@@ -117,7 +117,7 @@ namespace GameHook.WebAPI
                 logger.LogInformation("Automatic mapper updates have been disabled via configuration.");
             }
 
-            logger.LogInformation($"GameHook version {BuildEnvironment.AssemblyProductVersion}.");
+            logger.LogInformation($"GameHook version {BuildEnvironment.AssemblyVersion}.");
 
             if (appSettings.SET_CUSTOM_MAPPER_DIRECTORY)
             {
