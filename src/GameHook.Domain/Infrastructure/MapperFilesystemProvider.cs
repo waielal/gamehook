@@ -1,60 +1,24 @@
 ﻿using GameHook.Domain.DTOs;
 using GameHook.Domain.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace GameHook.Domain.Infrastructure
 {
     public class MapperFilesystemProvider : IMapperFilesystemProvider
     {
-        private ILogger<MapperFilesystemProvider> Logger { get; }
-
-        public string MapperFolder { get; }
-        public string? BinaryMapperFolder { get; }
+        private readonly AppSettings _appSettings;
 
         public IEnumerable<MapperFilesystemDTO> MapperFiles { get; private set; } = new List<MapperFilesystemDTO>();
 
-        public MapperFilesystemProvider(ILogger<MapperFilesystemProvider> logger, IConfiguration configuration)
+        public MapperFilesystemProvider(AppSettings appSettings)
         {
-            Logger = logger;
+            _appSettings = appSettings;
 
-            MapperFolder = Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
-            BinaryMapperFolder = GetCustomMappersFolder();
-
-            if (BuildEnvironment.IsDebug)
-            {
-                var alternativeMapperDirectory = configuration["ALTERNATIVE_MAPPER_DIRECTORY"];
-
-                if (string.IsNullOrEmpty(alternativeMapperDirectory) == false)
-                {
-                    MapperFolder = alternativeMapperDirectory;
-                }
-            }
-
-            RefreshMapperFiles();
+            CacheMapperFiles();
         }
 
-        public void RefreshMapperFiles()
+        public void CacheMapperFiles()
         {
             MapperFiles = GetAllMapperFiles();
-        }
-
-        private string? GetCustomMappersFolder()
-        {
-            var processPath = Path.GetDirectoryName(Environment.ProcessPath);
-            if (processPath == null)
-            {
-                Logger.LogWarning("Unable to determine the process path for executable. Cannot determine the custom mapper folder.");
-                return null;
-            }
-
-            var folder = Path.Combine(processPath, "Mappers");
-            if (Directory.Exists(folder) == false)
-            {
-                return null;
-            }
-
-            return folder;
         }
 
         private string GetId(MapperFilesystemTypes type, string filePath)
@@ -102,12 +66,12 @@ namespace GameHook.Domain.Infrastructure
         /// <returns></returns>
         private IEnumerable<MapperFilesystemDTO> GetAllMapperFiles()
         {
-            if (MapperFolder.Contains(".."))
+            if (_appSettings.MAPPER_DIRECTORY.Contains(".."))
             {
                 throw new Exception("Invalid characters in mapper folder path.");
             }
 
-            var mappers = new DirectoryInfo(MapperFolder)
+            var mappers = new DirectoryInfo(_appSettings.MAPPER_DIRECTORY)
                 .GetFiles("*.xml", SearchOption.AllDirectories)
                 .Select(x => new MapperFilesystemDTO()
                 {
@@ -118,14 +82,14 @@ namespace GameHook.Domain.Infrastructure
                 })
                 .ToList();
 
-            if (BinaryMapperFolder != null)
+            if (_appSettings.MAPPER_LOCAL_DIRECTORY != null)
             {
-                if (BinaryMapperFolder.Contains('.') || BinaryMapperFolder.Contains(".."))
+                if (_appSettings.MAPPER_LOCAL_DIRECTORY.Contains('.') || _appSettings.MAPPER_LOCAL_DIRECTORY.Contains(".."))
                 {
                     throw new Exception("Invalid characters in mapper folder path.");
                 }
 
-                var localMappers = new DirectoryInfo(BinaryMapperFolder)
+                var localMappers = new DirectoryInfo(_appSettings.MAPPER_LOCAL_DIRECTORY)
                     .GetFiles("*.xml", SearchOption.AllDirectories)
                     .Select(x => new MapperFilesystemDTO()
                     {

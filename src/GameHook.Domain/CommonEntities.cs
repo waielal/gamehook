@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace GameHook.Domain
+﻿namespace GameHook.Domain
 {
     public enum EndianTypes
     {
@@ -20,20 +18,6 @@ namespace GameHook.Domain
         public string Name { get; init; }
         public MemoryAddress StartingAddress { get; init; }
         public MemoryAddress EndingAddress { get; init; }
-    }
-
-    public class DriverOptions
-    {
-        public DriverOptions(IConfiguration configuration)
-        {
-            IpAddress = configuration.GetRequiredValue("DRIVER_LISTEN_IP_ADDRESS");
-            Port = int.Parse(configuration.GetRequiredValue("DRIVER_LISTEN_PORT"));
-            DriverTimeoutCounter = int.Parse(configuration.GetRequiredValue("DRIVER_TIMEOUT_COUNTER"));
-        }
-
-        public string IpAddress { get; }
-        public int Port { get; }
-        public int DriverTimeoutCounter { get; }
     }
 
     public class GlossaryList

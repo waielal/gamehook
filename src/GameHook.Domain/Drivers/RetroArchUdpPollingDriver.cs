@@ -1,4 +1,3 @@
-using GameHook.Domain.Implementations;
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -24,7 +23,7 @@ namespace GameHook.Domain.Drivers
     public class RetroArchUdpPollingDriver : IGameHookDriver, IRetroArchUdpPollingDriver
     {
         private ILogger<RetroArchUdpPollingDriver> Logger { get; }
-        private DriverOptions DriverOptions { get; }
+        private readonly AppSettings _appSettings;
         private UdpClient UdpClient { get; set; }
         private Dictionary<string, ReceivedPacket> Responses { get; set; } = new Dictionary<string, ReceivedPacket>();
 
@@ -39,13 +38,13 @@ namespace GameHook.Domain.Drivers
             // Create a new one.
             UdpClient = new UdpClient();
             UdpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            UdpClient.Connect(IPAddress.Parse(DriverOptions.IpAddress), DriverOptions.Port);
+            UdpClient.Connect(IPAddress.Parse(_appSettings.RETROARCH_LISTEN_IP_ADDRESS), _appSettings.RETROARCH_LISTEN_PORT);
         }
 
-        public RetroArchUdpPollingDriver(ILogger<RetroArchUdpPollingDriver> logger, DriverOptions driverOptions)
+        public RetroArchUdpPollingDriver(ILogger<RetroArchUdpPollingDriver> logger, AppSettings appSettings)
         {
             Logger = logger;
-            DriverOptions = driverOptions;
+            _appSettings = appSettings;
 
             CreateUdpClient();
             UdpClient = UdpClient ?? throw new Exception("Unable to load UDP client.");

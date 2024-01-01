@@ -15,22 +15,8 @@ using System.Text.Json.Serialization;
 
 namespace GameHook.WebAPI
 {
-    class AppSettings
-    {
-        public string Urls { get; init; } = string.Empty;
-        public bool OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM { get; init; }
-        public bool LOG_HTTP_TRAFFIC { get; set; } = false;
-    }
-
     public class Startup
     {
-        private AppSettings AppSettings { get; }
-
-        public Startup(IConfiguration configuration)
-        {
-            AppSettings = configuration.Get<AppSettings>() ?? throw new Exception("Unable to bind application settings to AppSettings.");
-        }
-
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
@@ -89,30 +75,24 @@ namespace GameHook.WebAPI
             });
 
             // Register application classes.
-            services.AddSingleton<DriverOptions>();
+            services.AddSingleton<AppSettings>();
+            services.AddSingleton<GameHookInstance>();
+            services.AddSingleton<ScriptConsole>();
             services.AddSingleton<IMapperFilesystemProvider, MapperFilesystemProvider>();
             services.AddSingleton<IMapperUpdateManager, MapperUpdateManager>();
             services.AddSingleton<IBizhawkMemoryMapDriver, BizhawkMemoryMapDriver>();
             services.AddSingleton<IRetroArchUdpPollingDriver, RetroArchUdpPollingDriver>();
             services.AddSingleton<IStaticMemoryDriver, StaticMemoryDriver>();
-            services.AddSingleton<GameHookInstance>();
-            services.AddSingleton<ScriptConsole>();
             services.AddSingleton<IClientNotifier, WebSocketClientNotifier>();
-
-            if (AppSettings.OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM)
-            {
-                services.AddSingleton<IClientNotifier, OutputPropertiesToFilesystem>();
-            }
         }
 
-        public void Configure(IApplicationBuilder app, ILogger<Startup> logger, IMapperUpdateManager updateManager)
+        public void Configure(IApplicationBuilder app, ILogger<Startup> logger, AppSettings appSettings, IMapperUpdateManager mapperUpdateManager)
         {
             if (BuildEnvironment.IsTestingBuild)
             {
                 logger.LogWarning("WARNING: This is a debug build for testing!");
                 logger.LogWarning("Please upgrade to the latest stable release.");
             }
-
 
             Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectory);
 
@@ -128,24 +108,39 @@ namespace GameHook.WebAPI
                 Directory.Delete(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, true);
             }
 
-            updateManager.CheckForUpdates().GetAwaiter().GetResult();
+            if (appSettings.AUTOMATIC_MAPPER_UPDATES)
+            {
+                mapperUpdateManager.CheckForUpdates().GetAwaiter().GetResult();
+            }
+            else
+            {
+                logger.LogInformation("Automatic mapper updates have been disabled via configuration.");
+            }
 
             logger.LogInformation($"GameHook version {BuildEnvironment.AssemblyProductVersion}.");
-            logger.LogInformation($"Mapper version {updateManager.MapperVersion}.");
+
+            if (appSettings.SET_CUSTOM_MAPPER_DIRECTORY)
+            {
+                logger.LogInformation("Mapper version is overwritten with a local filesystem path.");
+            }
+            else
+            {
+                logger.LogInformation($"Mapper version {mapperUpdateManager.MapperVersion}.");
+            }
 
             app.UseCors(x =>
-                        {
-                            x.SetIsOriginAllowed(x => true);
-                            x.AllowAnyMethod();
-                            x.AllowAnyHeader();
-                            x.AllowCredentials();
-                        });
+            {
+                x.SetIsOriginAllowed(x => true);
+                x.AllowAnyMethod();
+                x.AllowAnyHeader();
+                x.AllowCredentials();
+            });
 
             // Use Swagger
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            if (AppSettings.LOG_HTTP_TRAFFIC == true)
+            if (appSettings.LOG_HTTP_TRAFFIC == true)
             {
                 app.UseSerilogRequestLogging();
             }
@@ -179,12 +174,7 @@ namespace GameHook.WebAPI
             });
 
             logger.LogInformation("GameHook startup completed.");
-            logger.LogInformation($"UI is accessible at {string.Join(", ", AppSettings.Urls)}");
-
-            if (AppSettings.OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM)
-            {
-                logger.LogInformation("Outputting all properties to the filesystem.");
-            }
+            logger.LogInformation($"UI is accessible at {string.Join(", ", appSettings.Urls)}");
         }
     }
 }

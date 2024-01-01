@@ -27,7 +27,7 @@ namespace GameHook.WebAPI.Controllers
         [HttpGet("mappers")]
         public ActionResult<IEnumerable<MapperFileModel>> GetMapperFiles()
         {
-            MapperFilesystemProvider.RefreshMapperFiles();
+            MapperFilesystemProvider.CacheMapperFiles();
 
             return Ok(MapperFilesystemProvider.MapperFiles.Select(x => new MapperFileModel()
             {

@@ -1,21 +1,20 @@
 ﻿{
-  "DRIVER_LISTEN_IP_ADDRESS": "127.0.0.1",
-  "DRIVER_LISTEN_PORT": "55355",
-  "DRIVER_TIMEOUT_COUNTER": 10,
+  "RETROARCH_LISTEN_IP_ADDRESS": "127.0.0.1",
+  "RETROARCH_LISTEN_PORT": "55355",
+  "RETROARCH_TIMEOUT_COUNTER": 10,
 
-  "ALTERNATIVE_MAPPER_DIRECTORY": "C:\\Users\\Owner\\Desktop\\Repos\\gamehook-io\\mappers\\dist",
-
-  "OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM": false,
+  "SHOW_READ_LOOP_STATISTICS": false,
 
   "AUTOMATIC_MAPPER_UPDATES": false,
-  "CHECK_FOR_MAPPER_UPDATES_MINUTES": 1440,
+  "MAPPER_VERSION": "latest",
 
-  "OUTPUT_TRANSFORMED_MAPPER": false,
+  "MAPPER_DIRECTORY": "C:\\Users\\Owner\\Desktop\\Repos\\gamehook-io\\mappers\\dist",
 
   "LOG_HTTP_TRAFFIC": false,
 
   "Urls": "http://localhost:8085",
   "AllowedHosts": "*",
+
   "Serilog": {
     "Using": [ "Serilog.Sinks.Debug" ],
     "MinimumLevel": "Debug",

@@ -12,8 +12,8 @@ namespace GameHook.Application
 {
     public class GameHookInstance : IGameHookInstance
     {
-        private IConfiguration Configuration { get; }
-        private ILogger<GameHookInstance> Logger { get; }
+        private readonly ILogger<GameHookInstance> _logger;
+        private readonly AppSettings _appSettings;
         private ScriptConsole ScriptConsoleAdapter { get; }
         private CancellationTokenSource? ReadLoopToken { get; set; }
         private IMapperFilesystemProvider MapperFilesystemProvider { get; }
@@ -32,10 +32,10 @@ namespace GameHook.Application
         private bool DebugOutputMemoryLayoutToFilesystem { get; set; } = false;
 #endif
 
-        public GameHookInstance(IConfiguration configuration, ILogger<GameHookInstance> logger, ScriptConsole scriptConsoleAdapter, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
+        public GameHookInstance(ILogger<GameHookInstance> logger, AppSettings appSettings, ScriptConsole scriptConsoleAdapter, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
         {
-            Configuration = configuration;
-            Logger = logger;
+            _logger = logger;
+            _appSettings = appSettings;
             ScriptConsoleAdapter = scriptConsoleAdapter;
             MapperFilesystemProvider = provider;
             ClientNotifiers = clientNotifiers.ToList();
@@ -69,7 +69,7 @@ namespace GameHook.Application
 
         private async Task ReadLoop()
         {
-            if (Configuration.GetRequiredValue("SHOW_READ_LOOP_STATISTICS").ToLower() == "true")
+            if (_appSettings.SHOW_READ_LOOP_STATISTICS)
             {
                 while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
                 {
@@ -84,13 +84,13 @@ namespace GameHook.Application
 
                         var stateJson = JsonSerializer.Serialize(State);
                         var variablesJson = JsonSerializer.Serialize(Variables);
-                        Logger.LogInformation($"Stopwatch took {stopwatch.ElapsedMilliseconds} ms.\nGlobal State: {stateJson}\nGlobal Variables: {variablesJson}");
+                        _logger.LogInformation($"Stopwatch took {stopwatch.ElapsedMilliseconds} ms.\nGlobal State: {stateJson}\nGlobal Variables: {variablesJson}");
 
                         await Task.Delay(1);
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError(ex, "An error occured when read looping the mapper.");
+                        _logger.LogError(ex, "An error occured when read looping the mapper.");
 
                         await ResetState();
                     }
@@ -107,7 +107,7 @@ namespace GameHook.Application
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError(ex, "An error occured when read looping the mapper.");
+                        _logger.LogError(ex, "An error occured when read looping the mapper.");
 
                         await ResetState();
                     }
@@ -166,7 +166,7 @@ namespace GameHook.Application
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, $"Property {property.Path} failed to run processor.");
+                    _logger.LogError(ex, $"Property {property.Path} failed to run processor.");
                     throw new PropertyProcessException($"Property {property.Path} failed to run processor.", ex);
                 }
             }
@@ -192,7 +192,7 @@ namespace GameHook.Application
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, $"Could not send {propertiesChanged.Length} property change events.");
+                    _logger.LogError(ex, $"Could not send {propertiesChanged.Length} property change events.");
                     throw new PropertyProcessException($"Could not send {propertiesChanged.Length} property change events.", ex);
                 }
             }
@@ -204,7 +204,7 @@ namespace GameHook.Application
             {
                 await ResetState();
 
-                Logger.LogDebug("Creating GameHook mapper instance...");
+                _logger.LogDebug("Creating GameHook mapper instance...");
 
                 Driver = driver;
 
@@ -281,11 +281,11 @@ namespace GameHook.Application
                 ReadLoopToken = new CancellationTokenSource();
                 _ = Task.Run(ReadLoop, ReadLoopToken.Token);
 
-                Logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName} ({Mapper.Metadata.Id}).");
+                _logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName} ({Mapper.Metadata.Id}).");
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "An error occured when loading the mapper.");
+                _logger.LogError(ex, "An error occured when loading the mapper.");
 
                 await ResetState();
 
@@ -303,7 +303,7 @@ namespace GameHook.Application
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Javascript evalulate engine exception.");
+                _logger.LogError(ex, "Javascript evalulate engine exception.");
 
                 throw;
             }

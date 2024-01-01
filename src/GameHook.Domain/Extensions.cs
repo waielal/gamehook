@@ -50,16 +50,6 @@ namespace GameHook.Domain
             return string.Join("", words);
         }
 
-        public static string GetRequiredValue(this IConfiguration configuration, string key)
-        {
-            var value = configuration[key];
-
-            if (value == null) throw new Exception($"Configuration '{key}' is missing from appsettings.json");
-            if (string.IsNullOrWhiteSpace(value)) throw new Exception($"Configuration '{key}' is empty.");
-
-            return value;
-        }
-
         public static bool Between(this MemoryAddress value, MemoryAddress min, MemoryAddress max)
         {
             return value >= min && value <= max;
