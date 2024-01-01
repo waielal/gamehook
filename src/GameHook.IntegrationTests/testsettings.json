@@ -12,32 +12,21 @@
 
   "OUTPUT_TRANSFORMED_MAPPER": false,
 
-  "TESTING_MODE": true,
+  "LOG_HTTP_TRAFFIC": false,
 
   "Urls": "http://localhost:8085",
   "AllowedHosts": "*",
   "Serilog": {
-    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
-    "MinimumLevel": {
-      "Default": "Information",
-      "Override": {
-        "GameHook": "Information",
-        "Microsoft": "Warning",
-        "Serilog.AspNetCore.RequestLoggingMiddleware": "Warning",
-        "System.Net.Http.HttpClient": "Warning"
-      }
-    },
+    "Using": [ "Serilog.Sinks.Debug" ],
+    "MinimumLevel": "Debug",
     "WriteTo": [
       {
-        "Name": "Console",
+        "Name": "Debug",
         "Args": {
-          "OutputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] ({SourceContext}) {Message}{NewLine}{Exception}"
+          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}"
         }
       }
     ],
-    "Enrich": [ "FromLogContext" ],
-    "Properties": {
-      "Application": "GameHook"
-    }
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ]
   }
 }

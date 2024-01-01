@@ -21,8 +21,8 @@ namespace GameHook.IntegrationTests
         #region Gameboy Color
         [DataRow("gbc_pokemon_crystal", "gbc_pokemon_crystal_0")]
 
-        // TODO: Add Gold + Silver SRM combinations, should be expanded to 4.
-        [DataRow("gbc_pokemon_gold_silver", "gbc_pokemon_crystal_0")]
+        // TODO: Add Gold + Silver SRM combinations, should be expanded to 2.
+        [DataRow("gbc_pokemon_gold_silver", "gbc_pokemon_gold_0")]
 
         //[DataRow("gbc_zelda_links_awakening_dx", "gbc_pokemon_crystal_0")]
         #endregion

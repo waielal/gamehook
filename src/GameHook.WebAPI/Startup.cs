@@ -19,7 +19,7 @@ namespace GameHook.WebAPI
     {
         public string Urls { get; init; } = string.Empty;
         public bool OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM { get; init; }
-        public bool TESTING_MODE { get; set; } = false;
+        public bool LOG_HTTP_TRAFFIC { get; set; } = false;
     }
 
     public class Startup
@@ -145,7 +145,7 @@ namespace GameHook.WebAPI
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            if (AppSettings.TESTING_MODE == false)
+            if (AppSettings.LOG_HTTP_TRAFFIC == true)
             {
                 app.UseSerilogRequestLogging();
             }

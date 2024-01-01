@@ -61,7 +61,12 @@ namespace GameHook.IntegrationTests
         {
             var testConfiguration = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
 
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(testConfiguration)
+                .CreateLogger();
+
             Server = new HostBuilder()
+                .UseSerilog()
                 .ConfigureWebHost(host =>
                 {
                     host

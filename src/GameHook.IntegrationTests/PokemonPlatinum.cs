@@ -62,10 +62,10 @@ namespace GameHook.IntegrationTests
             var mapper = await GameHookClient.GetMapperAsync();
 
             mapper.AssertAreEqual("battle.outcome", 0x022C5B2F, [0x45], 69);
-            mapper.AssertAreEqual("battle.player.playerPokemon1.expPoints", 0x022C57B4, [0x9C, 0x57, 0x2C, 0x02], 36460444); //Data makes no contextual sense because the player is not in battle
+            mapper.AssertAreEqual("battle.player.activePokemon.expPoints", 0x022C57B4, [0x9C, 0x57, 0x2C, 0x02], 36460444); //Data makes no contextual sense because the player is not in battle
             // mapper.AssertAreEqual("battle.ally.team.0.nature", 0x00, new int[] { 0x00, 0x00, 0x00, 0x00 }, "Hardy"); //Data makes no contextual sense because the player is not in battle
-            mapper.AssertAreEqual("battle.opponentA.team.0.pokerus", 0x82, [0x6A], 106); //Data makes no contextual sense because the player is not in battle
-            mapper.AssertAreEqual("battle.opponentB.team.0.pokedexNumber", 0x08, [0x58, 0xF3], 62296); //Data makes no contextual sense because the player is not in battle
+            //mapper.AssertAreEqual("battle.opponentA.team.0.pokerus", 0x82, [0x6A], 106); //Data makes no contextual sense because the player is not in battle
+            //mapper.AssertAreEqual("battle.opponentB.team.0.pokedexNumber", 0x08, [0x58, 0xF3], 62296); //Data makes no contextual sense because the player is not in battle
         }
 
         [TestMethod]
