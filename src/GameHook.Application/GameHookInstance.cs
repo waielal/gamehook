@@ -303,7 +303,7 @@ namespace GameHook.Application
             }
             catch (Exception ex)
             {
-                Logger.LogError("Javascript evalulate engine exception.", ex);
+                Logger.LogError(ex, "Javascript evalulate engine exception.");
 
                 throw;
             }

@@ -89,6 +89,7 @@ namespace GameHook.Application
                             StaticValue = x.GetOptionalAttributeValue("value"),
                             ReadFunction = x.GetOptionalAttributeValue("read-function"),
                             WriteFunction = x.GetOptionalAttributeValue("write-function"),
+                            AfterReadValueExpression = x.GetOptionalAttributeValue("after-read-value-expression"),
                         };
 
                         if (type == "binaryCodedDecimal") return new BinaryCodedDecimalProperty(instance, variables);
@@ -192,7 +193,7 @@ namespace GameHook.Application
             var hasGlobalPreprocessor = scriptContents?.Contains("function preprocessor(") ?? false;
             var hasGlobalPostprocessor = scriptContents?.Contains("function postprocessor(") ?? false;
 
-            return new GameHookMapper(MapperFormats.XML, GetMetadata(doc), GetProperties(doc, instance), GetGlossary(doc), scriptContents, hasGlobalPreprocessor, hasGlobalPostprocessor);
+            return new GameHookMapper(GetMetadata(doc), GetProperties(doc, instance), GetGlossary(doc), scriptContents, hasGlobalPreprocessor, hasGlobalPostprocessor);
         }
     }
 }

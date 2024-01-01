@@ -1,7 +1,5 @@
 ﻿using GameHook.Domain;
 using GameHook.Domain.Interfaces;
-using GameHook.Domain.Preprocessors;
-using NCalc;
 
 namespace GameHook.Application.GameHookProperties
 {
@@ -127,47 +125,6 @@ namespace GameHook.Application.GameHookProperties
             byte[]? bytes = null;
             object? value;
 
-            // Yaml Preprocessors
-            if (Instance.Mapper.Format == MapperFormats.YAML && string.IsNullOrEmpty(MapperVariables.YamlPreprocessor) == false)
-            {
-                if (MapperVariables.YamlPreprocessor.Contains("data_block_a245dcac"))
-                {
-                    try
-                    {
-                        var baseAddress = address ?? throw new Exception($"Property {Path} does not have a base address.");
-
-                        var structureIndex = MapperVariables.YamlPreprocessor.GetIntParameterFromFunction(0);
-                        var offset = MapperVariables.YamlPreprocessor.GetIntParameterFromFunction(1);
-
-                        var preprocessorResult = Preprocessor_a245dcac.Read(memoryContainer, baseAddress, structureIndex, offset, MapperVariables.Length ?? 0);
-                        address = preprocessorResult.Address;
-                        bytes = preprocessorResult.DecryptedData;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Unable to process preprocessor {MapperVariables.YamlPreprocessor}.", ex);
-                    }
-                }
-                else if (MapperVariables.YamlPreprocessor.Contains("dma_967d10cc"))
-                {
-                    try
-                    {
-                        var memoryAddress = MapperVariables.YamlPreprocessor.GetMemoryAddressFromFunction(0);
-                        var offset = MapperVariables.YamlPreprocessor.GetIntParameterFromFunction(1);
-
-                        var dmaAddress = Preprocessor_967d10cc.Read(memoryContainer, memoryAddress, size: 4, offset);
-                        if (dmaAddress == null) { return; }
-
-                        address = dmaAddress;
-                        bytes = null;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Unable to process preprocessor {MapperVariables.YamlPreprocessor}.", ex);
-                    }
-                }
-            }
-
             if (MapperVariables.StaticValue != null)
             {
                 Value = MapperVariables.StaticValue;
@@ -203,11 +160,11 @@ namespace GameHook.Application.GameHookProperties
             {
                 if (string.IsNullOrEmpty(MapperVariables.MemoryContainer))
                 {
-                    bytes = memoryContainer.DefaultNamespace.GetBytes(address ?? 0x00, Length ?? 1).Data;
+                    bytes = memoryContainer.DefaultNamespace.get_bytes(address ?? 0x00, Length ?? 1).Data;
                 }
                 else
                 {
-                    bytes = memoryContainer.Namespaces[MapperVariables.MemoryContainer].GetBytes(address ?? 0x00, Length ?? 0).Data;
+                    bytes = memoryContainer.Namespaces[MapperVariables.MemoryContainer].get_bytes(address ?? 0x00, Length ?? 0).Data;
                 }
             }
 
@@ -240,25 +197,9 @@ namespace GameHook.Application.GameHookProperties
 
             value = ToValue(bytes);
 
-            if (string.IsNullOrEmpty(MapperVariables.ReadFunction) == false)
+            if (string.IsNullOrEmpty(MapperVariables.AfterReadValueExpression) == false)
             {
-                value = Instance.Evalulate(MapperVariables.ReadFunction, value, null);
-            }
-
-            // Yaml Postprocessor
-            if (Instance.Mapper.Format == MapperFormats.YAML && string.IsNullOrEmpty(MapperVariables.YamlPostprocessorReader) == false)
-            {
-                var postprocessorExpression = new Expression(MapperVariables.YamlPostprocessorReader);
-                postprocessorExpression.Parameters["x"] = value;
-
-                postprocessorExpression.EvaluateFunction += delegate (string name, FunctionArgs args)
-                {
-                    if (name == "BitRange")
-                        args.Result = NCalcFunctions.ReadBitRange((int)args.Parameters[0].Evaluate(),
-                            (int)args.Parameters[1].Evaluate(), (int)args.Parameters[2].Evaluate());
-                };
-
-                value = Convert.ToInt32(postprocessorExpression.Evaluate());
+                value = Instance.Evalulate(MapperVariables.AfterReadValueExpression, value, null);
             }
 
             // Reference lookup

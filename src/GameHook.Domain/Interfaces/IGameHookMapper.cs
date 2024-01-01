@@ -1,12 +1,5 @@
 ﻿namespace GameHook.Domain.Interfaces
 {
-    public enum MapperFormats
-    {
-        NONE,
-        YAML,
-        XML
-    }
-
     public class MapperMetadata
     {
         public Guid Id { get; init; } = Guid.Empty;
@@ -16,7 +9,6 @@
 
     public interface IGameHookMapper
     {
-        public MapperFormats Format { get; }
         MapperMetadata Metadata { get; }
         Dictionary<string, IGameHookProperty> Properties { get; }
         Dictionary<string, GlossaryList> Glossary { get; }

@@ -32,6 +32,8 @@ namespace GameHook.Domain.Infrastructure
         private const string GithubMapperUrl = "https://github.com/gamehook-io/mappers";
         private const string LatestReleaseUrl = "https://api.github.com/repos/gamehook-io/mappers/releases";
 
+        public string MapperVersion => MapperData?.LastLocalMapperVersion ?? string.Empty;
+
         public MapperUpdateManager(ILogger<MapperUpdateManager> logger, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             Logger = logger;
@@ -140,15 +142,10 @@ namespace GameHook.Domain.Infrastructure
 
                     if (MapperData.LastLocalMapperVersion != latestMapperRelease)
                     {
-                        Logger.LogInformation($"Downloading mappers updates from our source repository {GithubMapperUrl}.");
-
                         await DownloadMappers(httpClient, $"https://github.com/gamehook-io/mappers/releases/download/{latestMapperRelease}/dist.zip");
 
                         MapperData.LastLocalMapperVersion = latestMapperRelease;
                     }
-
-                    Logger.LogInformation("GameHook will periodically check for mapper updates and download them.");
-                    Logger.LogInformation("If you do not want this, please disable it in the configuration.");
 
                     MapperData.LastLocalApplicationVersion = latestVersion;
                     MapperData.LastCheckedDate = DateTime.UtcNow;

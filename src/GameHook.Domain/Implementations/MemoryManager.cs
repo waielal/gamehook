@@ -55,7 +55,7 @@ namespace GameHook.Domain.Implementations
 
         public bool Contains(MemoryAddress memoryAddress) => Fragments.Any(fragment => fragment.Contains(memoryAddress));
 
-        public IByteArray GetBytes(MemoryAddress memoryAddress, int length)
+        public IByteArray get_bytes(MemoryAddress memoryAddress, int length)
         {
             foreach (var fragment in Fragments)
             {
@@ -68,11 +68,7 @@ namespace GameHook.Domain.Implementations
 
             throw new ArgumentOutOfRangeException(nameof(memoryAddress), $"Memory address {memoryAddress.ToHexdecimalString()} is not contained in any fragment in the namespace.");
         }
-
-        public byte get_byte(MemoryAddress memoryAddress)
-        {
-            return GetBytes(memoryAddress, 1).get_byte(0);
-        }
+        public byte get_byte(MemoryAddress memoryAddress) => get_bytes(memoryAddress, 1).get_byte(0);
     }
 
     public class ByteArray : IByteArray

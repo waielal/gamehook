@@ -86,28 +86,28 @@ namespace GameHook.IntegrationTests
             });
         }
 
-        protected async Task Load_GB_PokemonRed(string mapperFileExtension = "xml", int n = 0)
+        protected async Task Load_GB_PokemonRed(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"gb_pokemon_red_blue_{n}.json");
-            await LoadMapper($"official_gb_pokemon_red_blue_{mapperFileExtension}");
+            await LoadMapper($"official_gb_pokemon_red_blue");
         }
 
-        protected async Task Load_GBC_PokemonCrystal(string mapperFileExtension = "xml", int n = 0)
+        protected async Task Load_GBC_PokemonCrystal(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"gbc_pokemon_crystal_{n}.json");
-            await LoadMapper($"official_gbc_pokemon_crystal_{mapperFileExtension}");
+            await LoadMapper($"official_gbc_pokemon_crystal");
         }
 
-        protected async Task Load_GBA_PokemonEmerald(string mapperFileExtension = "xml", int n = 0)
+        protected async Task Load_GBA_PokemonEmerald(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_emerald_{n}.json");
-            await LoadMapper($"official_gba_pokemon_emerald_{mapperFileExtension}");
+            await LoadMapper($"official_gba_pokemon_emerald");
         }
 
-        protected async Task Load_NDS_PokemonPlatinum(string mapperFileExtension = "xml", int n = 0)
+        protected async Task Load_NDS_PokemonPlatinum(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"nds_pokemon_platinum_{n}.json");
-            await LoadMapper($"official_nds_pokemon_platinum_{mapperFileExtension}");
+            await LoadMapper($"official_nds_pokemon_platinum");
         }
     }
 }

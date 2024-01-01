@@ -26,6 +26,8 @@
 
         public string? ReadFunction { get; set; }
         public string? WriteFunction { get; set; }
+
+        public string? AfterReadValueExpression { get; set; }
     }
 
     public interface IGameHookProperty

@@ -112,10 +112,7 @@ namespace GameHook.WebAPI
                 logger.LogWarning("WARNING: This is a debug build for testing!");
                 logger.LogWarning("Please upgrade to the latest stable release.");
             }
-            else
-            {
-                logger.LogInformation($"Starting GameHook version {BuildEnvironment.AssemblyProductVersion}.");
-            }
+
 
             Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectory);
 
@@ -133,13 +130,16 @@ namespace GameHook.WebAPI
 
             updateManager.CheckForUpdates().GetAwaiter().GetResult();
 
+            logger.LogInformation($"GameHook version {BuildEnvironment.AssemblyProductVersion}.");
+            logger.LogInformation($"Mapper version {updateManager.MapperVersion}.");
+
             app.UseCors(x =>
-            {
-                x.SetIsOriginAllowed(x => true);
-                x.AllowAnyMethod();
-                x.AllowAnyHeader();
-                x.AllowCredentials();
-            });
+                        {
+                            x.SetIsOriginAllowed(x => true);
+                            x.AllowAnyMethod();
+                            x.AllowAnyHeader();
+                            x.AllowCredentials();
+                        });
 
             // Use Swagger
             app.UseSwagger();
@@ -178,8 +178,8 @@ namespace GameHook.WebAPI
                 x.MapHub<UpdateHub>("/updates");
             });
 
-            logger.LogInformation("GameHook is now online.");
-            logger.LogInformation($"UI accessible via {string.Join(", ", AppSettings.Urls)}");
+            logger.LogInformation("GameHook startup completed.");
+            logger.LogInformation($"UI is accessible at {string.Join(", ", AppSettings.Urls)}");
 
             if (AppSettings.OUTPUT_ALL_PROPERTIES_TO_FILESYSTEM)
             {

@@ -5,17 +5,6 @@ using Microsoft.Extensions.Logging;
 
 namespace GameHook.Domain.Infrastructure
 {
-    static class MapperFilesystemHelper
-    {
-        public static IEnumerable<FileInfo> GetFilesByExtensions(this DirectoryInfo dir, params string[] extensions)
-        {
-            if (extensions == null) throw new ArgumentNullException("extensions");
-
-            IEnumerable<FileInfo> files = dir.EnumerateFiles("*", SearchOption.AllDirectories);
-            return files.Where(f => extensions.Contains(f.Extension));
-        }
-    }
-
     public class MapperFilesystemProvider : IMapperFilesystemProvider
     {
         private ILogger<MapperFilesystemProvider> Logger { get; }
@@ -68,19 +57,42 @@ namespace GameHook.Domain.Infrastructure
             return folder;
         }
 
-        private string GetId(MapperFilesystemTypes type, string directory, string filePath)
+        private string GetId(MapperFilesystemTypes type, string filePath)
         {
-            if (directory.Contains(".."))
+            if (filePath.Contains(".."))
             {
                 throw new Exception("Invalid characters in file path.");
             }
 
-            return $"{type}_{filePath.Replace(directory, string.Empty)[1..].Replace(".", "_").Replace("\\", "_")}".ToLower();
+            var pathParts = filePath.Split(Path.DirectorySeparatorChar);
+
+            var directory = pathParts.Length > 1 ? pathParts[pathParts.Length - 2] : "";
+            var filenameWithExtension = pathParts[pathParts.Length - 1];
+
+            var filenameWithoutExtension = Path.GetFileNameWithoutExtension(filenameWithExtension);
+
+            var formattedFilename = filenameWithoutExtension.Replace(' ', '_');
+
+            return $"{type}_{directory}_{formattedFilename}".ToLower();
         }
 
-        private string GetDisplayName(string directory, string filePath)
+        private string GetDisplayName(string filePath)
         {
-            return filePath.Replace(directory, string.Empty)[1..].Replace("\\", " - ");
+            if (filePath.Contains(".."))
+            {
+                throw new Exception("Invalid characters in file path.");
+            }
+
+            var pathParts = filePath.Split(Path.DirectorySeparatorChar);
+
+            var directory = pathParts.Length > 1 ? pathParts[pathParts.Length - 2] : "";
+            var filenameWithExtension = pathParts[pathParts.Length - 1];
+
+            var filenameWithoutExtension = Path.GetFileNameWithoutExtension(filenameWithExtension);
+
+            var formattedFilename = filenameWithoutExtension.Replace('_', ' ');
+
+            return $"({directory.ToUpper()}) {formattedFilename}";
         }
 
         /// <summary>
@@ -99,10 +111,10 @@ namespace GameHook.Domain.Infrastructure
                 .GetFiles("*.xml", SearchOption.AllDirectories)
                 .Select(x => new MapperFilesystemDTO()
                 {
-                    Id = GetId(MapperFilesystemTypes.Official, MapperFolder, x.FullName),
+                    Id = GetId(MapperFilesystemTypes.Official, x.FullName),
                     Type = MapperFilesystemTypes.Official,
                     AbsolutePath = x.FullName,
-                    DisplayName = $"{GetDisplayName(MapperFolder, x.FullName)}"
+                    DisplayName = $"{GetDisplayName(x.FullName)}"
                 })
                 .ToList();
 
@@ -117,10 +129,10 @@ namespace GameHook.Domain.Infrastructure
                     .GetFiles("*.xml", SearchOption.AllDirectories)
                     .Select(x => new MapperFilesystemDTO()
                     {
-                        Id = GetId(MapperFilesystemTypes.Local, BinaryMapperFolder, x.FullName),
+                        Id = GetId(MapperFilesystemTypes.Local, x.FullName),
                         Type = MapperFilesystemTypes.Local,
                         AbsolutePath = x.FullName,
-                        DisplayName = $"(Local) {GetDisplayName(BinaryMapperFolder, x.FullName)}"
+                        DisplayName = $"(Local) {GetDisplayName(x.FullName)}"
                     })
                     .ToList();
 
