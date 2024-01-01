@@ -146,7 +146,7 @@ namespace GameHook.Infrastructure
 
                 if (MapperData.LastLocalMapperVersion != wantedMapperRelease.tag_name)
                 {
-                    await DownloadMappers(httpClient, $"https://github.com/gamehook-io/mappers/releases/download/{wantedMapperRelease}/dist.zip");
+                    await DownloadMappers(httpClient, $"https://github.com/gamehook-io/mappers/releases/download/{wantedMapperRelease.tag_name}/dist.zip");
 
                     MapperData.LastLocalApplicationVersion = BuildEnvironment.AssemblyVersion;
                     MapperData.LastLocalMapperVersion = wantedMapperRelease.tag_name;
