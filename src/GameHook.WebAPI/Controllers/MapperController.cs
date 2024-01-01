@@ -118,16 +118,20 @@ namespace GameHook.WebAPI.Controllers
     [Route("mapper")]
     public class MapperController : ControllerBase
     {
+        private readonly ILogger<MapperController> _logger;
         public GameHookInstance Instance { get; }
         public readonly IBizhawkMemoryMapDriver _bizhawkMemoryMapDriver;
         public readonly IRetroArchUdpPollingDriver _retroArchUdpPollingDriver;
         public readonly IStaticMemoryDriver _staticMemoryDriver;
 
-        public MapperController(GameHookInstance gameHookInstance,
+        public MapperController(
+            ILogger<MapperController> logger,
+            GameHookInstance gameHookInstance,
             IBizhawkMemoryMapDriver bizhawkMemoryMapDriver,
             IRetroArchUdpPollingDriver retroArchUdpPollingDriver,
             IStaticMemoryDriver nullDriver)
         {
+            _logger = logger;
             Instance = gameHookInstance;
 
             _bizhawkMemoryMapDriver = bizhawkMemoryMapDriver;
@@ -184,14 +188,17 @@ namespace GameHook.WebAPI.Controllers
             }
             catch (PropertyProcessException ex)
             {
+                _logger.LogError(ex, "An error occured when loading the mapper.");
+
                 return StatusCode(500,
                     new ProblemDetails()
                     { Status = 500, Title = "An error occured when loading the mapper.", Detail = ex.Message });
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500,
-                    new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper." });
+                _logger.LogError(ex, "An error occured when loading the mapper.");
+
+                return StatusCode(500, new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper." });
             }
         }
 

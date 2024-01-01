@@ -15,7 +15,7 @@ flowchart TB
         ReadBytes["Read bytes from memory (if required)"] -->
 
         ReadValue[Set the value based off of type] -->
-        AfterReadValueExpression[js fn: read-function]:::js -->
+        AfterReadValueExpression[js fn: after-read-value-expression]:::js -->
 
         RefIsDefinedQ[/Reference is defined?/] 
         RefIsDefinedQ --> |Yes| RefIsDefinedQY[Set value to reference value] --> EndForEachProperty

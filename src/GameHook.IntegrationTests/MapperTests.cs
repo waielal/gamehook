@@ -10,18 +10,20 @@ namespace GameHook.IntegrationTests
         [TestMethod]
 
         #region Gameboy
-        // TODO: Add Red + Blue SRM combinations, should be expanded to 8.
+        [DataRow("deprecated_pokemon_red_blue_deprecated", "gb_pokemon_red_blue_0")]
         [DataRow("gb_pokemon_red_blue", "gb_pokemon_red_blue_0")]
         [DataRow("gb_pokemon_red_blue", "gbc_pokemon_red_blue_0")]
 
+        [DataRow("deprecated_pokemon_yellow_deprecated", "gbc_pokemon_red_blue_0")]
         [DataRow("gb_pokemon_yellow", "gb_pokemon_red_blue_0")]
         [DataRow("gb_pokemon_yellow", "gbc_pokemon_red_blue_0")]
         #endregion
 
         #region Gameboy Color
+        [DataRow("deprecated_pokemon_crystal_deprecated", "gbc_pokemon_crystal_0")]
         [DataRow("gbc_pokemon_crystal", "gbc_pokemon_crystal_0")]
 
-        // TODO: Add Gold + Silver SRM combinations, should be expanded to 2.
+        [DataRow("deprecated_pokemon_gold_silver_deprecated", "gbc_pokemon_gold_0")]
         [DataRow("gbc_pokemon_gold_silver", "gbc_pokemon_gold_0")]
 
         //[DataRow("gbc_zelda_links_awakening_dx", "gbc_pokemon_crystal_0")]
@@ -30,10 +32,13 @@ namespace GameHook.IntegrationTests
         #region Gameboy Advance
         //[DataRow("gba_metroid_fusion", "gba_pokemon_emerald_0")]
 
+        [DataRow("deprecated_pokemon_emerald_deprecated", "gba_pokemon_emerald_0")]
         [DataRow("gba_pokemon_emerald", "gba_pokemon_emerald_0")]
 
+        [DataRow("deprecated_pokemon_firered_leafgreen_deprecated", "gba_pokemon_emerald_0")]
         [DataRow("gba_pokemon_firered", "gba_pokemon_emerald_0")]
 
+        [DataRow("deprecated_pokemon_ruby_sapphire_deprecated", "gba_pokemon_emerald_0")]
         [DataRow("gba_pokemon_rubysapphire", "gba_pokemon_emerald_0")]
         #endregion
 
