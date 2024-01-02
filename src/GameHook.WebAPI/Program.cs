@@ -8,6 +8,7 @@ namespace GameHook.WebAPI
         public static void Main()
         {
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Production");
+            Environment.SetEnvironmentVariable("SERILOG_LOG_FILE_PATH", BuildEnvironment.LogFilePath);
 
             try
             {

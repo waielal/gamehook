@@ -55,6 +55,7 @@ namespace GameHook.WebAPI.Controllers
         public Guid Id { get; init; }
         public string GameName { get; init; } = string.Empty;
         public string GamePlatform { get; init; } = string.Empty;
+        public string MapperReleaseVersion { get; init; } = string.Empty;
     }
 
     public class GlossaryItemModel
@@ -119,6 +120,7 @@ namespace GameHook.WebAPI.Controllers
     {
         private readonly ILogger<MapperController> _logger;
         public GameHookInstance Instance { get; }
+        private readonly IMapperUpdateManager _mapperUpdateManager;
         public readonly IBizhawkMemoryMapDriver _bizhawkMemoryMapDriver;
         public readonly IRetroArchUdpPollingDriver _retroArchUdpPollingDriver;
         public readonly IStaticMemoryDriver _staticMemoryDriver;
@@ -126,13 +128,16 @@ namespace GameHook.WebAPI.Controllers
         public MapperController(
             ILogger<MapperController> logger,
             GameHookInstance gameHookInstance,
+            IMapperUpdateManager mapperUpdateManager,
             IBizhawkMemoryMapDriver bizhawkMemoryMapDriver,
             IRetroArchUdpPollingDriver retroArchUdpPollingDriver,
             IStaticMemoryDriver nullDriver)
         {
             _logger = logger;
+
             Instance = gameHookInstance;
 
+            _mapperUpdateManager = mapperUpdateManager;
             _bizhawkMemoryMapDriver = bizhawkMemoryMapDriver;
             _retroArchUdpPollingDriver = retroArchUdpPollingDriver;
             _staticMemoryDriver = nullDriver;
@@ -151,7 +156,8 @@ namespace GameHook.WebAPI.Controllers
                 {
                     Id = Instance.Mapper.Metadata.Id,
                     GameName = Instance.Mapper.Metadata.GameName,
-                    GamePlatform = Instance.Mapper.Metadata.GamePlatform
+                    GamePlatform = Instance.Mapper.Metadata.GamePlatform,
+                    MapperReleaseVersion = _mapperUpdateManager.MapperVersion
                 },
                 Properties = Instance.Mapper.Properties.Values.Select(x => x.MapToPropertyModel()).ToArray(),
                 Glossary = Instance.Mapper.Glossary.Values.MapToDictionaryGlossaryItemModel()
@@ -213,7 +219,8 @@ namespace GameHook.WebAPI.Controllers
             {
                 Id = meta.Id,
                 GameName = meta.GameName,
-                GamePlatform = meta.GamePlatform
+                GamePlatform = meta.GamePlatform,
+                MapperReleaseVersion = _mapperUpdateManager.MapperVersion
             };
 
             return Ok(model);
