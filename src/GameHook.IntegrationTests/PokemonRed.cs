@@ -14,9 +14,11 @@ namespace GameHook.IntegrationTests
 
             var mapper = await GameHookClient.GetMapperAsync();
 
-            mapper.AssertAreEqual("player.team.0.species", 0xD16B, new int[] { 0x15 }, "Mew");
-            mapper.AssertAreEqual("player.team.0.level", 0xD18C, new int[] { 0x64 }, 100);
-            mapper.AssertAreEqual("player.team.0.moves.0.move", 0xD173, new int[] { 0x9D }, "Rock Slide");
+            mapper.AssertAreEqual("player.team.0.species", 0xD16B, [0x15], "Mew");
+            mapper.AssertAreEqual("player.team.0.level", 0xD18C, [0x64], 100);
+            mapper.AssertAreEqual("player.team.0.moves.0.move", 0xD173, [0x9D], "Rock Slide");
+            mapper.AssertAreEqual("player.team.0.moves.0.pp", 0xD188, [0xD0], 16);
+            mapper.AssertAreEqual("player.team.0.moves.0.ppUp", 0xD188, [0xD0], 3);
         }
 
     }
