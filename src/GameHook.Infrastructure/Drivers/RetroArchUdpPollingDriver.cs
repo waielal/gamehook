@@ -26,9 +26,7 @@ namespace GameHook.Infrastructure.Drivers
         private ILogger<RetroArchUdpPollingDriver> Logger { get; }
         private readonly AppSettings _appSettings;
         private UdpClient UdpClient { get; set; }
-        private Dictionary<string, ReceivedPacket> Responses { get; set; } = new Dictionary<string, ReceivedPacket>();
-
-        private const int READ_PACKET_TIMEOUT_MS = 64;
+        private Dictionary<string, ReceivedPacket> Responses { get; set; } = [];
         public string ProperName { get; } = "RetroArch";
 
         void CreateUdpClient()
@@ -137,7 +135,7 @@ namespace GameHook.Infrastructure.Drivers
                 readCoreMemoryResult = result;
 
                 return readCoreMemoryResult != null;
-            }, TimeSpan.FromMilliseconds(READ_PACKET_TIMEOUT_MS));
+            }, TimeSpan.FromMilliseconds(_appSettings.RETROARCH_READ_PACKET_TIMEOUT_MS));
 
             if (readCoreMemoryResult == null)
             {

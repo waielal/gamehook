@@ -6,6 +6,7 @@ namespace GameHook.Domain
 {
     public static class Extensions
     {
+        public static string ToHexdecimalString(this int value) => $"0x{value:X2}";
         public static string ToHexdecimalString(this MemoryAddress value) => $"0x{value:X2}";
         public static string ToHexdecimalString(this byte value) => ((uint)value).ToHexdecimalString();
         public static string ToHexdecimalString(this IEnumerable<int> value, string joinCharacter = " ") => string.Join(joinCharacter, value.Select(x => ((uint)x).ToHexdecimalString()));

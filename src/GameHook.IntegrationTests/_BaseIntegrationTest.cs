@@ -27,7 +27,7 @@ namespace GameHook.IntegrationTests
             var actual = mapper.Properties.SingleOrDefault(x => x.Path == path)
                 ?? throw new Exception($"Unable to find property '{path}'.");
 
-            Assert.AreEqual(expectedAddress, actual.Address);
+            Assert.AreEqual(expectedAddress.ToHexdecimalString(), actual.Address?.ToHexdecimalString());
             Assert.AreEqual(expectedBytes.ToHexdecimalString(", "), actual.Bytes.ToHexdecimalString(", "));
             Assert.AreEqual(expectedValue?.ToString(), actual.Value?.ToString());
         }

@@ -21,6 +21,7 @@ namespace GameHook.Domain
 
             RETROARCH_LISTEN_IP_ADDRESS = configuration.GetRequiredValue("RETROARCH_LISTEN_IP_ADDRESS");
             RETROARCH_LISTEN_PORT = int.Parse(configuration.GetRequiredValue("RETROARCH_LISTEN_PORT"));
+            RETROARCH_READ_PACKET_TIMEOUT_MS = int.Parse(configuration.GetRequiredValue("RETROARCH_READ_PACKET_TIMEOUT_MS"));
             RETROARCH_TIMEOUT_COUNTER = int.Parse(configuration.GetRequiredValue("RETROARCH_TIMEOUT_COUNTER"));
 
             SHOW_READ_LOOP_STATISTICS = bool.Parse(configuration.GetRequiredValue("SHOW_READ_LOOP_STATISTICS"));
@@ -57,6 +58,7 @@ namespace GameHook.Domain
 
         public string RETROARCH_LISTEN_IP_ADDRESS { get; }
         public int RETROARCH_LISTEN_PORT { get; }
+        public int RETROARCH_READ_PACKET_TIMEOUT_MS { get; }
         public int RETROARCH_TIMEOUT_COUNTER { get; }
 
         public bool SHOW_READ_LOOP_STATISTICS { get; }

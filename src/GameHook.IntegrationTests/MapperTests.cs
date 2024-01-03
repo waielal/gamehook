@@ -39,7 +39,7 @@ namespace GameHook.IntegrationTests
         [DataRow("gba_pokemon_firered", "gba_pokemon_emerald_0")]
 
         [DataRow("deprecated_pokemon_ruby_sapphire_deprecated", "gba_pokemon_emerald_0")]
-        [DataRow("gba_pokemon_rubysapphire", "gba_pokemon_emerald_0")]
+        [DataRow("gba_pokemon_ruby_sapphire", "gba_pokemon_emerald_0")]
         #endregion
 
         #region Nintendo 64

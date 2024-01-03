@@ -20,10 +20,10 @@ namespace GameHook.IntegrationTests
 
             var mapper = await GameHookClient.GetMapperAsync();
 
-            mapper.AssertAreEqual("gameTime.hours", 0x02024ADA, new int[] { 0x09 }, 9);
-            mapper.AssertAreEqual("gameTime.minutes", 0x02024ADC, new int[] { 0x16 }, 22);
-            mapper.AssertAreEqual("gameTime.seconds", 0x02024ADD, new int[] { 0x1A }, 26);
-            mapper.AssertAreEqual("gameTime.frames", 0x02024ADE, new int[] { 0x14 }, 20);
+            mapper.AssertAreEqual("gameTime.hours", 0x02024ADA, [0x09], 9);
+            mapper.AssertAreEqual("gameTime.minutes", 0x02024ADC, [0x16], 22);
+            mapper.AssertAreEqual("gameTime.seconds", 0x02024ADD, [0x1A], 26);
+            mapper.AssertAreEqual("gameTime.frames", 0x02024ADE, [0x14], 20);
         }
 
         [TestMethod]
@@ -34,9 +34,9 @@ namespace GameHook.IntegrationTests
 
             var mapper = await GameHookClient.GetMapperAsync();
 
-            mapper.AssertAreEqual("player.team.0.species", 0x20, new int[] { 0x42, 0x01 }, "Sableye");
-            mapper.AssertAreEqual("player.team.0.level", 0x54, new int[] { 0x50 }, 80);
-            mapper.AssertAreEqual("player.team.0.moves.0.move", 0x2C, new int[] { 0xED, 0x00 }, "Hidden Power");
+            mapper.AssertAreEqual("player.team.0.species", 0x20, [0x42, 0x01], "Sableye");
+            mapper.AssertAreEqual("player.team.0.level", 0x54, [0x50], 80);
+            mapper.AssertAreEqual("player.team.0.moves.0.move", 0x2C, [0xED, 0x00], "Hidden Power");
         }
 
     }
