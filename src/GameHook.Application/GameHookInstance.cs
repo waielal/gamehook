@@ -175,7 +175,7 @@ namespace GameHook.Application
             {
                 if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
 
-                GlobalScriptEngine.Evaluate("postprocessor").ToObject();
+                GlobalScriptEngine.Invoke("postprocessor");
             }
 
             // Fields Changed
