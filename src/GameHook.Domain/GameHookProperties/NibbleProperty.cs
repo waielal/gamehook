@@ -9,6 +9,9 @@ namespace GameHook.Domain.GameHookProperties
         LeastSignificant
     }
 
+    /// <summary>
+    /// TODO: DELETE THIS LATER.
+    /// </summary>
     public class NibbleProperty : BaseProperty, IGameHookProperty
     {
         public NibblePosition NewPosition { get; }

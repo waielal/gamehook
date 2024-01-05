@@ -13,6 +13,7 @@ namespace GameHook.Domain.GameHookProperties
             Length = MapperVariables.Length;
             SetAddress(MapperVariables.Address);
             Position = MapperVariables.Position;
+            Nibble = MapperVariables.Nibble;
             Reference = MapperVariables.Reference;
             Value = MapperVariables.StaticValue;
             Description = MapperVariables.Description;
@@ -59,6 +60,7 @@ namespace GameHook.Domain.GameHookProperties
         public string Type { get; }
         public int? Length { get; }
         public int? Position { get; }
+        public string? Nibble { get; }
         public string? Reference { get; }
 
         public bool IsReadOnly => Address == null;
@@ -182,6 +184,34 @@ namespace GameHook.Domain.GameHookProperties
             {
                 throw new Exception(
                     $"Unable to retrieve bytes for property '{Path}' at address {Address?.ToHexdecimalString()}. Is the address within the drivers' memory address block ranges?");
+            }
+
+            if (bytes.Length == 0)
+            {
+                throw new Exception(
+                  $"Unable to retrieve bytes for property '{Path}' at address {Address?.ToHexdecimalString()}. A byte array length of zero was returned?");
+            }
+
+            if (string.IsNullOrEmpty(Nibble) == false)
+            {
+                if (Nibble == "high")
+                {
+                    for (int i = 0; i < bytes.Length; i++)
+                    {
+                        bytes[i] &= 0xF0;
+                    }
+                }
+                else if (Nibble == "low")
+                {
+                    for (int i = 0; i < bytes.Length; i++)
+                    {
+                        bytes[i] &= 0x0F;
+                    }
+                }
+                else
+                {
+                    throw new Exception($"Invalid nibble option provided: {Nibble}.");
+                }
             }
 
             if (address != null && BytesFrozen != null && bytes.SequenceEqual(BytesFrozen) == false)

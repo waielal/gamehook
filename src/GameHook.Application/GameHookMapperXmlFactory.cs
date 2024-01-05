@@ -84,6 +84,7 @@ namespace GameHook.Application
                             Length = x.GetOptionalAttributeValueAsInt("length") ?? 1,
                             Size = x.GetOptionalAttributeValueAsInt("size") ?? 1,
                             Position = x.GetOptionalAttributeValueAsInt("position"),
+                            Nibble = x.GetOptionalAttributeValue("nibble"),
                             Reference = x.GetOptionalAttributeValue("reference"),
                             Description = x.GetOptionalAttributeValue("description"),
                             StaticValue = x.GetOptionalAttributeValue("value"),

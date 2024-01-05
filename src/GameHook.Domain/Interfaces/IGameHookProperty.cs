@@ -15,6 +15,7 @@
         public int? Length { get; set; } = 1;
         public int? Size { get; set; }
         public int? Position { get; set; }
+        public string? Nibble { get; set; }
         public string? Reference { get; set; }
         public string? Description { get; set; }
 
@@ -39,6 +40,7 @@
         string Type { get; }
         int? Length { get; }
         uint? Address { get; }
+        string? Nibble { get; }
 
         int? Position { get; }
 
