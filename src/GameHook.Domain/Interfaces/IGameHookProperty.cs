@@ -58,7 +58,7 @@
 
         void ProcessLoop(IMemoryManager container);
 
-        Task<byte[]> WriteValue(string value, bool? freeze);
+        Task WriteValue(string value, bool? freeze);
         Task WriteBytes(byte[] bytes, bool? freeze);
 
         Task FreezeProperty(byte[] bytesFrozen);

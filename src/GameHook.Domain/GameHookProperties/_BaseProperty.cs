@@ -121,6 +121,14 @@ namespace GameHook.Domain.GameHookProperties
             if (Instance.Mapper == null) { throw new Exception("Instance.Mapper is NULL."); }
             if (Instance.Driver == null) { throw new Exception("Instance.Driver is NULL."); }
 
+            if (string.IsNullOrEmpty(MapperVariables.ReadFunction) == false)
+            {
+                // They want to do it themselves entirely in Javascript.
+                Instance.Evalulate(MapperVariables.ReadFunction, this, null);
+
+                return;
+            }
+
             MemoryAddress? address = Address;
             byte[]? previousBytes = Bytes;
             byte[]? bytes = null;
@@ -264,10 +272,17 @@ namespace GameHook.Domain.GameHookProperties
             }
         }
 
-        public async Task<byte[]> WriteValue(string value, bool? freeze)
+        public async Task WriteValue(string value, bool? freeze)
         {
-            byte[] bytes;
+            if (string.IsNullOrEmpty(MapperVariables.WriteFunction) == false)
+            {
+                // They want to do it themselves entirely in Javascript.
+                Instance.Evalulate(MapperVariables.WriteFunction, this, null);
 
+                return;
+            }
+
+            byte[] bytes;
             if (ShouldRunReferenceTransformer)
             {
                 if (Glossary == null)
@@ -282,17 +297,7 @@ namespace GameHook.Domain.GameHookProperties
                 bytes = FromValue(value);
             }
 
-            /*
-            if (string.IsNullOrEmpty(MapperVariables.WriteFunction) == false)
-            {
-                var result = Instance.Evalulate(MapperVariables.WriteFunction, bytes, Bytes);
-                bytes = result as byte[] ?? throw new Exception("Write expression did not return a byte array.");
-            }
-            */
-
             await WriteBytes(bytes, freeze);
-
-            return bytes;
         }
 
         public async Task WriteBytes(byte[] bytes, bool? freeze)
