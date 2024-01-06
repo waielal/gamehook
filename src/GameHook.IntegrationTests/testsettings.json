@@ -1,32 +1,32 @@
 ﻿{
-  "RETROARCH_LISTEN_IP_ADDRESS": "127.0.0.1",
-  "RETROARCH_LISTEN_PORT": "55355",
-  "RETROARCH_READ_PACKET_TIMEOUT_MS": 75,
-  "RETROARCH_TIMEOUT_COUNTER": 5,
+    "RETROARCH_LISTEN_IP_ADDRESS": "127.0.0.1",
+    "RETROARCH_LISTEN_PORT": "55355",
+    "RETROARCH_READ_PACKET_TIMEOUT_MS": 75,
+    "RETROARCH_TIMEOUT_COUNTER": 5,
 
-  "SHOW_READ_LOOP_STATISTICS": false,
+    "SHOW_READ_LOOP_STATISTICS": false,
 
-  "AUTOMATIC_MAPPER_UPDATES": false,
-  "MAPPER_VERSION": "latest",
+    "AUTOMATIC_MAPPER_UPDATES": false,
+    "MAPPER_VERSION": "latest",
 
-  "MAPPER_DIRECTORY": "C:\\Users\\Owner\\Desktop\\Repos\\gamehook-io\\mappers\\dist",
+    "MAPPER_DIRECTORY": "C:\\Users\\scott\\OneDrive\\Documents\\github-mappers\\dist",
 
-  "LOG_HTTP_TRAFFIC": false,
+    "LOG_HTTP_TRAFFIC": false,
 
-  "Urls": "http://localhost:8085",
-  "AllowedHosts": "*",
+    "Urls": "http://localhost:8085",
+    "AllowedHosts": "*",
 
-  "Serilog": {
-    "Using": [ "Serilog.Sinks.Debug" ],
-    "MinimumLevel": "Debug",
-    "WriteTo": [
-      {
-        "Name": "Debug",
-        "Args": {
-          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}"
-        }
-      }
-    ],
-    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ]
-  }
+    "Serilog": {
+        "Using": [ "Serilog.Sinks.Debug" ],
+        "MinimumLevel": "Debug",
+        "WriteTo": [
+            {
+                "Name": "Debug",
+                "Args": {
+                    "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}"
+                }
+            }
+        ],
+        "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ]
+    }
 }

@@ -31,6 +31,26 @@ namespace GameHook.IntegrationTests
             Assert.AreEqual(expectedBytes.ToHexdecimalString(", "), actual.Bytes.ToHexdecimalString(", "));
             Assert.AreEqual(expectedValue?.ToString(), actual.Value?.ToString());
         }
+        //Properties with only values
+        public static void AssertAreEqual(this MapperModel mapper, string path, object? expectedValue)
+        {
+            if (mapper == null) { throw new Exception("Mapper cannot be NULL."); }
+
+            var actual = mapper.Properties.SingleOrDefault(x => x.Path == path)
+                ?? throw new Exception($"Unable to find property '{path}'.");
+
+            Assert.AreEqual(expectedValue?.ToString(), actual.Value?.ToString());
+        }
+        //DMA properties that have byte values but no address
+        public static void AssertAreEqual(this MapperModel mapper, string path, int[] expectedBytes, object? expectedValue)
+        {
+            if (mapper == null) { throw new Exception("Mapper cannot be NULL."); }
+
+            var actual = mapper.Properties.SingleOrDefault(x => x.Path == path)
+                ?? throw new Exception($"Unable to find property '{path}'.");
+
+            Assert.AreEqual(expectedValue?.ToString(), actual.Value?.ToString());
+        }
     }
 
     public static class GameHookAssert
@@ -97,16 +117,40 @@ namespace GameHook.IntegrationTests
             await LoadMapper($"official_gb_pokemon_red_blue");
         }
 
+        protected async Task Load_GB_PokemonYellow(int n = 0)
+        {
+            await StaticMemoryDriver.SetMemoryFragment($"gb_pokemon_yellow_{n}.json");
+            await LoadMapper($"official_gb_pokemon_yellow");
+        }
+
+        protected async Task Load_GBC_PokemonGold(int n = 0)
+        {
+            await StaticMemoryDriver.SetMemoryFragment($"gbc_pokemon_gold_silver_{n}.json");
+            await LoadMapper($"official_gbc_pokemon_gold_silver");
+        }
+
         protected async Task Load_GBC_PokemonCrystal(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"gbc_pokemon_crystal_{n}.json");
             await LoadMapper($"official_gbc_pokemon_crystal");
         }
 
+        protected async Task Load_GBA_PokemonRuby(int n = 0)
+        {
+            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_ruby_{n}.json");
+            await LoadMapper($"official_gba_pokemon_ruby");
+        }
+
         protected async Task Load_GBA_PokemonEmerald(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_emerald_{n}.json");
             await LoadMapper($"official_gba_pokemon_emerald");
+        }
+
+        protected async Task Load_GBA_PokemonFireRed(int n = 0)
+        {
+            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_firered_{n}.json");
+            await LoadMapper($"official_gba_pokemon_firered");
         }
 
         protected async Task Load_NDS_PokemonPlatinum(int n = 0)
