@@ -68,6 +68,8 @@ namespace GameHook.Application
 
         private async Task ReadLoop()
         {
+            if (Driver == null) throw new Exception("Driver is null.");
+
             if (_appSettings.SHOW_READ_LOOP_STATISTICS)
             {
                 while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
@@ -85,7 +87,7 @@ namespace GameHook.Application
                         var variablesJson = JsonSerializer.Serialize(Variables);
                         _logger.LogInformation($"Stopwatch took {stopwatch.ElapsedMilliseconds} ms.\nGlobal State: {stateJson}\nGlobal Variables: {variablesJson}");
 
-                        await Task.Delay(1);
+                        await Task.Delay(Driver.DelayMsBetweenReads);
                     }
                     catch (Exception ex)
                     {
@@ -102,7 +104,8 @@ namespace GameHook.Application
                     try
                     {
                         await Read();
-                        await Task.Delay(1);
+
+                        await Task.Delay(Driver.DelayMsBetweenReads);
                     }
                     catch (Exception ex)
                     {

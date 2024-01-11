@@ -8,6 +8,7 @@ namespace GameHook.Infrastructure.Drivers
     public class StaticMemoryDriver : IStaticMemoryDriver
     {
         public string ProperName => "StaticMemory";
+        public int DelayMsBetweenReads { get; } = 25;
 
         private readonly ILogger<StaticMemoryDriver> _logger;
         private Dictionary<uint, byte[]> MemoryFragmentLayout { get; set; } = [];

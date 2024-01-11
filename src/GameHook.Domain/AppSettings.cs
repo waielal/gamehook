@@ -22,9 +22,11 @@ namespace GameHook.Domain
             RETROARCH_LISTEN_IP_ADDRESS = configuration.GetRequiredValue("RETROARCH_LISTEN_IP_ADDRESS");
             RETROARCH_LISTEN_PORT = int.Parse(configuration.GetRequiredValue("RETROARCH_LISTEN_PORT"));
             RETROARCH_READ_PACKET_TIMEOUT_MS = int.Parse(configuration.GetRequiredValue("RETROARCH_READ_PACKET_TIMEOUT_MS"));
-            RETROARCH_TIMEOUT_COUNTER = int.Parse(configuration.GetRequiredValue("RETROARCH_TIMEOUT_COUNTER"));
+            RETROARCH_DELAY_MS_BETWEEN_READS = int.Parse(configuration.GetRequiredValue("RETROARCH_DELAY_MS_BETWEEN_READS"));
 
-            SHOW_READ_LOOP_STATISTICS = bool.Parse(configuration.GetRequiredValue("SHOW_READ_LOOP_STATISTICS"));
+            RETROARCH_DELAY_MS_BETWEEN_READS = int.Parse(configuration.GetRequiredValue("RETROARCH_DELAY_MS_BETWEEN_READS"));
+
+            BIZHAWK_DELAY_MS_BETWEEN_READS = int.Parse(configuration.GetRequiredValue("BIZHAWK_DELAY_MS_BETWEEN_READS"));
 
             AUTOMATIC_MAPPER_UPDATES = bool.Parse(configuration.GetRequiredValue("AUTOMATIC_MAPPER_UPDATES"));
             MAPPER_VERSION = configuration.GetRequiredValue("MAPPER_VERSION");
@@ -59,7 +61,9 @@ namespace GameHook.Domain
         public string RETROARCH_LISTEN_IP_ADDRESS { get; }
         public int RETROARCH_LISTEN_PORT { get; }
         public int RETROARCH_READ_PACKET_TIMEOUT_MS { get; }
-        public int RETROARCH_TIMEOUT_COUNTER { get; }
+        public int RETROARCH_DELAY_MS_BETWEEN_READS { get; }
+
+        public int BIZHAWK_DELAY_MS_BETWEEN_READS { get; }
 
         public bool SHOW_READ_LOOP_STATISTICS { get; }
 

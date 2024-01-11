@@ -23,11 +23,13 @@ namespace GameHook.Infrastructure.Drivers
 
     public class RetroArchUdpPollingDriver : IGameHookDriver, IRetroArchUdpPollingDriver
     {
+        public string ProperName { get; } = "RetroArch";
+        public int DelayMsBetweenReads { get; }
+
         private ILogger<RetroArchUdpPollingDriver> Logger { get; }
         private readonly AppSettings _appSettings;
         private UdpClient UdpClient { get; set; }
         private Dictionary<string, ReceivedPacket> Responses { get; set; } = [];
-        public string ProperName { get; } = "RetroArch";
 
         void CreateUdpClient()
         {
@@ -47,6 +49,8 @@ namespace GameHook.Infrastructure.Drivers
 
             CreateUdpClient();
             UdpClient = UdpClient ?? throw new Exception("Unable to load UDP client.");
+
+            DelayMsBetweenReads = appSettings.RETROARCH_DELAY_MS_BETWEEN_READS;
 
             // Wait for messages from the UdpClient.
             Task.Run(async () =>

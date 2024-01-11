@@ -9,12 +9,18 @@ namespace GameHook.Infrastructure.Drivers
     public class BizhawkMemoryMapDriver : IGameHookDriver, IBizhawkMemoryMapDriver
     {
         public string ProperName => "Bizhawk";
+        public int DelayMsBetweenReads { get; }
 
         private int IntegrationVersion;
         private string SystemName = string.Empty;
 
         private const int METADATA_LENGTH = 32;
         private const int DATA_Length = 4 * 1024 * 1024;
+
+        public BizhawkMemoryMapDriver(AppSettings appSettings)
+        {
+            DelayMsBetweenReads = appSettings.BIZHAWK_DELAY_MS_BETWEEN_READS;
+        }
 
         string GetStringFromBytes(byte[] data)
         {

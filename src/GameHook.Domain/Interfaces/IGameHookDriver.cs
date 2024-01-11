@@ -10,6 +10,8 @@ namespace GameHook.Domain.Interfaces
     {
         string ProperName { get; }
 
+        int DelayMsBetweenReads { get; }
+
         Task EstablishConnection();
 
         Task<Dictionary<uint, byte[]>> ReadBytes(IEnumerable<MemoryAddressBlock> blocks);
