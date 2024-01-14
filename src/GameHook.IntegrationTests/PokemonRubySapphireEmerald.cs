@@ -187,8 +187,8 @@ namespace GameHook.IntegrationTests
             var mapper = await GameHookClient.GetMapperAsync();
 
             mapper.AssertAreEqual("battle.outcome", null);
-            mapper.AssertAreEqual("battle.battle_flags.trainer", 0x02022FEC, [0x0D, 0x00, 0x00, 0x00], true);
-            mapper.AssertAreEqual("battle.battle_flags.is_battle", 0x02022FEC, [0x0D, 0x00, 0x00, 0x00], true);
+            mapper.AssertAreEqual("battle.flags.trainer", 0x02022FEC, [0x0D, 0x00, 0x00, 0x00], true);
+            mapper.AssertAreEqual("battle.flags.is_battle", 0x02022FEC, [0x0D, 0x00, 0x00, 0x00], true);
             mapper.AssertAreEqual("battle.field.weather", 0x020243CC, [0x00], null);
             mapper.AssertAreEqual("battle.field.weather_count", 0x020243F8, [0x00], 0);
             mapper.AssertAreEqual("battle.player.team_count", 0x020244E9, [0x03], 3);

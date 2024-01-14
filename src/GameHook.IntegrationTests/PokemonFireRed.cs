@@ -137,8 +137,8 @@ namespace GameHook.IntegrationTests
             var mapper = await GameHookClient.GetMapperAsync();
 
             mapper.AssertAreEqual("battle.outcome", null);
-            mapper.AssertAreEqual("battle.battle_flags.trainer", 0x02022B4C, [0x0C, 0x00, 0x00, 0x00], true);
-            mapper.AssertAreEqual("battle.battle_flags.double", 0x02022B4C, [0x0C, 0x00, 0x00, 0x00], false);
+            mapper.AssertAreEqual("battle.flags.trainer", 0x02022B4C, [0x0C, 0x00, 0x00, 0x00], true);
+            mapper.AssertAreEqual("battle.flags.double", 0x02022B4C, [0x0C, 0x00, 0x00, 0x00], false);
             mapper.AssertAreEqual("battle.field.weather", 0x02023F1C, [0x00], null);
             mapper.AssertAreEqual("battle.field.weather_count", 0x02023F48, [0x00], 0);
             // mapper.AssertAreEqual("battle.player.active_pokemon.species", 0x02024084, [0x18, 0x01], "Torchic");

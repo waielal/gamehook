@@ -158,6 +158,11 @@ namespace GameHook.IntegrationTests
             await StaticMemoryDriver.SetMemoryFragment($"nds_pokemon_platinum_{n}.json");
             await LoadMapper($"official_nds_pokemon_platinum");
         }
+        protected async Task Load_NDS_PokemonHeartGold(int n = 0)
+        {
+            await StaticMemoryDriver.SetMemoryFragment($"nds_pokemon_heartgold_{n}.json");
+            await LoadMapper($"official_nds_pokemon_heartgold_soulsilver");
+        }
 
         //Depreacted mappers
         protected async Task Load_GB_PokemonRedDeprecated(int n = 0)

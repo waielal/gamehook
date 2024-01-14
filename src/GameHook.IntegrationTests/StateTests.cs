@@ -284,5 +284,33 @@ namespace GameHook.IntegrationTests
 
             mapper.AssertAreEqual("meta.state", "Battle");
         }
+        //HeartGold State Tests
+        [TestMethod]
+        public async Task HeartGold_State_NoPkmn_OK()
+        {
+            await Load_NDS_PokemonHeartGold(2);
+
+            var mapper = await GameHookClient.GetMapperAsync();
+
+            mapper.AssertAreEqual("meta.state", "No Pokemon");
+        }
+        [TestMethod]
+        public async Task HeartGold_State_Overworld_OK()
+        {
+            await Load_NDS_PokemonHeartGold(1);
+
+            var mapper = await GameHookClient.GetMapperAsync();
+
+            mapper.AssertAreEqual("meta.state", "Overworld");
+        }
+        [TestMethod]
+        public async Task HeartGold_State_Battle_OK()
+        {
+            await Load_NDS_PokemonHeartGold();
+
+            var mapper = await GameHookClient.GetMapperAsync();
+
+            mapper.AssertAreEqual("meta.state", "Battle");
+        }
     }
 }
