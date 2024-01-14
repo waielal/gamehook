@@ -32,14 +32,14 @@ namespace GameHook.IntegrationTests
         #region Gameboy Advance
         //[DataRow("gba_metroid_fusion", "gba_pokemon_emerald_0")]
 
-        [DataRow("deprecated_pokemon_emerald_deprecated", "gba_pokemon_emerald_0")]
+        [DataRow("deprecated_pokemon_emerald_deprecated", "gba_pokemon_emerald_0")] 
         [DataRow("gba_pokemon_emerald", "gba_pokemon_emerald_0")]
 
-        [DataRow("deprecated_pokemon_firered_leafgreen_deprecated", "gba_pokemon_emerald_0")]
-        [DataRow("gba_pokemon_firered", "gba_pokemon_emerald_0")]
+        [DataRow("deprecated_pokemon_firered_leafgreen_deprecated", "gba_pokemon_emerald_0")] //TODO: change save states
+        [DataRow("gba_pokemon_firered_leafgreen", "gba_pokemon_emerald_0")] //TODO: change save states
 
-        [DataRow("deprecated_pokemon_ruby_sapphire_deprecated", "gba_pokemon_emerald_0")]
-        [DataRow("gba_pokemon_ruby_sapphire", "gba_pokemon_emerald_0")]
+        [DataRow("deprecated_pokemon_ruby_sapphire_deprecated", "gba_pokemon_emerald_0")] //TODO: change save states
+        [DataRow("gba_pokemon_ruby_sapphire", "gba_pokemon_emerald_0")] //TODO: change save states
         #endregion
 
         #region Nintendo 64

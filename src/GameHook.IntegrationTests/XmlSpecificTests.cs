@@ -29,16 +29,16 @@ namespace GameHook.IntegrationTests
             await Load_GBC_PokemonCrystal();
 
             var mapper = await GameHookClient.GetMapperAsync();
-            var value_1 = mapper.Properties.Single(x => x.Path == "player.badges.badge2");
-            var value_2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "player.badges.badge2");
-            var value_3 = await GameHookClient.GetPropertyAsync("player.badges.badge2");
+            var value_1 = mapper.Properties.Single(x => x.Path == "player.badges.1");
+            var value_2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "player.badges.1");
+            var value_3 = await GameHookClient.GetPropertyAsync("player.badges.1");
 
             GameHookAssert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
                 Address = 0xD857,
                 Bytes = new int[] { 0xFF },
                 Position = 1,
-                Path = "player.badges.badge2",
+                Path = "player.badges.1",
                 Length = 1,
                 Type = "bit",
                 Frozen = false,
@@ -63,16 +63,16 @@ namespace GameHook.IntegrationTests
             await Load_GBC_PokemonCrystal();
 
             var mapper = await GameHookClient.GetMapperAsync();
-            var value_1 = mapper.Properties.Single(x => x.Path == "player.teamCount");
-            var value_2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "player.teamCount");
-            var value_3 = await GameHookClient.GetPropertyAsync("player.teamCount");
+            var value_1 = mapper.Properties.Single(x => x.Path == "player.team_count");
+            var value_2 = (await GameHookClient.GetPropertiesAsync()).Single(x => x.Path == "player.team_count");
+            var value_3 = await GameHookClient.GetPropertyAsync("player.team_count");
 
             GameHookAssert.ArePropertiesEqual(new OpenAPI.GameHook.PropertyModel
             {
                 Address = 0xDCD7,
                 Bytes = new int[] { 0x01 },
                 Position = null,
-                Path = "player.teamCount",
+                Path = "player.team_count",
                 Length = 1,
                 Type = "int",
                 Frozen = false,

@@ -35,7 +35,7 @@ namespace GameHook.IntegrationTests
             var mapper = await GameHookClient.GetMapperAsync();
 
             mapper.AssertAreEqual("meta.state", "To Battle");
-            mapper.AssertAreEqual("battle.other.battleStart", 0xCCF5, [0x00], 0);
+            mapper.AssertAreEqual("battle.other.battle_start", 0xCCF5, [0x00], 0);
         }
         [TestMethod]
         public async Task RedBlue_State_Battle_OK()
@@ -54,7 +54,7 @@ namespace GameHook.IntegrationTests
             var mapper = await GameHookClient.GetMapperAsync();
 
             mapper.AssertAreEqual("meta.state", "From Battle");
-            mapper.AssertAreEqual("battle.lowHealthAlarm", 0xCCF6, [0x01], "Disabled");
+            mapper.AssertAreEqual("battle.other.low_health_alarm", 0xCCF6, [0x01], "Disabled");
         }
         // Red/Blue-Deprecated State Tests
         [TestMethod]
@@ -135,7 +135,7 @@ namespace GameHook.IntegrationTests
             var mapper = await GameHookClient.GetMapperAsync();
 
             mapper.AssertAreEqual("meta.state", "To Battle");
-            mapper.AssertAreEqual("battle.other.battleStart", 0xCCF5, [0x00], 0);
+            mapper.AssertAreEqual("battle.other.battle_start", 0xCCF5, [0x00], 0);
         }
         [TestMethod]
         public async Task Yellow_State_Battle_OK()
@@ -154,7 +154,7 @@ namespace GameHook.IntegrationTests
             var mapper = await GameHookClient.GetMapperAsync();
 
             mapper.AssertAreEqual("meta.state", "From Battle");
-            mapper.AssertAreEqual("battle.lowHealthAlarm", 0xCCF6, [0x01], "Disabled");
+            mapper.AssertAreEqual("battle.other.low_health_alarm", 0xCCF6, [0x01], "Disabled");
         }
         // Yellow-Deprecated State Tests
         [TestMethod]

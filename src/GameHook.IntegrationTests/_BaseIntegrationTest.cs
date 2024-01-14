@@ -150,7 +150,7 @@ namespace GameHook.IntegrationTests
         protected async Task Load_GBA_PokemonFireRed(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_firered_{n}.json");
-            await LoadMapper($"official_gba_pokemon_firered");
+            await LoadMapper($"official_gba_pokemon_firered_leafgreen");
         }
 
         protected async Task Load_NDS_PokemonPlatinum(int n = 0)
