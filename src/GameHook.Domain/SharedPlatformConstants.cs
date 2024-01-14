@@ -53,8 +53,22 @@ public static class SharedPlatformConstants
                 {
                     BizhawkIdentifier = "WRAM",
                     CustomPacketTransmitPosition = 0,
+                    PhysicalStartingAddress = 0x003000,
+                    Length = 0x112
+                },
+                new PlatformMemoryLayoutEntry
+                {
+                    BizhawkIdentifier = "WRAM",
+                    CustomPacketTransmitPosition = 0,
+                    PhysicalStartingAddress = 0x400000,
+                    Length = 0x3EFF
+                },
+                new PlatformMemoryLayoutEntry
+                {
+                    BizhawkIdentifier = "WRAM",
+                    CustomPacketTransmitPosition = 0,
                     PhysicalStartingAddress = 0x7E0000,
-                    Length = 0x10000
+                    Length = 0x1FFFF
                 }
             }
         },
