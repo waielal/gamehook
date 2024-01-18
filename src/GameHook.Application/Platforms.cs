@@ -9,9 +9,17 @@ namespace GameHook.Application
 
         public MemoryAddressBlock[] Ranges { get; } = new List<MemoryAddressBlock>()
         {
-            new MemoryAddressBlock("Internal RAM", 0x0000, 0x0400) // 2kB Internal RAM, mirrored 4 times
+            new MemoryAddressBlock("Block 0", 0x0000, 0x00FF),
+            new MemoryAddressBlock("Block 1", 0x0100, 0x01FF),
+            new MemoryAddressBlock("Block 2", 0x0200, 0x02FF),
+            new MemoryAddressBlock("Block 3", 0x0300, 0x03FF),
+            new MemoryAddressBlock("Block 4", 0x0400, 0x04FF),
+            new MemoryAddressBlock("Block 5", 0x0500, 0x05FF),
+            new MemoryAddressBlock("Block 6", 0x0600, 0x06FF),
+            new MemoryAddressBlock("Block 7", 0x0700, 0x07FF),
         }.ToArray();
     }
+}
 
     public class SNES_PlatformOptions : IPlatformOptions
     {
