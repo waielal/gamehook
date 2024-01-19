@@ -19,7 +19,6 @@ namespace GameHook.Application
             new MemoryAddressBlock("Block 7", 0x0700, 0x07FF),
         }.ToArray();
     }
-}
 
     public class SNES_PlatformOptions : IPlatformOptions
     {
