@@ -20,7 +20,7 @@ jobs:
             target: linux-x64
           - kind: macos
             os: ['macos-latest']
-            target: macos-x64
+            target: osx-x64
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
