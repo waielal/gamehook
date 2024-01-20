@@ -17,9 +17,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="8.0.0">
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="8.0.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -31,11 +31,11 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="NSwag.ApiDescription.Client" Version="13.20.0">
+		<PackageReference Include="NSwag.ApiDescription.Client" Version="14.0.2">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
 	</ItemGroup>
 
