@@ -5,6 +5,9 @@
         Dictionary<string, IMemoryNamespace> Namespaces { get; }
 
         IMemoryNamespace DefaultNamespace { get; }
+
+        IByteArray Get(string? area, MemoryAddress memoryAddress, int length);
+        void Fill(string area, MemoryAddress memoryAddress, byte[] data);
     }
 
     public interface IMemoryNamespace

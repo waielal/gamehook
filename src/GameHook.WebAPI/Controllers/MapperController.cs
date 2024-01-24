@@ -13,20 +13,26 @@ namespace GameHook.WebAPI.Controllers
             new PropertyModel
             {
                 Path = x.Path,
+
                 Type = x.Type,
+                MemoryContainer = x.MemoryContainer,
                 Address = x.Address,
-                IsReadOnly = x.IsReadOnly,
                 Length = x.Length,
-                Position = x.MapperVariables.Position,
-                Reference = x.MapperVariables.Reference,
+                Size = x.Size,
+                Reference = x.Reference,
+                Nibble = x.Nibble,
+                Bit = x.Bit,
+                Description = x.Description,
+
                 Value = x.Value,
-                Frozen = x.BytesFrozen != null,
                 Bytes = x.Bytes?.ToIntegerArray(),
-                Description = x.MapperVariables.Description,
+                
+                IsFrozen = x.IsFrozen,
+                IsReadOnly = x.IsReadOnly,
             };
 
         public static Dictionary<string, IEnumerable<GlossaryItemModel>> MapToDictionaryGlossaryItemModel(
-            this IEnumerable<GlossaryList> glossaryList)
+            this IEnumerable<ReferenceItems> glossaryList)
         {
             var dictionary = new Dictionary<string, IEnumerable<GlossaryItemModel>>();
 
@@ -72,22 +78,29 @@ namespace GameHook.WebAPI.Controllers
 
         public string Type { get; init; } = string.Empty;
 
-        public int? Length { get; init; }
+        public string? MemoryContainer { get; init; } = string.Empty;
 
         public uint? Address { get; init; }
 
-        public int? Position { get; init; }
+        public int? Length { get; init; }
+
+        public int? Size { get; init; }
 
         public string? Reference { get; init; }
+
+        public string? Nibble { get; init; }
+
+        public int? Bit { get; init; }
+
+        public string? Description { get; init; }
+
 
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public object? Value { get; init; }
 
         public IEnumerable<int>? Bytes { get; init; } = Enumerable.Empty<int>();
 
-        public bool? Frozen { get; init; }
-
-        public string? Description { get; init; }
+        public bool? IsFrozen { get; init; }
 
         public bool IsReadOnly { get; init; }
     }
@@ -160,7 +173,7 @@ namespace GameHook.WebAPI.Controllers
                     MapperReleaseVersion = _mapperUpdateManager.MapperVersion
                 },
                 Properties = Instance.Mapper.Properties.Values.Select(x => x.MapToPropertyModel()).ToArray(),
-                Glossary = Instance.Mapper.Glossary.Values.MapToDictionaryGlossaryItemModel()
+                Glossary = Instance.Mapper.References.Values.MapToDictionaryGlossaryItemModel()
             };
 
             return Ok(model);
@@ -301,7 +314,7 @@ namespace GameHook.WebAPI.Controllers
                 return ApiHelper.BadRequestResult("Property is read only.");
             }
 
-            await prop.WriteValue(model.Value?.ToString(), model.Freeze);
+            await prop.WriteValue(model.Value?.ToString() ?? string.Empty, model.Freeze);
 
             return Ok();
         }
@@ -373,7 +386,7 @@ namespace GameHook.WebAPI.Controllers
             if (Instance.Initalized == false || Instance.Mapper == null)
                 return ApiHelper.MapperNotLoaded();
 
-            return Ok(Instance.Mapper.Glossary.Values.MapToDictionaryGlossaryItemModel());
+            return Ok(Instance.Mapper.References.Values.MapToDictionaryGlossaryItemModel());
         }
 
         [HttpGet("glossary/{key}")]
@@ -385,7 +398,7 @@ namespace GameHook.WebAPI.Controllers
 
             key = key.StripEndingRoute();
 
-            var glossaryItem = Instance.Mapper.Glossary[key];
+            var glossaryItem = Instance.Mapper.References[key];
             if (glossaryItem == null)
             {
                 return NotFound();

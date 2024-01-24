@@ -2,9 +2,9 @@
 
 namespace GameHook.Domain.GameHookProperties
 {
-    public class BooleanProperty : BaseProperty, IGameHookProperty
+    public class BooleanProperty : GameHookProperty, IGameHookProperty
     {
-        public BooleanProperty(IGameHookInstance instance, GameHookMapperVariables variables) : base(instance, variables)
+        public BooleanProperty(IGameHookInstance instance, PropertyAttributes variables) : base(instance, variables)
         {
         }
 

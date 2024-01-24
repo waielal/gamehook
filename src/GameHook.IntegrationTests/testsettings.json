@@ -11,8 +11,6 @@
     "AUTOMATIC_MAPPER_UPDATES": false,
     "MAPPER_VERSION": "latest",
 
-    "MAPPER_DIRECTORY": "C:\\Users\\scott\\OneDrive\\Documents\\github-mappers\\dist",
-
     "LOG_HTTP_TRAFFIC": false,
 
     "Urls": "http://localhost:8085",

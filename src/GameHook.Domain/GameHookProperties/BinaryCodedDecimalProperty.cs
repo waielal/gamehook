@@ -2,9 +2,9 @@
 
 namespace GameHook.Domain.GameHookProperties
 {
-    public class BinaryCodedDecimalProperty : BaseProperty, IGameHookProperty
+    public class BinaryCodedDecimalProperty : GameHookProperty, IGameHookProperty
     {
-        public BinaryCodedDecimalProperty(IGameHookInstance instance, GameHookMapperVariables variables) : base(instance, variables)
+        public BinaryCodedDecimalProperty(IGameHookInstance instance, PropertyAttributes variables) : base(instance, variables)
         {
         }
 

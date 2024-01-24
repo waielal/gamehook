@@ -2,9 +2,9 @@
 
 namespace GameHook.Domain.GameHookProperties
 {
-    public class IntegerProperty : BaseProperty
+    public class IntegerProperty : GameHookProperty
     {
-        public IntegerProperty(IGameHookInstance instance, GameHookMapperVariables variables) : base(instance, variables)
+        public IntegerProperty(IGameHookInstance instance, PropertyAttributes variables) : base(instance, variables)
         {
         }
 

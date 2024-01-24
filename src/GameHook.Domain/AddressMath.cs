@@ -4,10 +4,16 @@ namespace GameHook.Domain
 {
     public static class AddressMath
     {
-        public static bool TrySolve(string addressExpression, Dictionary<string, object?> variables, out MemoryAddress address)
+        public static bool TrySolve(string? addressExpression, Dictionary<string, object?> variables, out MemoryAddress address)
         {
             try
             {
+                if (string.IsNullOrEmpty(addressExpression))
+                {
+                    address = 0x00;
+                    return false;
+                }
+
                 var expression = new Expression(addressExpression);
 
                 foreach (var variable in variables)

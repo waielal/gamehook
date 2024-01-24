@@ -1,57 +1,45 @@
 ﻿namespace GameHook.Domain.Interfaces
 {
-    public class PropertyValueResult
+    public record PropertyAttributes
     {
-        public IEnumerable<string> FieldsChanged { get; init; } = new List<string>();
-    }
+        public required string Path { get; init; }
 
-    public class GameHookMapperVariables
-    {
-        public string Path { get; set; } = string.Empty;
-
-        public string Type { get; set; } = string.Empty;
-        public string? MemoryContainer { get; set; } = string.Empty;
-        public string? Address { get; set; }
-        public int? Length { get; set; } = 1;
-        public int? Size { get; set; }
-        public int? Position { get; set; }
+        public required string Type { get; init; }
+        public string? MemoryContainer { get; init; }
+        public string? Address { get; init; }
+        public int? Length { get; init; } = 1;
+        public int? Size { get; init; }
         public string? Nibble { get; set; }
+        public int? Bit { get; set; }
         public string? Reference { get; set; }
         public string? Description { get; set; }
 
         public string? StaticValue { get; set; }
 
-        public string? YamlPreprocessor { get; set; }
-        public string? YamlPostprocessorReader { get; set; }
-        public string? YamlPostprocessorWriter { get; set; }
-
         public string? ReadFunction { get; set; }
         public string? WriteFunction { get; set; }
-
         public string? AfterReadValueExpression { get; set; }
     }
 
     public interface IGameHookProperty
     {
-        GameHookMapperVariables MapperVariables { get; }
-        GlossaryList? Glossary { get; }
-
         string Path { get; }
+
         string Type { get; }
-        int? Length { get; }
+        string? MemoryContainer { get; }
         uint? Address { get; }
-        string? Nibble { get; }
-
-        int? Position { get; }
-
+        int? Length { get; }
+        int? Size { get; }
         string? Reference { get; }
+        string? Nibble { get; }
+        int? Bit { get; }
+        string? Description { get; }
 
         object? Value { get; set; }
         byte[]? Bytes { get; }
         byte[]? BytesFrozen { get; }
 
-        string? Description { get; }
-
+        bool IsFrozen { get; }
         bool IsReadOnly { get; }
 
         HashSet<string> FieldsChanged { get; }
@@ -64,6 +52,4 @@
         Task FreezeProperty(byte[] bytesFrozen);
         Task UnfreezeProperty();
     }
-
-
 }

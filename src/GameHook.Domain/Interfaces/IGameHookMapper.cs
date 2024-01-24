@@ -11,7 +11,7 @@
     {
         MapperMetadata Metadata { get; }
         Dictionary<string, IGameHookProperty> Properties { get; }
-        Dictionary<string, GlossaryList> Glossary { get; }
+        Dictionary<string, ReferenceItems> References { get; }
 
         string? GlobalScript { get; }
         bool HasGlobalPreprocessor { get; }

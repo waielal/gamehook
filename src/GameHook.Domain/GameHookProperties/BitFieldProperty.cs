@@ -3,9 +3,9 @@ using System.Collections;
 
 namespace GameHook.Domain.GameHookProperties
 {
-    public class BitFieldProperty : BaseProperty, IGameHookProperty
+    public class BitFieldProperty : GameHookProperty, IGameHookProperty
     {
-        public BitFieldProperty(IGameHookInstance instance, GameHookMapperVariables variables) : base(instance, variables)
+        public BitFieldProperty(IGameHookInstance instance, PropertyAttributes variables) : base(instance, variables)
         {
         }
 

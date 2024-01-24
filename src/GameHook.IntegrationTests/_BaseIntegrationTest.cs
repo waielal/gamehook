@@ -60,9 +60,10 @@ namespace GameHook.IntegrationTests
             Assert.AreEqual(expected.Address, actual.Address);
             Assert.AreEqual(expected.Bytes.ToHexdecimalString(", "), actual.Bytes.ToHexdecimalString(", "));
             Assert.AreEqual(expected.Description, actual.Description);
-            Assert.AreEqual(expected.Frozen, actual.Frozen);
+            Assert.AreEqual(expected.IsFrozen, actual.IsFrozen);
             Assert.AreEqual(expected.Path, actual.Path);
-            Assert.AreEqual(expected.Position, actual.Position);
+            Assert.AreEqual(expected.Bit, actual.Bit);
+            Assert.AreEqual(expected.Nibble, actual.Nibble);
             Assert.AreEqual(expected.Reference, actual.Reference);
             Assert.AreEqual(expected.Length, actual.Length);
             Assert.AreEqual(expected.Type, actual.Type);
@@ -86,7 +87,7 @@ namespace GameHook.IntegrationTests
                 .CreateLogger();
 
             Server = new HostBuilder()
-                .UseSerilog()
+                .UseSerilog(Log.Logger)
                 .ConfigureWebHost(host =>
                 {
                     host

@@ -17,6 +17,12 @@ namespace GameHook.Domain.Implementations
         public Dictionary<string, IMemoryNamespace> Namespaces { get; private set; }
         public IMemoryNamespace DefaultNamespace { get; }
 
+        public IByteArray Get(string? area, MemoryAddress memoryAddress, int length)
+        {
+            if (area == "default" || area == null) { return DefaultNamespace.get_bytes(memoryAddress, length); }
+            else return Namespaces[area].get_bytes(memoryAddress, length);
+        }
+
         public void Fill(string area, MemoryAddress memoryAddress, byte[] data)
         {
             if (Namespaces.ContainsKey(area) == false)

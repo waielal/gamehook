@@ -37,11 +37,12 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD857,
                 Bytes = new int[] { 0xFF },
-                Position = 1,
+                Nibble = null,
+                Bit = 1,
                 Path = "player.badges.1",
                 Length = 1,
                 Type = "bit",
-                Frozen = false,
+                IsFrozen = false,
                 Description = "hiveBadge",
                 Value = true
             }, value_1);
@@ -71,11 +72,12 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xDCD7,
                 Bytes = new int[] { 0x01 },
-                Position = null,
+                Nibble = null,
+                Bit = null,
                 Path = "player.team_count",
                 Length = 1,
                 Type = "int",
-                Frozen = false,
+                IsFrozen = false,
                 Value = (long)1
             }, value_1);
 
@@ -97,11 +99,12 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD84E,
                 Bytes = new int[] { 0x07, 0xB0, 0x93 },
-                Position = null,
+                Nibble = null,
+                Bit = null,
                 Path = "bag.money",
                 Length = 3,
                 Type = "int",
-                Frozen = false,
+                IsFrozen = false,
                 Value = (long)503955
             }, value_1);
 
@@ -123,11 +126,12 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD472,
                 Bytes = new int[] { 0x01 },
-                Position = null,
+                Nibble = null,
+                Bit = null,
                 Path = "player.gender",
                 Length = 1,
                 Type = "int",
-                Frozen = false,
+                IsFrozen = false,
                 Reference = "gender",
                 Value = "Female"
             }, value_1);
@@ -150,12 +154,13 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD47D,
                 Bytes = new int[] { 0x92, 0xA7, 0xA4, 0xAB, 0xAB, 0xB9, 0x50, 0x50, 0x00, 0x00, 0x00 },
-                Position = null,
+                Nibble = null,
+                Bit = null,
                 Path = "player.name",
                 Length = 11,
                 Type = "string",
                 Reference = "defaultCharacterMap",
-                Frozen = false,
+                IsFrozen = false,
                 Value = "Shellz"
             }, playerName);
 

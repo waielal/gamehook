@@ -179,7 +179,13 @@ namespace GameHook.Infrastructure.Drivers
         {
             var results = await Task.WhenAll(blocks.Select(async x =>
             {
-                var data = await ReadMemoryAddress(x.StartingAddress, x.EndingAddress - x.StartingAddress);
+                // We add one here because otherwise we have an off-by-one error.
+
+                // Example: 0xAFFF - 0xA000 is 4095 in decimal.
+                // We want to actually return 4096 bytes -- we want to include 0xAFFF.
+                // So we add +1 to the result.
+
+                var data = await ReadMemoryAddress(x.StartingAddress, (x.EndingAddress - x.StartingAddress) + 1);
                 return new KeyValuePair<uint, byte[]>(x.StartingAddress, data);
             }));
 

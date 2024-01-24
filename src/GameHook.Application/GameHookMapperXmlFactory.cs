@@ -75,16 +75,16 @@ namespace GameHook.Application
 
                         var type = x.GetAttributeValue("type");
 
-                        var variables = new GameHookMapperVariables()
+                        var variables = new PropertyAttributes()
                         {
                             Path = x.GetElementPath(),
                             Type = x.GetAttributeValue("type"),
                             MemoryContainer = x.GetOptionalAttributeValue("memoryContainer"),
                             Address = x.GetOptionalAttributeValue("address"),
                             Length = x.GetOptionalAttributeValueAsInt("length") ?? 1,
-                            Size = x.GetOptionalAttributeValueAsInt("size") ?? 1,
-                            Position = x.GetOptionalAttributeValueAsInt("position"),
+                            Size = x.GetOptionalAttributeValueAsInt("size"),
                             Nibble = x.GetOptionalAttributeValue("nibble"),
+                            Bit = x.GetOptionalAttributeValueAsInt("bit"),
                             Reference = x.GetOptionalAttributeValue("reference"),
                             Description = x.GetOptionalAttributeValue("description"),
                             StaticValue = x.GetOptionalAttributeValue("value"),
@@ -95,12 +95,36 @@ namespace GameHook.Application
 
                         if (type == "binaryCodedDecimal") return new BinaryCodedDecimalProperty(instance, variables);
                         else if (type == "bitArray") return new BitFieldProperty(instance, variables);
-                        else if (type == "bit") return new BitProperty(instance, variables);
                         else if (type == "bool") return new BooleanProperty(instance, variables);
                         else if (type == "int") return new IntegerProperty(instance, variables);
-                        else if (type == "nibble") return new NibbleProperty(instance, variables);
                         else if (type == "string") return new StringProperty(instance, variables);
                         else if (type == "uint") return new UnsignedIntegerProperty(instance, variables);
+                        else if (type == "nibble")
+                        {
+                            // TODO: 1/20/2024 Remove this in the future.
+                            // This is a virtual property that is not real.
+
+                            var position = x.GetOptionalAttributeValueAsInt("position");
+                            if (position != null)
+                            {
+                                variables.Nibble = position == 1 ? "low" : "high";
+                            }
+
+                            return new IntegerProperty(instance, variables);
+                        }
+                        else if (type == "bit")
+                        {
+                            // TODO: 1/20/2024 Remove this in the future.
+                            // This is a virtual property that is not real.
+
+                            var position = x.GetOptionalAttributeValueAsInt("position");
+                            if (position != null)
+                            {
+                                variables.Bit = position;
+                            }
+
+                            return new BooleanProperty(instance, variables);
+                        }
                         else throw new Exception($"Unknown property type {type}.");
                     }
                     catch (Exception ex)
@@ -111,7 +135,7 @@ namespace GameHook.Application
                 .ToArray();
         }
 
-        public static IEnumerable<GlossaryList> GetGlossary(XDocument doc)
+        public static IEnumerable<ReferenceItems> GetGlossary(XDocument doc)
         {
             return doc.Descendants("references")
                 .Elements()
@@ -120,7 +144,7 @@ namespace GameHook.Application
                     var name = el.Name.LocalName;
                     var type = el.GetOptionalAttributeValue("type") ?? "string";
 
-                    return new GlossaryList()
+                    return new ReferenceItems()
                     {
                         Name = name,
                         Type = type,
@@ -135,13 +159,13 @@ namespace GameHook.Application
                             else if (type == "number") { value = int.Parse(valueStr); }
                             else throw new Exception($"Unknown type for reference list {type}.");
 
-                            return new GlossaryListItem(key, value);
+                            return new ReferenceItem(key, value);
                         }).ToArray()
                     };
                 });
         }
 
-        public static GameHookMapper LoadMapperFromFile(IGameHookInstance? instance, string mapperContents, string? scriptContents)
+        public static IGameHookMapper LoadMapperFromFile(IGameHookInstance? instance, string mapperContents, string? scriptContents)
         {
             var doc = XDocument.Parse(mapperContents);
 

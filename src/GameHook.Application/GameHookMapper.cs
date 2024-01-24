@@ -8,14 +8,14 @@ namespace GameHook.Application
         public GameHookMapper(
             MapperMetadata metadata,
             IEnumerable<IGameHookProperty> properties,
-            IEnumerable<GlossaryList> glossary,
+            IEnumerable<ReferenceItems> references,
             string? globalScript,
             bool hasGlobalPreprocessor,
             bool hasGlobalPostprocessor)
         {
             Metadata = metadata;
             Properties = properties.ToDictionary(x => x.Path, x => x);
-            Glossary = glossary.ToDictionary(x => x.Name, x => x);
+            References = references.ToDictionary(x => x.Name, x => x);
 
             GlobalScript = globalScript;
             HasGlobalPreprocessor = hasGlobalPreprocessor;
@@ -24,7 +24,7 @@ namespace GameHook.Application
 
         public MapperMetadata Metadata { get; }
         public Dictionary<string, IGameHookProperty> Properties { get; }
-        public Dictionary<string, GlossaryList> Glossary { get; }
+        public Dictionary<string, ReferenceItems> References { get; }
 
         public string? GlobalScript { get; }
         public bool HasGlobalPreprocessor { get; }

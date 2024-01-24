@@ -2,11 +2,20 @@ class GameHookProperty {
     _client = null
 
     path = null
+    type = null
+    memoryContainer = null
     address = null
     length = null
+    size = null
+    bit = null
+    nibble = null
+    reference = null
+    description = null
+
     value = null
     bytes = null
-    frozen = null
+    isFrozen = null
+    isReadOnly = null
 
     constructor(client, obj) {
         this._client = client
@@ -211,12 +220,34 @@ class GameHookMapperClient {
                         return
                     }
 
-                    let oldProperty = { address: property.address, value: property.value, bytes: property.bytes, frozen: property.frozen }
+                    let oldProperty = {
+                        path: property.path,
+                        memoryContainer: property.memoryContainer,
+                        address: property.address,
+                        length: property.length,
+                        size: property.size,
+                        reference: property.reference,
+                        nibble: property.nibble,
+                        bit: property.bit,
+                        description: property.description,
+                        value: property.value,
+                        bytes: property.bytes,
+                        isFrozen: property.frozen,
+                        isReadOnly: property.isReadOnly
+                    }
 
+                    property.memoryContainer = propertyChanged.memoryContainer
                     property.address = propertyChanged.address
+                    property.length = propertyChanged.length
+                    property.size = propertyChanged.size
+                    property.reference = propertyChanged.reference
+                    property.nibble = propertyChanged.nibble
+                    property.bit = propertyChanged.bit
+                    property.description = propertyChanged.description
                     property.value = propertyChanged.value
                     property.bytes = propertyChanged.bytes
-                    property.frozen = propertyChanged.frozen
+                    property.isFrozen = propertyChanged.isFrozen
+                    property.isReadOnly = propertyChanged.isReadOnly
 
                     // Only trigger the property's change events when
                     // the value has changed.

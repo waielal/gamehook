@@ -2,9 +2,9 @@
 
 namespace GameHook.Domain.GameHookProperties
 {
-    public class UnsignedIntegerProperty : BaseProperty, IGameHookProperty
+    public class UnsignedIntegerProperty : GameHookProperty, IGameHookProperty
     {
-        public UnsignedIntegerProperty(IGameHookInstance instance, GameHookMapperVariables variables) : base(instance, variables)
+        public UnsignedIntegerProperty(IGameHookInstance instance, PropertyAttributes variables) : base(instance, variables)
         {
         }
 
