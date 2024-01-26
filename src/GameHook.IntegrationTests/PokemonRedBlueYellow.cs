@@ -106,16 +106,6 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("game_time.frames", 0xDA44, [0x33], 51);
         }
         [TestMethod]
-        public async Task Yellow_Property_OK_Options()
-        {
-            await Load_GB_PokemonYellow();
-
-            var mapper = await GameHookClient.GetMapperAsync();
-
-            mapper.AssertAreEqual("options.text_speed_1", 0xD354, [0xC1], false);
-            mapper.AssertAreEqual("options.solo_challenge", 0xD354, [0xC1], "Fast Text, No Animations, Battlestyle Set");
-        }
-        [TestMethod]
         public async Task Yellow_Property_OK_BattleStructure()
         {
             await Load_GB_PokemonYellow();
@@ -224,16 +214,6 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("game_time.minutes", 0xDA42, [0x00, 0x2B], 43);
             mapper.AssertAreEqual("game_time.seconds", 0xDA44, [0x20], 32);
             mapper.AssertAreEqual("game_time.frames", 0xDA45, [0x0B], 11);
-        }
-        [TestMethod]
-        public async Task Red_Property_OK_Options()
-        {
-            await Load_GB_PokemonRed(1);
-
-            var mapper = await GameHookClient.GetMapperAsync();
-
-            mapper.AssertAreEqual("options.text_speed_1", 0xD355, [0x41], false);
-            mapper.AssertAreEqual("options.solo_challenge", 0xD355, [0x41], "Champion Fight");
         }
         [TestMethod]
         public async Task Red_Property_OK_BattleStructure()

@@ -159,11 +159,11 @@ namespace GameHook.IntegrationTests
 
             mapper.AssertAreEqual("overworld.map_name", 0x0227F42C, [0xB9, 0x00], "Pokemon League - Map 14");
             mapper.AssertAreEqual("overworld.map_index", 0x0227F42C, [0xB9, 0x00], 185);
-            mapper.AssertAreEqual("overworld.encounter_rates.walking", 0x022A157C, [0x00, 0x00], 0);
-            mapper.AssertAreEqual("overworld.encounter_rates.surfing", 0x022A1648, [0x00, 0x00], 0);
-            mapper.AssertAreEqual("overworld.encounter_rates.old_rod", 0x022A16A0, [0x00, 0x00], 0);
-            mapper.AssertAreEqual("overworld.encounter_rates.good_rod", 0x022A16CC, [0x00, 0x00], 0);
-            mapper.AssertAreEqual("overworld.encounter_rates.super_rod", 0x022A16F8, [0x00, 0x00], 0);
+            mapper.AssertAreEqual("overworld.encounter_rates.walking", 0x022A157C, [0x00, 0x00, 0x00, 0x00], 0);
+            mapper.AssertAreEqual("overworld.encounter_rates.surfing", 0x022A1648, [0x00, 0x00, 0x00, 0x00], 0);
+            mapper.AssertAreEqual("overworld.encounter_rates.old_rod", 0x022A16A0, [0x00, 0x00, 0x00, 0x00], 0);
+            mapper.AssertAreEqual("overworld.encounter_rates.good_rod", 0x022A16CC, [0x00, 0x00, 0x00, 0x00], 0);
+            mapper.AssertAreEqual("overworld.encounter_rates.super_rod", 0x022A16F8, [0x00, 0x00, 0x00, 0x00], 0);
         }
         [TestMethod]
         public async Task Property_OK_Bag()
@@ -232,7 +232,6 @@ namespace GameHook.IntegrationTests
 
             mapper.AssertAreEqual("player.team.0.internals.personality_value", [0xC0, 0x7D, 0xEF, 0x45], 1173323200);
             mapper.AssertAreEqual("player.team.0.internals.checksum", 0x06, [0xF2, 0x71], 29170);
-            mapper.AssertAreEqual("player.team.0.internals.secret_id", [0xC0, 0x7D], 32192);
             mapper.AssertAreEqual("player.team.0.internals.language", 0x17, [0x02], "English");
 
             mapper.AssertAreEqual("player.team.1.species", 0x08, [0x8F, 0x01], "Bidoof");

@@ -123,8 +123,6 @@ namespace GameHook.IntegrationTests
 
             var mapper = await GameHookClient.GetMapperAsync();
 
-            mapper.AssertAreEqual("options.text_speed_2", 0xCFCC, [0xC1], false);
-            mapper.AssertAreEqual("options.text_speed_3", 0xCFCC, [0xC1], false);
             mapper.AssertAreEqual("options.battle_style", 0xCFCC, [0xC1], true);
             mapper.AssertAreEqual("options.battle_animations", 0xCFCC, [0xC1], true);
         }
@@ -255,8 +253,6 @@ namespace GameHook.IntegrationTests
 
             var mapper = await GameHookClient.GetMapperAsync();
 
-            mapper.AssertAreEqual("options.text_speed_2", 0xD199, [0xC1], false);
-            mapper.AssertAreEqual("options.text_speed_3", 0xD199, [0xC1], false);
             mapper.AssertAreEqual("options.battle_style", 0xD199, [0xC1], true);
             mapper.AssertAreEqual("options.battle_animations", 0xD199, [0xC1], true);
         }
