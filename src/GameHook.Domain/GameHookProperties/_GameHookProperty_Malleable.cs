@@ -8,8 +8,7 @@ namespace GameHook.Domain.GameHookProperties
         private string? _address { get; set; }
         private int? _length { get; set; }
         private int? _size { get; set; }
-        private int? _bit { get; set; }
-        private string? _nibble { get; set; }
+        private string? _bits { get; set; }
         private string? _reference { get; set; }
         private string? _description { get; set; }
         private object? _value { get; set; }
@@ -78,27 +77,15 @@ namespace GameHook.Domain.GameHookProperties
             }
         }
 
-        public string? Nibble
+        public string? Bits
         {
-            get => _nibble;
+            get => _bits;
             set
             {
-                if (_nibble == value) return;
+                if (_bits == value) return;
 
-                FieldsChanged.Add("nibble");
-                _nibble = value;
-            }
-        }
-
-        public int? Bit
-        {
-            get => _bit;
-            set
-            {
-                if (_bit == value) return;
-
-                FieldsChanged.Add("bit");
-                _bit = value;
+                FieldsChanged.Add("bits");
+                _bits = value;
             }
         }
 

@@ -83,8 +83,7 @@ namespace GameHook.Application
                             Address = x.GetOptionalAttributeValue("address"),
                             Length = x.GetOptionalAttributeValueAsInt("length") ?? 1,
                             Size = x.GetOptionalAttributeValueAsInt("size"),
-                            Nibble = x.GetOptionalAttributeValue("nibble"),
-                            Bit = x.GetOptionalAttributeValueAsInt("bit"),
+                            Bits = x.GetOptionalAttributeValue("bits"),
                             Reference = x.GetOptionalAttributeValue("reference"),
                             Description = x.GetOptionalAttributeValue("description"),
                             StaticValue = x.GetOptionalAttributeValue("value"),
@@ -99,32 +98,6 @@ namespace GameHook.Application
                         else if (type == "int") return new IntegerProperty(instance, variables);
                         else if (type == "string") return new StringProperty(instance, variables);
                         else if (type == "uint") return new UnsignedIntegerProperty(instance, variables);
-                        else if (type == "nibble")
-                        {
-                            // TODO: 1/20/2024 Remove this in the future.
-                            // This is a virtual property that is not real.
-
-                            var position = x.GetOptionalAttributeValueAsInt("position");
-                            if (position != null)
-                            {
-                                variables.Nibble = position == 1 ? "low" : "high";
-                            }
-
-                            return new IntegerProperty(instance, variables);
-                        }
-                        else if (type == "bit")
-                        {
-                            // TODO: 1/20/2024 Remove this in the future.
-                            // This is a virtual property that is not real.
-
-                            var position = x.GetOptionalAttributeValueAsInt("position");
-                            if (position != null)
-                            {
-                                variables.Bit = position;
-                            }
-
-                            return new BooleanProperty(instance, variables);
-                        }
                         else throw new Exception($"Unknown property type {type}.");
                     }
                     catch (Exception ex)

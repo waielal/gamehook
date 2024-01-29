@@ -462,13 +462,8 @@
                         "type": "string",
                         "nullable": true
                     },
-                    "nibble": {
+                    "bits": {
                         "type": "string",
-                        "nullable": true
-                    },
-                    "bit": {
-                        "type": "integer",
-                        "format": "int32",
                         "nullable": true
                     },
                     "description": {

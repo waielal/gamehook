@@ -14,8 +14,7 @@ namespace GameHook.Domain.GameHookProperties
             Address = attributes.Address;
             Length = attributes.Length;
             Size = attributes.Size;
-            Bit = attributes.Bit;
-            Nibble = attributes.Nibble;
+            Bits = attributes.Bits;
             Reference = attributes.Reference;
             Description = attributes.Description;
 
@@ -147,45 +146,62 @@ namespace GameHook.Domain.GameHookProperties
                   $"Unable to retrieve bytes for property '{Path}' at address {ComputedAddress?.ToHexdecimalString()}. A byte array length of zero was returned?");
             }
 
-            if (string.IsNullOrEmpty(Nibble) == false)
+            if (!string.IsNullOrEmpty(Bits))
             {
-                if (bytes.Length != 1)
+                if (Bits.Contains('-'))
                 {
-                    throw new MapperException($"For property '{Path}', bytes returned a length of {bytes.Length}. Cannot perform a nibble operation on a length not equal to 1.");
-                }
+                    var parts = Bits.Split('-');
 
-                if (Nibble == "high")
-                {
-                    for (int i = 0; i < bytes.Length; i++)
+                    int start = int.Parse(parts[0]);
+                    int end = int.Parse(parts[1]);
+
+                    int bitCount = (end - start) + 1;
+
+                    byte[] newBytes = new byte[bytes.Length];
+
+                    for (int i = 0; i < bitCount; i++)
                     {
-                        bytes[i] = (byte)(bytes[i] >> 4);
+                        int byteIndex = (start + i) / 8; // Calculate the byte index.
+                        int bitOffset = (start + i) % 8; // Calculate the bit offset within the byte.
+
+                        // Set the appropriate bit in the newBytes array.
+                        newBytes[byteIndex] |= (byte)(((bytes[byteIndex] >> bitOffset) & 1) << (i % 8));
                     }
+
+                    bytes = newBytes;
                 }
-                else if (Nibble == "low")
+                else if (Bits.Contains(','))
                 {
-                    for (int i = 0; i < bytes.Length; i++)
+                    var indices = Bits.Split(',').Select(int.Parse);
+
+                    foreach (int index in indices)
                     {
-                        bytes[i] = (byte)(bytes[i] & 0x0F);
+                        if (index >= 0 && index < bytes.Length * 8)
+                        {
+                            int byteIndex = index / 8;
+                            int bitIndex = index % 8;
+
+                            // Set the specified bit to 1
+                            bytes[byteIndex] |= (byte)(1 << bitIndex);
+                        }
                     }
                 }
                 else
                 {
-                    throw new Exception($"Invalid nibble option provided: {Nibble}.");
+                    // Handling a single number
+                    int index = int.Parse(Bits);
+
+                    if (bytes == null || bytes.Length == 0 || index < 0 || index >= bytes.Length * 8)
+                    {
+                        throw new MapperException($"Bit {index} was outside of the bytes array length of {bytes?.Length ?? 0}.");
+                    }
+
+                    var byteIndex = index / 8;
+                    var bitIndex = index % 8;
+
+                    byte bit = (byte)((bytes[byteIndex] >> bitIndex) & 1);
+                    bytes = [bit];
                 }
-            }
-
-            if (Bit != null)
-            {
-                if (bytes == null || bytes.Length == 0 || Bit < 0 || Bit >= bytes.Length * 8)
-                {
-                    throw new MapperException($"Bit {Bit} was outside of the bytes array length of {bytes?.Length ?? 0}.");
-                }
-
-                var byteIndex = Bit / 8 ?? 0;
-                var bitIndex = Bit % 8 ?? 0;
-
-                byte bit = (byte)((bytes[byteIndex] >> bitIndex) & 1);
-                bytes = [bit];
             }
 
             if (address != null && BytesFrozen != null && bytes.SequenceEqual(BytesFrozen) == false)
@@ -242,54 +258,6 @@ namespace GameHook.Domain.GameHookProperties
             else
             {
                 bytes = FromValue(value);
-            }
-
-            if (Nibble != null)
-            {
-                if (Bytes == null)
-                {
-                    throw new Exception($"{Path}'s bytes are NULL, so we can't write a nibble if we don't know the other half.");
-                }
-
-                if (bytes.Length != 1)
-                {
-                    throw new MapperException($"For property '{Path}', attempted to write bytes with a length of {bytes.Length}. Cannot perform a nibble operation on a byte array length greater than 1.");
-                }
-
-                var workingBytes = Bytes.ToArray();
-
-                for (int i = 0; i < workingBytes.Length && i < bytes.Length; i++)
-                {
-                    if (Nibble == "high")
-                    {
-                        workingBytes[i] = (byte)((workingBytes[i] & 0x0F) | (bytes[i] << 4));
-                    }
-                    else if (Nibble == "low")
-                    {
-                        workingBytes[i] = (byte)((workingBytes[i] & 0xF0) | (bytes[i] & 0x0F));
-                    }
-                }
-
-                bytes = workingBytes;
-            }
-
-            if (Bit != null)
-            {
-                if (Bytes == null)
-                {
-                    throw new Exception($"{Path}'s bytes are NULL, so we can't write a nibble if we don't know the other half.");
-                }
-
-                var workingBytes = Bytes.ToArray();
-
-                int byteIndex = (Bit ?? 0) / 8;
-                int bitIndex = (Bit ?? 0) % 8;
-
-                byte mask = (byte)(1 << bitIndex);
-                workingBytes[byteIndex] &= (byte)~mask;
-                workingBytes[byteIndex] |= (byte)((bytes[0] & 1) << bitIndex);
-
-                bytes = workingBytes;
             }
 
             await WriteBytes(bytes, freeze);

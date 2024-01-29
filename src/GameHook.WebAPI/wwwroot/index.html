@@ -233,13 +233,9 @@
                                     <td>Size</td>
                                     <td>{{ editingProperty.property.size }}</td>
                                 </tr>
-                                <tr v-if="editingProperty.property.bit">
-                                    <td>Bit</td>
-                                    <td>{{ editingProperty.property.bit }}</td>
-                                </tr>
-                                <tr v-if="editingProperty.property.nibble">
-                                    <td>Nibble</td>
-                                    <td>{{ editingProperty.property.nibble }}</td>
+                                <tr v-if="editingProperty.property.bits">
+                                    <td>Bits</td>
+                                    <td>{{ editingProperty.property.bits }}</td>
                                 </tr>
                                 <tr v-if="editingProperty.property.reference">
                                     <td>Reference</td>

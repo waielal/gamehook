@@ -9,8 +9,7 @@
         public string? Address { get; init; }
         public int? Length { get; init; } = 1;
         public int? Size { get; init; }
-        public string? Nibble { get; set; }
-        public int? Bit { get; set; }
+        public string? Bits { get; set; }
         public string? Reference { get; set; }
         public string? Description { get; set; }
 
@@ -31,8 +30,7 @@
         int? Length { get; }
         int? Size { get; }
         string? Reference { get; }
-        string? Nibble { get; }
-        int? Bit { get; }
+        string? Bits { get; }
         string? Description { get; }
 
         object? Value { get; set; }

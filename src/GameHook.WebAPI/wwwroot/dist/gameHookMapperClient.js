@@ -7,8 +7,7 @@ class GameHookProperty {
     address = null
     length = null
     size = null
-    bit = null
-    nibble = null
+    bits = null
     reference = null
     description = null
 
@@ -227,8 +226,7 @@ class GameHookMapperClient {
                         length: property.length,
                         size: property.size,
                         reference: property.reference,
-                        nibble: property.nibble,
-                        bit: property.bit,
+                        bits: property.bits,
                         description: property.description,
                         value: property.value,
                         bytes: property.bytes,
@@ -241,8 +239,7 @@ class GameHookMapperClient {
                     property.length = propertyChanged.length
                     property.size = propertyChanged.size
                     property.reference = propertyChanged.reference
-                    property.nibble = propertyChanged.nibble
-                    property.bit = propertyChanged.bit
+                    property.bits = propertyChanged.bits
                     property.description = propertyChanged.description
                     property.value = propertyChanged.value
                     property.bytes = propertyChanged.bytes

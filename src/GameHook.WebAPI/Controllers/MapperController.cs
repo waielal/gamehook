@@ -20,8 +20,7 @@ namespace GameHook.WebAPI.Controllers
                 Length = x.Length,
                 Size = x.Size,
                 Reference = x.Reference,
-                Nibble = x.Nibble,
-                Bit = x.Bit,
+                Bits = x.Bits,
                 Description = x.Description,
 
                 Value = x.Value,
@@ -88,9 +87,7 @@ namespace GameHook.WebAPI.Controllers
 
         public string? Reference { get; init; }
 
-        public string? Nibble { get; init; }
-
-        public int? Bit { get; init; }
+        public string? Bits { get; init; }
 
         public string? Description { get; init; }
 
