@@ -327,7 +327,7 @@ namespace GameHook.IntegrationTests
 
             mapper.AssertAreEqual("battle.opponent.active_pokemon.internals.personality_value", 0x022C5878, [0x78, 0x05, 0x6E, 0x00], 7210360);
 
-            mapper.AssertAreEqual("battle.field.weather", 0x022C2B91, [0x00, 0x00], null);
+            mapper.AssertAreEqual("battle.field.weather", 0x22C2B90, [0x00, 0x00], null);
             mapper.AssertAreEqual("battle.field.weather_count", 0x022C2B94, [0x00], 0);
         }
     }

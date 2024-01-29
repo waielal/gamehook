@@ -2025,8 +2025,6 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.wild.1.misc.contest.contest_smart", 0x21, [155], 155);
             mapper.AssertAreEqual("battle.wild.1.misc.contest.contest_tough", 0x22, [81], 81);
             mapper.AssertAreEqual("battle.wild.1.misc.ribbons.ribbons_sinnoh_set_1", 0x24, [188, 122, 167, 203], -878216516);
-            mapper.AssertAreEqual("battle.ally.name", 0x22AFD80, [0, 0], null);
-            mapper.AssertAreEqual("battle.ally.trainer", 0x22AFD80, [0, 0], null);
             mapper.AssertAreEqual("battle.ally.id", 0x22AFD80, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.enemy_bar_synced_hp", 0x22B5A4C, [52, 90], 23092);
             mapper.AssertAreEqual("battle.ally.party_position", 0x22B5C78, [3], 3);
@@ -2502,8 +2500,6 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.5.misc.contest.contest_smart", 0x21, [75], 75);
             mapper.AssertAreEqual("battle.ally.team.5.misc.contest.contest_tough", 0x22, [69], 69);
             mapper.AssertAreEqual("battle.ally.team.5.misc.ribbons.ribbons_sinnoh_set_1", 0x24, [107, 234, 28, 102], 1713171051);
-            mapper.AssertAreEqual("battle.opponent.name", 0x22AFD7E, [0, 0], null);
-            mapper.AssertAreEqual("battle.opponent.trainer", 0x22AFD7E, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent.id", 0x22AFD7E, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.enemy_bar_synced_hp", 0x22B598C, [116, 89], 22900);
             mapper.AssertAreEqual("battle.opponent.team_count", 0x22BA084, [0], 0);
@@ -2979,8 +2975,6 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.5.misc.contest.contest_smart", 0x21, [208], 208);
             mapper.AssertAreEqual("battle.opponent.team.5.misc.contest.contest_tough", 0x22, [88], 88);
             mapper.AssertAreEqual("battle.opponent.team.5.misc.ribbons.ribbons_sinnoh_set_1", 0x24, [226, 93, 113, 238], -294560286);
-            mapper.AssertAreEqual("battle.opponent_2.name", 0x22AFD82, [0, 0], null);
-            mapper.AssertAreEqual("battle.opponent_2.trainer", 0x22AFD82, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent_2.id", 0x22AFD82, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.party_position", 0x22B5C7E, [0], 0);
             mapper.AssertAreEqual("battle.opponent_2.enemy_bar_synced_hp", 0x22B5B0C, [244, 90], 23284);

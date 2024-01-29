@@ -37,8 +37,7 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD857,
                 Bytes = new int[] { 0xFF },
-                Nibble = null,
-                Bit = 1,
+                Bits = "1",
                 Path = "player.badges.1",
                 Length = 1,
                 Type = "bit",
@@ -72,8 +71,7 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xDCD7,
                 Bytes = new int[] { 0x01 },
-                Nibble = null,
-                Bit = null,
+                Bits = null,
                 Path = "player.team_count",
                 Length = 1,
                 Type = "int",
@@ -99,8 +97,7 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD84E,
                 Bytes = new int[] { 0x07, 0xB0, 0x93 },
-                Nibble = null,
-                Bit = null,
+                Bits = null,
                 Path = "bag.money",
                 Length = 3,
                 Type = "int",
@@ -126,8 +123,7 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD472,
                 Bytes = new int[] { 0x01 },
-                Nibble = null,
-                Bit = null,
+                Bits = null,
                 Path = "player.gender",
                 Length = 1,
                 Type = "int",
@@ -154,8 +150,7 @@ namespace GameHook.IntegrationTests
             {
                 Address = 0xD47D,
                 Bytes = new int[] { 0x92, 0xA7, 0xA4, 0xAB, 0xAB, 0xB9, 0x50, 0x50, 0x00, 0x00, 0x00 },
-                Nibble = null,
-                Bit = null,
+                Bits = null,
                 Path = "player.name",
                 Length = 11,
                 Type = "string",

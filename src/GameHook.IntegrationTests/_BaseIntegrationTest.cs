@@ -62,8 +62,7 @@ namespace GameHook.IntegrationTests
             Assert.AreEqual(expected.Description, actual.Description);
             Assert.AreEqual(expected.IsFrozen, actual.IsFrozen);
             Assert.AreEqual(expected.Path, actual.Path);
-            Assert.AreEqual(expected.Bit, actual.Bit);
-            Assert.AreEqual(expected.Nibble, actual.Nibble);
+            Assert.AreEqual(expected.Bits, actual.Bits);
             Assert.AreEqual(expected.Reference, actual.Reference);
             Assert.AreEqual(expected.Length, actual.Length);
             Assert.AreEqual(expected.Type, actual.Type);

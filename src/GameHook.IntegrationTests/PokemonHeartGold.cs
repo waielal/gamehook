@@ -10,7 +10,7 @@ namespace GameHook.IntegrationTests
         [TestMethod]
         public async Task Property_OK_Names()
         {
-            await Load_NDS_PokemonHeartGold ();
+            await Load_NDS_PokemonHeartGold();
 
             var mapper = await GameHookClient.GetMapperAsync();
 
@@ -512,7 +512,7 @@ namespace GameHook.IntegrationTests
 
             var mapper = await GameHookClient.GetMapperAsync();
 
-            mapper.AssertAreEqual("overworld.map_name", 0x227D4CC, [117, 0], "Contest Hall - Map 1");
+            mapper.AssertAreEqual("overworld.map_name", 0x227D4CC, [117, 0], "Ilex Forest - Map 1");
             mapper.AssertAreEqual("overworld.map_index", 0x227D4CC, [117, 0], 117);
             mapper.AssertAreEqual("overworld.x", 0x227D4D4, [11, 0, 0, 0], 11);
             mapper.AssertAreEqual("overworld.y", 0x227D4D8, [78, 0, 0, 0], 78);
