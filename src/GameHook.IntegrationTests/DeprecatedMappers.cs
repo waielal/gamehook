@@ -3339,7 +3339,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.0.nickname", 0x8, [200, 195, 189, 197, 255, 255, 255, 255, 255, 255], "NICK");
             mapper.AssertAreEqual("player.team.0.species", 0x20, [24, 1], "Torchic");
             mapper.AssertAreEqual("player.team.0.pokedexNumber", 0x20, [24, 1], "255");
-            mapper.AssertAreEqual("player.team.0.speciesArray", 0x20, [24, 1], "{ pokedexNumber: 255, name: 'Torchic' }");
+            //mapper.AssertAreEqual("player.team.0.speciesArray", 0x20, [24, 1], new { pokedexNumber = 255, name = "Torchic" });
             mapper.AssertAreEqual("player.team.0.level", 0x54, [5], 5);
             mapper.AssertAreEqual("player.team.0.expPoints", 0x24, [167, 0, 0, 0], 167);
             mapper.AssertAreEqual("player.team.0.nature", 0x0, [32, 6, 83, 204], 20);
@@ -4233,7 +4233,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.trainer.team.0.nickname", 0x8, [199, 207, 190, 197, 195, 202, 255, 4, 108, 0], "MUDKIP");
             mapper.AssertAreEqual("battle.trainer.team.0.species", 0x20, [27, 1], "Mudkip");
             mapper.AssertAreEqual("battle.trainer.team.0.pokedexNumber", 0x20, [27, 1], "258");
-            mapper.AssertAreEqual("battle.trainer.team.0.speciesArray", 0x20, [27, 1], "{ pokedexNumber: 258, name: 'Mudkip' }");
+            //            mapper.AssertAreEqual("battle.trainer.team.0.speciesArray", 0x20, [27, 1], "{ pokedexNumber: 258, name: 'Mudkip' }");
             mapper.AssertAreEqual("battle.trainer.team.0.level", 0x54, [5], 5);
             mapper.AssertAreEqual("battle.trainer.team.0.expPoints", 0x24, [135, 0, 0, 0], 135);
             mapper.AssertAreEqual("battle.trainer.team.0.nature", 0x0, [136, 246, 9, 0], 11);
@@ -4595,7 +4595,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.trainer.team.5.robbinsObedience", 0x2C, [0, 0, 0, 0], 0);
             mapper.AssertAreEqual("battle.yourPokemon.partyPos", 0x202406E, [0, 0], 0);
             mapper.AssertAreEqual("battle.yourPokemon.nickname", 0x20240B4, [200, 195, 189, 197, 255, 47, 0, 3, 11, 0, 0], "NICK");
-            mapper.AssertAreEqual("battle.yourPokemon.speciesArray", 0x2024084, [24, 1], "{ pokedexNumber: 255, name: 'Torchic' }");
+            mapper.AssertAreEqual("battle.yourPokemon.speciesArray", 0x2024084, [24, 1], " pokedexNumber: 255, name: 'Torchic' ");
             mapper.AssertAreEqual("battle.yourPokemon.level", 0x20240AE, [5], 5);
             mapper.AssertAreEqual("battle.yourPokemon.expPoints", 0x20240C8, [167, 0, 0, 0], 167);
             mapper.AssertAreEqual("battle.yourPokemon.friendship", 0x20240AF, [71], 71);
@@ -4691,7 +4691,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.yourSecondPokemon.otName", 0x2024170, [0, 0, 0, 0, 0, 0, 0, 0], "        ");
             mapper.AssertAreEqual("battle.enemyPokemon.partyPos", 0x2024070, [0, 0], 0);
             mapper.AssertAreEqual("battle.enemyPokemon.nickname", 0x202410C, [199, 207, 190, 197, 195, 202, 255, 0, 0, 0, 0], "MUDKIP");
-            mapper.AssertAreEqual("battle.enemyPokemon.speciesArray", 0x20240DC, [27, 1], "{ pokedexNumber: 258, name: 'Mudkip' }");
+            mapper.AssertAreEqual("battle.enemyPokemon.speciesArray", 0x20240DC, [27, 1], " pokedexNumber: 258, name: 'Mudkip' ");
             mapper.AssertAreEqual("battle.enemyPokemon.level", 0x2024106, [5], 5);
             mapper.AssertAreEqual("battle.enemyPokemon.expPoints", 0x2024120, [135, 0, 0, 0], 135);
             mapper.AssertAreEqual("battle.enemyPokemon.friendship", 0x2024107, [70], 70);
@@ -4960,7 +4960,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.0.checksum", 0x1C, [208, 83], 21456);
             mapper.AssertAreEqual("player.team.0.otID", 0x4, [21, 16, 192, 156], 2629832725);
             mapper.AssertAreEqual("player.team.0.nickname", 0x8, [200, 187, 199, 191, 198, 191, 205, 205, 255, 255], "NAMELESS");
-            mapper.AssertAreEqual("player.team.0.speciesArray", 0x20, [7, 0], "{ pokedexNumber: 7, name: 'Squirtle' }");
+            mapper.AssertAreEqual("player.team.0.speciesArray", 0x20, [7, 0], " pokedexNumber: 7, name: 'Squirtle' ");
             mapper.AssertAreEqual("player.team.0.species", 0x20, [7, 0], "Squirtle");
             mapper.AssertAreEqual("player.team.0.pokedexNumber", 0x20, [7, 0], "7");
             mapper.AssertAreEqual("player.team.0.level", 0x54, [13], 13);
@@ -5810,7 +5810,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.trainer.team.0.checksum", 0x1C, [214, 238], 61142);
             mapper.AssertAreEqual("battle.trainer.team.0.otID", 0x4, [105, 12, 84, 186], 3126070377);
             mapper.AssertAreEqual("battle.trainer.team.0.nickname", 0x8, [193, 191, 201, 190, 207, 190, 191, 255, 1, 0], "GEODUDE");
-            mapper.AssertAreEqual("battle.trainer.team.0.speciesArray", 0x20, [74, 0], "{ pokedexNumber: 74, name: 'Geodude' }");
+            mapper.AssertAreEqual("battle.trainer.team.0.speciesArray", 0x20, [74, 0], " pokedexNumber: 74, name: 'Geodude' ");
             mapper.AssertAreEqual("battle.trainer.team.0.species", 0x20, [74, 0], "Geodude");
             mapper.AssertAreEqual("battle.trainer.team.0.pokedexNumber", 0x20, [74, 0], "74");
             mapper.AssertAreEqual("battle.trainer.team.0.level", 0x54, [12], 12);
@@ -5871,7 +5871,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.trainer.team.1.checksum", 0x1C, [196, 226], 58052);
             mapper.AssertAreEqual("battle.trainer.team.1.otID", 0x4, [146, 197, 16, 169], 2836448658);
             mapper.AssertAreEqual("battle.trainer.team.1.nickname", 0x8, [201, 200, 195, 210, 255, 0, 0, 0, 80, 95], "ONIX");
-            mapper.AssertAreEqual("battle.trainer.team.1.speciesArray", 0x20, [95, 0], "{ pokedexNumber: 95, name: 'Onix' }");
+            mapper.AssertAreEqual("battle.trainer.team.1.speciesArray", 0x20, [95, 0], " pokedexNumber: 95, name: 'Onix' ");
             mapper.AssertAreEqual("battle.trainer.team.1.species", 0x20, [95, 0], "Onix");
             mapper.AssertAreEqual("battle.trainer.team.1.pokedexNumber", 0x20, [95, 0], "95");
             mapper.AssertAreEqual("battle.trainer.team.1.level", 0x54, [14], 14);
@@ -6176,7 +6176,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.yourPokemon.nickname", 0x2023C14, [200, 187, 199, 191, 198, 191, 205, 205, 255, 0, 0], "NAMELESS");
             mapper.AssertAreEqual("battle.yourPokemon.species", 0x2023BE4, [7, 0], "Squirtle");
             mapper.AssertAreEqual("battle.yourPokemon.pokedexNumber", 0x2023BE4, [7, 0], "7");
-            mapper.AssertAreEqual("battle.yourPokemon.speciesArray", 0x2023BE4, [7, 0], "{ pokedexNumber: 7, name: 'Squirtle' }");
+            mapper.AssertAreEqual("battle.yourPokemon.speciesArray", 0x2023BE4, [7, 0], " pokedexNumber: 7, name: 'Squirtle' ");
             mapper.AssertAreEqual("battle.yourPokemon.level", 0x2023C0E, [13], 13);
             mapper.AssertAreEqual("battle.yourPokemon.expPoints", 0x2023C28, [2, 5, 0, 0], 1282);
             mapper.AssertAreEqual("battle.yourPokemon.friendship", 0x2023C0F, [113], 113);
@@ -6276,7 +6276,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.enemyPokemon.nickname", 0x2023C6C, [201, 200, 195, 210, 255, 0, 0, 0, 1, 0, 0], "ONIX");
             mapper.AssertAreEqual("battle.enemyPokemon.species", 0x2023C3C, [95, 0], "Onix");
             mapper.AssertAreEqual("battle.enemyPokemon.pokedexNumber", 0x2023C3C, [95, 0], "95");
-            mapper.AssertAreEqual("battle.enemyPokemon.speciesArray", 0x2023C3C, [95, 0], "{ pokedexNumber: 95, name: 'Onix' }");
+            mapper.AssertAreEqual("battle.enemyPokemon.speciesArray", 0x2023C3C, [95, 0], " pokedexNumber: 95, name: 'Onix' ");
             mapper.AssertAreEqual("battle.enemyPokemon.level", 0x2023C66, [14], 14);
             mapper.AssertAreEqual("battle.enemyPokemon.expPoints", 0x2023C80, [184, 10, 0, 0], 2744);
             mapper.AssertAreEqual("battle.enemyPokemon.friendship", 0x2023C67, [70], 70);

@@ -108,7 +108,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.0.misc.met_info.egg_location", 0x7E, [0, 0], 0);
             mapper.AssertAreEqual("player.team.0.misc.met_info.met_location", 0x80, [186, 11], 3002);
             mapper.AssertAreEqual("player.team.0.misc.met_info.pokeball", 0x83, [4], 4);
-            mapper.AssertAreEqual("player.team.0.misc.met_info.met_level", 0x84, [5], 0);
+            mapper.AssertAreEqual("player.team.0.misc.met_info.met_level", 0x84, [5], 5);
             mapper.AssertAreEqual("player.team.0.misc.met_info.female_ot_gender", 0x84, [5], false);
             mapper.AssertAreEqual("player.team.0.misc.met_info.encounter_type", 0x85, [12], 12);
             mapper.AssertAreEqual("player.team.0.misc.contest.contest_cool", 0x1E, [0], 0);
@@ -179,7 +179,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.1.misc.met_info.egg_location", 0x7E, [0, 0], 0);
             mapper.AssertAreEqual("player.team.1.misc.met_info.met_location", 0x80, [186, 11], 3002);
             mapper.AssertAreEqual("player.team.1.misc.met_info.pokeball", 0x83, [4], 4);
-            mapper.AssertAreEqual("player.team.1.misc.met_info.met_level", 0x84, [3], 0);
+            mapper.AssertAreEqual("player.team.1.misc.met_info.met_level", 0x84, [3], 3);
             mapper.AssertAreEqual("player.team.1.misc.met_info.female_ot_gender", 0x84, [3], false);
             mapper.AssertAreEqual("player.team.1.misc.met_info.encounter_type", 0x85, [2], 2);
             mapper.AssertAreEqual("player.team.1.misc.contest.contest_cool", 0x1E, [0], 0);
@@ -737,7 +737,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.0.misc.met_info.egg_location", 0x7E, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.0.misc.met_info.met_location", 0x80, [186, 11], 3002);
             mapper.AssertAreEqual("battle.player.team.0.misc.met_info.pokeball", 0x83, [4], 4);
-            mapper.AssertAreEqual("battle.player.team.0.misc.met_info.met_level", 0x84, [5], 0);
+            mapper.AssertAreEqual("battle.player.team.0.misc.met_info.met_level", 0x84, [5], 5);
             mapper.AssertAreEqual("battle.player.team.0.misc.met_info.female_ot_gender", 0x84, [5], false);
             mapper.AssertAreEqual("battle.player.team.0.misc.met_info.encounter_type", 0x85, [12], 12);
             mapper.AssertAreEqual("battle.player.team.0.misc.contest.contest_cool", 0x1E, [0], 0);
@@ -808,7 +808,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.1.misc.met_info.egg_location", 0x7E, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.1.misc.met_info.met_location", 0x80, [186, 11], 3002);
             mapper.AssertAreEqual("battle.player.team.1.misc.met_info.pokeball", 0x83, [4], 4);
-            mapper.AssertAreEqual("battle.player.team.1.misc.met_info.met_level", 0x84, [3], 0);
+            mapper.AssertAreEqual("battle.player.team.1.misc.met_info.met_level", 0x84, [3], 3);
             mapper.AssertAreEqual("battle.player.team.1.misc.met_info.female_ot_gender", 0x84, [3], false);
             mapper.AssertAreEqual("battle.player.team.1.misc.met_info.encounter_type", 0x85, [2], 2);
             mapper.AssertAreEqual("battle.player.team.1.misc.contest.contest_cool", 0x1E, [0], 0);
@@ -1163,7 +1163,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.wild.0.misc.met_info.egg_location", 0x7E, [0, 0], 0);
             mapper.AssertAreEqual("battle.wild.0.misc.met_info.met_location", 0x80, [0, 0], 0);
             mapper.AssertAreEqual("battle.wild.0.misc.met_info.pokeball", 0x83, [4], 4);
-            mapper.AssertAreEqual("battle.wild.0.misc.met_info.met_level", 0x84, [5], 0);
+            mapper.AssertAreEqual("battle.wild.0.misc.met_info.met_level", 0x84, [5], 5);
             mapper.AssertAreEqual("battle.wild.0.misc.met_info.female_ot_gender", 0x84, [5], false);
             mapper.AssertAreEqual("battle.wild.0.misc.met_info.encounter_type", 0x85, [0], 0);
             mapper.AssertAreEqual("battle.wild.0.misc.contest.contest_cool", 0x1E, [0], 0);
@@ -1833,7 +1833,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.0.misc.met_info.egg_location", 0x7E, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.0.misc.met_info.met_location", 0x80, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.0.misc.met_info.pokeball", 0x83, [4], 4);
-            mapper.AssertAreEqual("battle.opponent.team.0.misc.met_info.met_level", 0x84, [5], 0);
+            mapper.AssertAreEqual("battle.opponent.team.0.misc.met_info.met_level", 0x84, [5], 5);
             mapper.AssertAreEqual("battle.opponent.team.0.misc.met_info.female_ot_gender", 0x84, [5], false);
             mapper.AssertAreEqual("battle.opponent.team.0.misc.met_info.encounter_type", 0x85, [0], 0);
             mapper.AssertAreEqual("battle.opponent.team.0.misc.contest.contest_cool", 0x1E, [0], 0);

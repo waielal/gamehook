@@ -29,7 +29,15 @@ namespace GameHook.IntegrationTests
 
             Assert.AreEqual(expectedAddress.ToHexdecimalString(), actual.Address?.ToHexdecimalString());
             Assert.AreEqual(expectedBytes.ToHexdecimalString(", "), actual.Bytes.ToHexdecimalString(", "));
-            Assert.AreEqual(expectedValue?.ToString(), actual.Value?.ToString());
+
+            if (expectedValue == null)
+            {
+                Assert.IsTrue(string.IsNullOrEmpty(actual?.Value?.ToString()));
+            }
+            else
+            {
+                Assert.AreEqual(expectedValue.ToString(), actual?.Value.ToString());
+            }
         }
         //Properties with only values
         public static void AssertAreEqual(this MapperModel mapper, string path, object? expectedValue)

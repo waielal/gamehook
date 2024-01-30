@@ -1,4 +1,5 @@
 ﻿using GameHook.Domain.Interfaces;
+using System.Collections;
 
 namespace GameHook.Domain.GameHookProperties
 {
@@ -148,60 +149,50 @@ namespace GameHook.Domain.GameHookProperties
 
             if (!string.IsNullOrEmpty(Bits))
             {
+                int[] indexes;
+
                 if (Bits.Contains('-'))
                 {
                     var parts = Bits.Split('-');
 
-                    int start = int.Parse(parts[0]);
-                    int end = int.Parse(parts[1]);
-
-                    int bitCount = (end - start) + 1;
-
-                    byte[] newBytes = new byte[bytes.Length];
-
-                    for (int i = 0; i < bitCount; i++)
+                    if (int.TryParse(parts[0], out int start) && int.TryParse(parts[1], out int end))
                     {
-                        int byteIndex = (start + i) / 8; // Calculate the byte index.
-                        int bitOffset = (start + i) % 8; // Calculate the bit offset within the byte.
-
-                        // Set the appropriate bit in the newBytes array.
-                        newBytes[byteIndex] |= (byte)(((bytes[byteIndex] >> bitOffset) & 1) << (i % 8));
+                        indexes = Enumerable.Range(start, end - start + 1).ToArray();
                     }
-
-                    bytes = newBytes;
+                    else
+                    {
+                        throw new ArgumentException($"Invalid format for attribute Bits ({Bits}) for path {Path}.");
+                    }
                 }
                 else if (Bits.Contains(','))
                 {
-                    var indices = Bits.Split(',').Select(int.Parse);
-
-                    foreach (int index in indices)
-                    {
-                        if (index >= 0 && index < bytes.Length * 8)
-                        {
-                            int byteIndex = index / 8;
-                            int bitIndex = index % 8;
-
-                            // Set the specified bit to 1
-                            bytes[byteIndex] |= (byte)(1 << bitIndex);
-                        }
-                    }
+                    indexes = Bits.Split(',')
+                                   .Select(x => int.TryParse(x, out int num) ? num : throw new ArgumentException($"Invalid format for attribute Bits ({Bits}) for path {Path}."))
+                                   .ToArray();
                 }
                 else
                 {
-                    // Handling a single number
-                    int index = int.Parse(Bits);
-
-                    if (bytes == null || bytes.Length == 0 || index < 0 || index >= bytes.Length * 8)
+                    if (int.TryParse(Bits, out int index))
                     {
-                        throw new MapperException($"Bit {index} was outside of the bytes array length of {bytes?.Length ?? 0}.");
+                        indexes = [index];
                     }
-
-                    var byteIndex = index / 8;
-                    var bitIndex = index % 8;
-
-                    byte bit = (byte)((bytes[byteIndex] >> bitIndex) & 1);
-                    bytes = [bit];
+                    else
+                    {
+                        throw new ArgumentException($"Invalid format for attribute Bits ({Bits}) for path {Path}.");
+                    }
                 }
+
+                var i = 0;
+                var inputBits = new BitArray(bytes);
+                var outputBits = new BitArray(bytes.Length * 8);
+
+                foreach (var x in indexes)
+                {
+                    outputBits[i] = inputBits[x];
+                    i += 1;
+                }
+
+                outputBits.CopyTo(bytes, 0);
             }
 
             if (address != null && BytesFrozen != null && bytes.SequenceEqual(BytesFrozen) == false)
@@ -258,6 +249,49 @@ namespace GameHook.Domain.GameHookProperties
             else
             {
                 bytes = FromValue(value);
+            }
+
+            if (string.IsNullOrEmpty(Bits) == false)
+            {
+                var indexMap = Enumerable.Repeat(-1, bytes.Length * 8).ToArray();
+
+                var inputBits = new BitArray(bytes);
+                var outputBits = new BitArray(Bytes);
+
+                if (Bits.Contains('-'))
+                {
+                    var parts = Bits.Split('-');
+
+                    int start = int.Parse(parts[0]);
+                    int end = int.Parse(parts[1]);
+
+                    for (var i = start; i <= end; i++)
+                    {
+                        indexMap[i] = i - start;
+                    }
+                }
+                else if (Bits.Contains(','))
+                {
+                    var indexes = Bits.Split(',').Select(x => int.Parse(x)).ToArray();
+                    for (var i = 0; i < indexes.Length; i++)
+                    {
+                        indexMap[indexes[i]] = i;
+                    }
+                }
+                else
+                {
+                    // Handling a single number
+                    int index = int.Parse(Bits);
+                    indexMap[index] = 0;
+                }
+
+                for (var i = 0; i < indexMap.Length; i++)
+                {
+                    if (indexMap[i] == -1) { continue; }
+                    outputBits[indexMap[i]] = inputBits[i];
+                }
+
+                outputBits.CopyTo(bytes, 0);
             }
 
             await WriteBytes(bytes, freeze);

@@ -19,7 +19,7 @@ namespace GameHook.Application
                 .Where(x => x.Name.NamespaceName == "https://schemas.gamehook.io/attributes/var");
         }
 
-        static string[] AttributesThatCanBeNormalized { get; } = new string[] { "address", "preprocessor" };
+        static string[] AttributesThatCanBeNormalized { get; } = ["address", "preprocessor"];
         public static List<XAttribute> GetAttributesThatCanBeNormalized(this XDocument doc)
         {
             var properties = doc.Descendants("properties") ?? throw new Exception("Unable to locate <properties>");
@@ -140,7 +140,7 @@ namespace GameHook.Application
 
         public static IGameHookMapper LoadMapperFromFile(IGameHookInstance? instance, string mapperContents, string? scriptContents)
         {
-            var doc = XDocument.Parse(mapperContents);
+            var doc = XDocument.Parse(mapperContents.Replace("{", string.Empty).Replace("}", string.Empty));
 
             // Apply Macros
             var destinationMacros = doc.Descendants("macro").ToArray();

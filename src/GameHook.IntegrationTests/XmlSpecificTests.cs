@@ -40,7 +40,7 @@ namespace GameHook.IntegrationTests
                 Bits = "1",
                 Path = "player.badges.1",
                 Length = 1,
-                Type = "bit",
+                Type = "bool",
                 IsFrozen = false,
                 Description = "hiveBadge",
                 Value = true
