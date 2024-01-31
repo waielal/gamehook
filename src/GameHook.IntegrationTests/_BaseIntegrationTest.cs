@@ -145,7 +145,7 @@ namespace GameHook.IntegrationTests
 
         protected async Task Load_GBA_PokemonRuby(int n = 0)
         {
-            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_ruby_{n}.json");
+            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_ruby_sapphire_{n}.json");
             await LoadMapper($"official_gba_pokemon_ruby");
         }
 
@@ -157,12 +157,12 @@ namespace GameHook.IntegrationTests
 
         protected async Task Load_GBA_PokemonFireRed(int n = 0)
         {
-            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_firered_{n}.json");
+            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_firered_leafgreen_{n}.json");
             await LoadMapper($"official_gba_pokemon_firered_leafgreen");
         }
         protected async Task Load_NDS_PokemonDiamond(int n = 0)
         {
-            await StaticMemoryDriver.SetMemoryFragment($"nds_pokemon_diamond_{n}.json");
+            await StaticMemoryDriver.SetMemoryFragment($"nds_pokemon_diamond_pearl_{n}.json");
             await LoadMapper($"official_nds_pokemon_diamond_pearl");
         }
         protected async Task Load_NDS_PokemonPlatinum(int n = 0)
@@ -172,7 +172,7 @@ namespace GameHook.IntegrationTests
         }
         protected async Task Load_NDS_PokemonHeartGold(int n = 0)
         {
-            await StaticMemoryDriver.SetMemoryFragment($"nds_pokemon_heartgold_{n}.json");
+            await StaticMemoryDriver.SetMemoryFragment($"nds_pokemon_heartgold_soulsilver_{n}.json");
             await LoadMapper($"official_nds_pokemon_heartgold_soulsilver");
         }
 
@@ -189,7 +189,7 @@ namespace GameHook.IntegrationTests
         }
         protected async Task Load_GBC_PokemonGoldDeprecated(int n = 0)
         {
-            await StaticMemoryDriver.SetMemoryFragment($"gbc_pokemon_gold_{n}.json");
+            await StaticMemoryDriver.SetMemoryFragment($"gbc_pokemon_gold_silver_{n}.json");
             await LoadMapper($"official_deprecated_pokemon_gold_silver_deprecated");
         }
         protected async Task Load_GBC_PokemonCrystalDeprecated(int n = 0)
@@ -197,10 +197,10 @@ namespace GameHook.IntegrationTests
             await StaticMemoryDriver.SetMemoryFragment($"gbc_pokemon_crystal_{n}.json");
             await LoadMapper($"official_deprecated_pokemon_crystal_deprecated");
         }
-        protected async Task Load_GB_PokemonRubyDeprecated(int n = 0)
+        protected async Task Load_GBA_PokemonRubyDeprecated(int n = 0)
         {
-            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_ruby_{n}.json");
-            await LoadMapper($"official_deprecated_pokemon_ruby_deprecated");
+            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_ruby_sapphire_{n}.json");
+            await LoadMapper($"official_deprecated_pokemon_ruby_sapphire_deprecated");
         }
         protected async Task Load_GBA_PokemonEmeraldDeprecated(int n = 0)
         {
@@ -209,7 +209,7 @@ namespace GameHook.IntegrationTests
         }
         protected async Task Load_GBA_PokemonFireRedDeprecated(int n = 0)
         {
-            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_firered_{n}.json");
+            await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_firered_leafgreen_{n}.json");
             await LoadMapper($"official_deprecated_pokemon_firered_leafgreen_deprecated");
         }
     }

@@ -7,45 +7,21 @@ namespace GameHook.IntegrationTests
     [TestClass]
     public class PokemonHeartGold : BaseTest
     {
-        [TestMethod]
-        public async Task Property_OK_Names()
-        {
-            await Load_NDS_PokemonHeartGold();
-
-            var mapper = await GameHookClient.GetMapperAsync();
-
-            mapper.AssertAreEqual("player.name", 0x227C2FC, [0x2B, 0x01, 0x2B, 0x01, 0x2B, 0x01, 0x2B, 0x01, 0x2B, 0x01, 0x2B, 0x01, 0x2B, 0x01], "AAAAAAA");
-            mapper.AssertAreEqual("player.team.0.nickname", 0x48, [0x37, 0x01, 0x2F, 0x01, 0x31, 0x01, 0x2B, 0x01, 0x38, 0x01, 0x33, 0x01, 0x3F, 0x01, 0x37, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00], "MEGANIUM");
-        }
 
         [TestMethod]
-        public async Task Property_OK_Player()
-        {
-            await Load_NDS_PokemonHeartGold();
-            var mapper = await GameHookClient.GetMapperAsync();
-
-            mapper.AssertAreEqual("player.player_id", 0x227C30C, [0xEB, 0x10], 4331);
-            mapper.AssertAreEqual("player.secret_id", 0x227C30E, [0x4C, 0xCD], 52556);
-            mapper.AssertAreEqual("player.team_count", 0x227C32C, [0x03], 3);
-
-            mapper.AssertAreEqual("player.badges.0", 0x227C316, [0x03], true);
-            mapper.AssertAreEqual("player.badges.1", 0x227C316, [0x03], true);
-            mapper.AssertAreEqual("player.badges.2", 0x227C316, [0x03], false);
-            mapper.AssertAreEqual("player.badges.3", 0x227C316, [0x03], false);
-            mapper.AssertAreEqual("player.badges.4", 0x227C316, [0x03], false);
-            mapper.AssertAreEqual("player.badges.5", 0x227C316, [0x03], false);
-            mapper.AssertAreEqual("player.badges.6", 0x227C316, [0x03], false);
-            mapper.AssertAreEqual("player.badges.7", 0x227C316, [0x03], false);
-        }
-
-        [TestMethod]
-        public async Task HeartGold_Player_Party()
+        public async Task All_Properties()
         {
             await Load_NDS_PokemonHeartGold(3);
 
             var mapper = await GameHookClient.GetMapperAsync();
 
+            mapper.AssertAreEqual("player.name", 0x227C2FC, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1], "AAAAAAA");
+            mapper.AssertAreEqual("player.gender", 0x227C314, [0], 0);
+            mapper.AssertAreEqual("player.player_id", 0x227C30C, [235, 16], 4331);
+            mapper.AssertAreEqual("player.secret_id", 0x227C30E, [76, 205], 52556);
             mapper.AssertAreEqual("player.team_count", 0x227C32C, [3], 3);
+            mapper.AssertAreEqual("player.starter", 0x227D0DC, [152, 0], "Chikorita");
+            mapper.AssertAreEqual("player.party_position", 0);
             mapper.AssertAreEqual("player.team.0.species", 0x8, [154, 0], "Meganium");
             mapper.AssertAreEqual("player.team.0.dex_number", 0x8, [154, 0], 154);
             mapper.AssertAreEqual("player.team.0.nickname", 0x48, [55, 1, 47, 1, 49, 1, 43, 1, 56, 1, 51, 1, 63, 1, 55, 1, 255, 255, 255, 255, 0, 0], "MEGANIUM");
@@ -54,7 +30,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.0.ot_name", 0x68, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 255, 255], "AAAAAAA");
             mapper.AssertAreEqual("player.team.0.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("player.team.0.ability", 0x15, [65], "Overgrow");
-            mapper.AssertAreEqual("player.team.0.nature", 0x0, [173, 203, 126, 231], "Careful");
+            mapper.AssertAreEqual("player.team.0.nature", "Careful");
             mapper.AssertAreEqual("player.team.0.held_item", 0xA, [239, 0], "Miracle Seed");
             mapper.AssertAreEqual("player.team.0.friendship", 0x14, [197], 197);
             mapper.AssertAreEqual("player.team.0.pokerus", 0x82, [0], 0);
@@ -95,7 +71,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.0.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.0.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.0.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("player.team.0.internals.personality_value", 0x0, [173, 203, 126, 231], 3883846573);
+            mapper.AssertAreEqual("player.team.0.internals.personality_value", 3883846573);
             mapper.AssertAreEqual("player.team.0.internals.checksum", 0x6, [60, 16], 4156);
             mapper.AssertAreEqual("player.team.0.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("player.team.0.internals.language", 0x17, [2], "English");
@@ -125,7 +101,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.1.ot_name", 0x68, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 255, 255], "AAAAAAA");
             mapper.AssertAreEqual("player.team.1.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("player.team.1.ability", 0x15, [15], "Insomnia");
-            mapper.AssertAreEqual("player.team.1.nature", 0x0, [12, 142, 48, 148], "Timid");
+            mapper.AssertAreEqual("player.team.1.nature", "Timid");
             mapper.AssertAreEqual("player.team.1.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("player.team.1.friendship", 0x14, [105], 105);
             mapper.AssertAreEqual("player.team.1.pokerus", 0x82, [0], 0);
@@ -166,7 +142,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.1.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.1.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.1.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("player.team.1.internals.personality_value", 0x0, [12, 142, 48, 148], 2486210060);
+            mapper.AssertAreEqual("player.team.1.internals.personality_value", 2486210060);
             mapper.AssertAreEqual("player.team.1.internals.checksum", 0x6, [127, 152], 39039);
             mapper.AssertAreEqual("player.team.1.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("player.team.1.internals.language", 0x17, [2], "English");
@@ -196,7 +172,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.2.ot_name", 0x68, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 255, 255], "AAAAAAA");
             mapper.AssertAreEqual("player.team.2.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("player.team.2.ability", 0x15, [32], "Serene Grace");
-            mapper.AssertAreEqual("player.team.2.nature", 0x0, [69, 231, 178, 210], "Careful");
+            mapper.AssertAreEqual("player.team.2.nature", "Careful");
             mapper.AssertAreEqual("player.team.2.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("player.team.2.friendship", 0x14, [123], 123);
             mapper.AssertAreEqual("player.team.2.pokerus", 0x82, [0], 0);
@@ -237,7 +213,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.2.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.2.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.2.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("player.team.2.internals.personality_value", 0x0, [69, 231, 178, 210], 3534939973);
+            mapper.AssertAreEqual("player.team.2.internals.personality_value", 3534939973);
             mapper.AssertAreEqual("player.team.2.internals.checksum", 0x6, [31, 135], 34591);
             mapper.AssertAreEqual("player.team.2.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("player.team.2.internals.language", 0x17, [2], "English");
@@ -267,7 +243,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.3.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("player.team.3.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("player.team.3.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("player.team.3.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("player.team.3.nature", "Hardy");
             mapper.AssertAreEqual("player.team.3.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("player.team.3.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("player.team.3.pokerus", 0x82, [0], 0);
@@ -308,7 +284,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.3.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.3.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.3.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("player.team.3.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("player.team.3.internals.personality_value", 0);
             mapper.AssertAreEqual("player.team.3.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("player.team.3.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("player.team.3.internals.language", 0x17, [0], null);
@@ -338,7 +314,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.4.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("player.team.4.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("player.team.4.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("player.team.4.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("player.team.4.nature", "Hardy");
             mapper.AssertAreEqual("player.team.4.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("player.team.4.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("player.team.4.pokerus", 0x82, [0], 0);
@@ -379,7 +355,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.4.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.4.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.4.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("player.team.4.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("player.team.4.internals.personality_value", 0);
             mapper.AssertAreEqual("player.team.4.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("player.team.4.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("player.team.4.internals.language", 0x17, [0], null);
@@ -409,7 +385,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.5.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("player.team.5.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("player.team.5.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("player.team.5.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("player.team.5.nature", "Hardy");
             mapper.AssertAreEqual("player.team.5.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("player.team.5.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("player.team.5.pokerus", 0x82, [0], 0);
@@ -450,7 +426,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.5.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.5.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("player.team.5.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("player.team.5.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("player.team.5.internals.personality_value", 0);
             mapper.AssertAreEqual("player.team.5.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("player.team.5.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("player.team.5.internals.language", 0x17, [0], null);
@@ -472,46 +448,426 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.team.5.misc.contest.contest_smart", 0x21, [0], 0);
             mapper.AssertAreEqual("player.team.5.misc.contest.contest_tough", 0x22, [0], 0);
             mapper.AssertAreEqual("player.team.5.misc.ribbons.ribbons_sinnoh_set_1", 0x24, [0, 0, 0, 0], 0);
-        }
-
-        [TestMethod]
-        public async Task Property_OK_Bag()
-        {
-            await Load_NDS_PokemonHeartGold();
-            var mapper = await GameHookClient.GetMapperAsync();
-            mapper.AssertAreEqual("bag.money", 0x227C310, [0x16, 0x2E, 0x00, 0x00], 11798);
-
-            mapper.AssertAreEqual("bag.items.0.item", 0x227C8DC, [0x4F, 0x00], "Repel");
-            mapper.AssertAreEqual("bag.items.0.quantity", 0x227C8DE, [0x0A, 0x00], 10);
-            mapper.AssertAreEqual("bag.items.1.item", 0x227C8E0, [0x00, 0x00], null);
-            mapper.AssertAreEqual("bag.items.1.quantity", 0x227C8E2, [0x00, 0x00], 0);
-
-            mapper.AssertAreEqual("bag.medicine.0.item", 0x227CDFC, [0x32, 0x00], "Rare Candy");
-            mapper.AssertAreEqual("bag.medicine.0.quantity", 0x227CDFE, [0x08, 0x00], 8);
-            mapper.AssertAreEqual("bag.medicine.1.item", 0x227CE00, [0x16, 0x00], "Paralyze Heal");
-            mapper.AssertAreEqual("bag.medicine.1.quantity", 0x227CE02, [0x01, 0x00], 1);
-
-            mapper.AssertAreEqual("bag.balls.0.item", 0x227CF9C, [0x04, 0x00], "Poké Ball");
-            mapper.AssertAreEqual("bag.balls.0.quantity", 0x227CF9E, [0x04, 0x00], 4);
-            mapper.AssertAreEqual("bag.balls.1.item", 0x227CFA0, [0xEC, 0x01], "Fast Ball");
-            mapper.AssertAreEqual("bag.balls.1.quantity", 0x227CFA2, [0x01, 0x00], 1);
-
-            mapper.AssertAreEqual("bag.tmhm.0.item", 0x227CC38, [0x7A, 0x01], "TM51");
-            mapper.AssertAreEqual("bag.tmhm.0.quantity", 0x227CC3A, [0x01, 0x00], 1);
-            mapper.AssertAreEqual("bag.tmhm.1.item", 0x227CC3C, [0x8D, 0x01], "TM70");
-            mapper.AssertAreEqual("bag.tmhm.1.quantity", 0x227CC3E, [0x01, 0x00], 1);
-
-            mapper.AssertAreEqual("bag.battle_items.0.item", 0x227CFFC, [0x3C, 0x00], "X Accuracy");
-            mapper.AssertAreEqual("bag.mail.0.item", 0x227CDCC, [0x8D, 0x00], "Tunnel Mail");
-        }
-
-        [TestMethod]
-        public async Task HeartGold_Overworld()
-        {
-            await Load_NDS_PokemonHeartGold(3);
-
-            var mapper = await GameHookClient.GetMapperAsync();
-
+            mapper.AssertAreEqual("player.badges.0", 0x227C316, [3], true);
+            mapper.AssertAreEqual("player.badges.1", 0x227C316, [3], true);
+            mapper.AssertAreEqual("player.badges.2", 0x227C316, [3], false);
+            mapper.AssertAreEqual("player.badges.3", 0x227C316, [3], false);
+            mapper.AssertAreEqual("player.badges.4", 0x227C316, [3], false);
+            mapper.AssertAreEqual("player.badges.5", 0x227C316, [3], false);
+            mapper.AssertAreEqual("player.badges.6", 0x227C316, [3], false);
+            mapper.AssertAreEqual("player.badges.7", 0x227C316, [3], false);
+            mapper.AssertAreEqual("player.badges.8", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("player.badges.9", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("player.badges.10", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("player.badges.11", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("player.badges.12", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("player.badges.13", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("player.badges.14", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("player.badges.15", 0x227C31B, [0], false);
+            mapper.AssertAreEqual("bag.money", 0x227C310, [22, 46, 0, 0], 11798);
+            mapper.AssertAreEqual("bag.coins", 0x227C31C, [0, 0, 55, 0], 3604480);
+            mapper.AssertAreEqual("bag.items.0.item", 0x227C8DC, [79, 0], "Repel");
+            mapper.AssertAreEqual("bag.items.0.quantity", 0x227C8DE, [10, 0], 10);
+            mapper.AssertAreEqual("bag.items.1.item", 0x227C8E0, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.1.quantity", 0x227C8E2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.2.item", 0x227C8E4, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.2.quantity", 0x227C8E6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.3.item", 0x227C8E8, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.3.quantity", 0x227C8EA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.4.item", 0x227C8EC, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.4.quantity", 0x227C8EE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.5.item", 0x227C8F0, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.5.quantity", 0x227C8F2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.6.item", 0x227C8F4, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.6.quantity", 0x227C8F6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.7.item", 0x227C8F8, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.7.quantity", 0x227C8FA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.8.item", 0x227C8FC, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.8.quantity", 0x227C8FE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.9.item", 0x227C900, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.9.quantity", 0x227C902, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.10.item", 0x227C904, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.10.quantity", 0x227C906, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.11.item", 0x227C908, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.11.quantity", 0x227C90A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.12.item", 0x227C90C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.12.quantity", 0x227C90E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.13.item", 0x227C910, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.13.quantity", 0x227C912, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.14.item", 0x227C914, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.14.quantity", 0x227C916, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.15.item", 0x227C918, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.15.quantity", 0x227C91A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.16.item", 0x227C91C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.16.quantity", 0x227C91E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.17.item", 0x227C920, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.17.quantity", 0x227C922, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.18.item", 0x227C924, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.18.quantity", 0x227C926, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.19.item", 0x227C928, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.19.quantity", 0x227C92A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.20.item", 0x227C92C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.20.quantity", 0x227C92E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.21.item", 0x227C930, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.21.quantity", 0x227C932, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.22.item", 0x227C934, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.22.quantity", 0x227C936, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.23.item", 0x227C938, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.23.quantity", 0x227C93A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.24.item", 0x227C93C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.24.quantity", 0x227C93E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.25.item", 0x227C940, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.25.quantity", 0x227C942, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.26.item", 0x227C944, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.26.quantity", 0x227C946, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.27.item", 0x227C948, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.27.quantity", 0x227C94A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.28.item", 0x227C94C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.28.quantity", 0x227C94E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.29.item", 0x227C950, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.29.quantity", 0x227C952, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.30.item", 0x227C954, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.30.quantity", 0x227C956, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.31.item", 0x227C958, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.31.quantity", 0x227C95A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.32.item", 0x227C95C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.32.quantity", 0x227C95E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.33.item", 0x227C960, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.33.quantity", 0x227C962, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.34.item", 0x227C964, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.34.quantity", 0x227C966, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.35.item", 0x227C968, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.35.quantity", 0x227C96A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.36.item", 0x227C96C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.36.quantity", 0x227C96E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.37.item", 0x227C970, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.37.quantity", 0x227C972, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.38.item", 0x227C974, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.38.quantity", 0x227C976, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.39.item", 0x227C978, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.39.quantity", 0x227C97A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.items.40.item", 0x227C97C, [0, 0], null);
+            mapper.AssertAreEqual("bag.items.40.quantity", 0x227C97E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.0.item", 0x227CDFC, [50, 0], "Rare Candy");
+            mapper.AssertAreEqual("bag.medicine.0.quantity", 0x227CDFE, [8, 0], 8);
+            mapper.AssertAreEqual("bag.medicine.1.item", 0x227CE00, [22, 0], "Paralyze Heal");
+            mapper.AssertAreEqual("bag.medicine.1.quantity", 0x227CE02, [1, 0], 1);
+            mapper.AssertAreEqual("bag.medicine.2.item", 0x227CE04, [26, 0], "Super Potion");
+            mapper.AssertAreEqual("bag.medicine.2.quantity", 0x227CE06, [1, 0], 1);
+            mapper.AssertAreEqual("bag.medicine.3.item", 0x227CE08, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.3.quantity", 0x227CE0A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.4.item", 0x227CE0C, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.4.quantity", 0x227CE0E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.5.item", 0x227CE10, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.5.quantity", 0x227CE12, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.6.item", 0x227CE14, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.6.quantity", 0x227CE16, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.7.item", 0x227CE18, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.7.quantity", 0x227CE1A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.8.item", 0x227CE1C, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.8.quantity", 0x227CE1E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.9.item", 0x227CE20, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.9.quantity", 0x227CE22, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.10.item", 0x227CE24, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.10.quantity", 0x227CE26, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.11.item", 0x227CE28, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.11.quantity", 0x227CE2A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.12.item", 0x227CE2C, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.12.quantity", 0x227CE2E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.13.item", 0x227CE30, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.13.quantity", 0x227CE32, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.14.item", 0x227CE34, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.14.quantity", 0x227CE36, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.15.item", 0x227CE38, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.15.quantity", 0x227CE3A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.16.item", 0x227CE3C, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.16.quantity", 0x227CE3E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.17.item", 0x227CE40, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.17.quantity", 0x227CE42, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.18.item", 0x227CE44, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.18.quantity", 0x227CE46, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.19.item", 0x227CE48, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.19.quantity", 0x227CE4A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.medicine.20.item", 0x227CE4C, [0, 0], null);
+            mapper.AssertAreEqual("bag.medicine.20.quantity", 0x227CE4E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.0.item", 0x227CF9C, [4, 0], "Pok\u00e9 Ball");
+            mapper.AssertAreEqual("bag.balls.0.quantity", 0x227CF9E, [4, 0], 4);
+            mapper.AssertAreEqual("bag.balls.1.item", 0x227CFA0, [236, 1], "Fast Ball");
+            mapper.AssertAreEqual("bag.balls.1.quantity", 0x227CFA2, [1, 0], 1);
+            mapper.AssertAreEqual("bag.balls.2.item", 0x227CFA4, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.2.quantity", 0x227CFA6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.3.item", 0x227CFA8, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.3.quantity", 0x227CFAA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.4.item", 0x227CFAC, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.4.quantity", 0x227CFAE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.5.item", 0x227CFB0, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.5.quantity", 0x227CFB2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.6.item", 0x227CFB4, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.6.quantity", 0x227CFB6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.7.item", 0x227CFB8, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.7.quantity", 0x227CFBA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.8.item", 0x227CFBC, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.8.quantity", 0x227CFBE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.9.item", 0x227CFC0, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.9.quantity", 0x227CFC2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.10.item", 0x227CFC4, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.10.quantity", 0x227CFC6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.11.item", 0x227CFC8, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.11.quantity", 0x227CFCA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.12.item", 0x227CFCC, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.12.quantity", 0x227CFCE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.13.item", 0x227CFD0, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.13.quantity", 0x227CFD2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.14.item", 0x227CFD4, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.14.quantity", 0x227CFD6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.15.item", 0x227CFD8, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.15.quantity", 0x227CFDA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.balls.16.item", 0x227CFDC, [0, 0], null);
+            mapper.AssertAreEqual("bag.balls.16.quantity", 0x227CFDE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.0.item", 0x227CC38, [122, 1], "TM51");
+            mapper.AssertAreEqual("bag.tmhm.0.quantity", 0x227CC3A, [1, 0], 1);
+            mapper.AssertAreEqual("bag.tmhm.1.item", 0x227CC3C, [141, 1], "TM70");
+            mapper.AssertAreEqual("bag.tmhm.1.quantity", 0x227CC3E, [1, 0], 1);
+            mapper.AssertAreEqual("bag.tmhm.2.item", 0x227CC40, [160, 1], "TM89");
+            mapper.AssertAreEqual("bag.tmhm.2.quantity", 0x227CC42, [1, 0], 1);
+            mapper.AssertAreEqual("bag.tmhm.3.item", 0x227CC44, [169, 1], "HM06");
+            mapper.AssertAreEqual("bag.tmhm.3.quantity", 0x227CC46, [1, 0], 1);
+            mapper.AssertAreEqual("bag.tmhm.4.item", 0x227CC48, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.4.quantity", 0x227CC4A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.5.item", 0x227CC4C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.5.quantity", 0x227CC4E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.6.item", 0x227CC50, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.6.quantity", 0x227CC52, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.7.item", 0x227CC54, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.7.quantity", 0x227CC56, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.8.item", 0x227CC58, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.8.quantity", 0x227CC5A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.9.item", 0x227CC5C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.9.quantity", 0x227CC5E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.10.item", 0x227CC60, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.10.quantity", 0x227CC62, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.11.item", 0x227CC64, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.11.quantity", 0x227CC66, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.12.item", 0x227CC68, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.12.quantity", 0x227CC6A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.13.item", 0x227CC6C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.13.quantity", 0x227CC6E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.14.item", 0x227CC70, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.14.quantity", 0x227CC72, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.15.item", 0x227CC74, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.15.quantity", 0x227CC76, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.16.item", 0x227CC78, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.16.quantity", 0x227CC7A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.17.item", 0x227CC7C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.17.quantity", 0x227CC7E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.18.item", 0x227CC80, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.18.quantity", 0x227CC82, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.19.item", 0x227CC84, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.19.quantity", 0x227CC86, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.20.item", 0x227CC88, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.20.quantity", 0x227CC8A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.21.item", 0x227CC8C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.21.quantity", 0x227CC8E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.22.item", 0x227CC90, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.22.quantity", 0x227CC92, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.23.item", 0x227CC94, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.23.quantity", 0x227CC96, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.24.item", 0x227CC98, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.24.quantity", 0x227CC9A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.25.item", 0x227CC9C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.25.quantity", 0x227CC9E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.26.item", 0x227CCA0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.26.quantity", 0x227CCA2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.27.item", 0x227CCA4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.27.quantity", 0x227CCA6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.28.item", 0x227CCA8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.28.quantity", 0x227CCAA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.29.item", 0x227CCAC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.29.quantity", 0x227CCAE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.30.item", 0x227CCB0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.30.quantity", 0x227CCB2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.31.item", 0x227CCB4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.31.quantity", 0x227CCB6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.32.item", 0x227CCB8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.32.quantity", 0x227CCBA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.33.item", 0x227CCBC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.33.quantity", 0x227CCBE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.34.item", 0x227CCC0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.34.quantity", 0x227CCC2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.35.item", 0x227CCC4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.35.quantity", 0x227CCC6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.36.item", 0x227CCC8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.36.quantity", 0x227CCCA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.37.item", 0x227CCCC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.37.quantity", 0x227CCCE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.38.item", 0x227CCD0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.38.quantity", 0x227CCD2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.39.item", 0x227CCD4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.39.quantity", 0x227CCD6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.40.item", 0x227CCD8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.40.quantity", 0x227CCDA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.41.item", 0x227CCDC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.41.quantity", 0x227CCDE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.42.item", 0x227CCE0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.42.quantity", 0x227CCE2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.43.item", 0x227CCE4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.43.quantity", 0x227CCE6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.44.item", 0x227CCE8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.44.quantity", 0x227CCEA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.45.item", 0x227CCEC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.45.quantity", 0x227CCEE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.46.item", 0x227CCF0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.46.quantity", 0x227CCF2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.47.item", 0x227CCF4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.47.quantity", 0x227CCF6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.48.item", 0x227CCF8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.48.quantity", 0x227CCFA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.49.item", 0x227CCFC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.49.quantity", 0x227CCFE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.50.item", 0x227CD00, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.50.quantity", 0x227CD02, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.51.item", 0x227CD04, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.51.quantity", 0x227CD06, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.52.item", 0x227CD08, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.52.quantity", 0x227CD0A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.53.item", 0x227CD0C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.53.quantity", 0x227CD0E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.54.item", 0x227CD10, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.54.quantity", 0x227CD12, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.55.item", 0x227CD14, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.55.quantity", 0x227CD16, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.56.item", 0x227CD18, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.56.quantity", 0x227CD1A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.57.item", 0x227CD1C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.57.quantity", 0x227CD1E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.58.item", 0x227CD20, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.58.quantity", 0x227CD22, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.59.item", 0x227CD24, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.59.quantity", 0x227CD26, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.60.item", 0x227CD28, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.60.quantity", 0x227CD2A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.61.item", 0x227CD2C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.61.quantity", 0x227CD2E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.62.item", 0x227CD30, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.62.quantity", 0x227CD32, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.63.item", 0x227CD34, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.63.quantity", 0x227CD36, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.64.item", 0x227CD38, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.64.quantity", 0x227CD3A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.65.item", 0x227CD3C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.65.quantity", 0x227CD3E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.66.item", 0x227CD40, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.66.quantity", 0x227CD42, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.67.item", 0x227CD44, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.67.quantity", 0x227CD46, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.68.item", 0x227CD48, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.68.quantity", 0x227CD4A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.69.item", 0x227CD4C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.69.quantity", 0x227CD4E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.70.item", 0x227CD50, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.70.quantity", 0x227CD52, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.71.item", 0x227CD54, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.71.quantity", 0x227CD56, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.72.item", 0x227CD58, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.72.quantity", 0x227CD5A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.73.item", 0x227CD5C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.73.quantity", 0x227CD5E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.74.item", 0x227CD60, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.74.quantity", 0x227CD62, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.75.item", 0x227CD64, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.75.quantity", 0x227CD66, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.76.item", 0x227CD68, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.76.quantity", 0x227CD6A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.77.item", 0x227CD6C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.77.quantity", 0x227CD6E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.78.item", 0x227CD70, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.78.quantity", 0x227CD72, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.79.item", 0x227CD74, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.79.quantity", 0x227CD76, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.80.item", 0x227CD78, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.80.quantity", 0x227CD7A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.81.item", 0x227CD7C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.81.quantity", 0x227CD7E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.82.item", 0x227CD80, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.82.quantity", 0x227CD82, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.83.item", 0x227CD84, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.83.quantity", 0x227CD86, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.84.item", 0x227CD88, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.84.quantity", 0x227CD8A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.85.item", 0x227CD8C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.85.quantity", 0x227CD8E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.86.item", 0x227CD90, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.86.quantity", 0x227CD92, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.87.item", 0x227CD94, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.87.quantity", 0x227CD96, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.88.item", 0x227CD98, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.88.quantity", 0x227CD9A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.89.item", 0x227CD9C, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.89.quantity", 0x227CD9E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.90.item", 0x227CDA0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.90.quantity", 0x227CDA2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.91.item", 0x227CDA4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.91.quantity", 0x227CDA6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.92.item", 0x227CDA8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.92.quantity", 0x227CDAA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.93.item", 0x227CDAC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.93.quantity", 0x227CDAE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.94.item", 0x227CDB0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.94.quantity", 0x227CDB2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.95.item", 0x227CDB4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.95.quantity", 0x227CDB6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.96.item", 0x227CDB8, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.96.quantity", 0x227CDBA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.97.item", 0x227CDBC, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.97.quantity", 0x227CDBE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.98.item", 0x227CDC0, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.98.quantity", 0x227CDC2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.tmhm.99.item", 0x227CDC4, [0, 0], null);
+            mapper.AssertAreEqual("bag.tmhm.99.quantity", 0x227CDC6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.0.item", 0x227CFFC, [60, 0], "X Accuracy");
+            mapper.AssertAreEqual("bag.battle_items.0.quantity", 0x227CFFE, [1, 0], 1);
+            mapper.AssertAreEqual("bag.battle_items.1.item", 0x227D000, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.1.quantity", 0x227D002, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.2.item", 0x227D004, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.2.quantity", 0x227D006, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.3.item", 0x227D008, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.3.quantity", 0x227D00A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.4.item", 0x227D00C, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.4.quantity", 0x227D00E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.5.item", 0x227D010, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.5.quantity", 0x227D012, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.6.item", 0x227D014, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.6.quantity", 0x227D016, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.7.item", 0x227D018, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.7.quantity", 0x227D01A, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.8.item", 0x227D01C, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.8.quantity", 0x227D01E, [0, 0], 0);
+            mapper.AssertAreEqual("bag.battle_items.9.item", 0x227D020, [0, 0], null);
+            mapper.AssertAreEqual("bag.battle_items.9.quantity", 0x227D022, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.0.item", 0x227CDCC, [141, 0], "Tunnel Mail");
+            mapper.AssertAreEqual("bag.mail.0.quantity", 0x227CDCE, [1, 0], 1);
+            mapper.AssertAreEqual("bag.mail.1.item", 0x227CDD0, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.1.quantity", 0x227CDD2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.2.item", 0x227CDD4, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.2.quantity", 0x227CDD6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.3.item", 0x227CDD8, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.3.quantity", 0x227CDDA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.4.item", 0x227CDDC, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.4.quantity", 0x227CDDE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.5.item", 0x227CDE0, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.5.quantity", 0x227CDE2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.6.item", 0x227CDE4, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.6.quantity", 0x227CDE6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.7.item", 0x227CDE8, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.7.quantity", 0x227CDEA, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.8.item", 0x227CDEC, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.8.quantity", 0x227CDEE, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.9.item", 0x227CDF0, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.9.quantity", 0x227CDF2, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.10.item", 0x227CDF4, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.10.quantity", 0x227CDF6, [0, 0], 0);
+            mapper.AssertAreEqual("bag.mail.11.item", 0x227CDF8, [0, 0], null);
+            mapper.AssertAreEqual("bag.mail.11.quantity", 0x227CDFA, [0, 0], 0);
             mapper.AssertAreEqual("overworld.map_name", 0x227D4CC, [117, 0], "Ilex Forest - Map 1");
             mapper.AssertAreEqual("overworld.map_index", 0x227D4CC, [117, 0], 117);
             mapper.AssertAreEqual("overworld.x", 0x227D4D4, [11, 0, 0, 0], 11);
@@ -546,42 +902,9 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("overworld.encounters.21", 0x22A1D1A, [46], "Paras");
             mapper.AssertAreEqual("overworld.encounters.22", 0x22A1D1C, [41], "Zubat");
             mapper.AssertAreEqual("overworld.encounters.23", 0x22A1D1E, [46], "Paras");
-        }
-
-        [TestMethod]
-        public async Task Property_OK_Meta()
-        {
-            await Load_NDS_PokemonHeartGold();
-            var mapper = await GameHookClient.GetMapperAsync();
-
-            mapper.AssertAreEqual("meta.generation", 4);
-            mapper.AssertAreEqual("meta.game_name", "HeartGold and SoulSilver");
-            mapper.AssertAreEqual("meta.game_type", "Remakes");
-            mapper.AssertAreEqual("meta.state", "Battle");
-            mapper.AssertAreEqual("meta.state_enemy", "Pokemon In Battle");
-            mapper.AssertAreEqual("meta.global_pointer", 0x211186C, [0xA8, 0xF2, 0x26, 0x02], 36106920);
-            mapper.AssertAreEqual("meta.enemy_pointer", 0x22A6C18, [0x2B, 0x01, 0xFF, 0xFF], -65237);
-        }
-        [TestMethod]
-        public async Task Property_OK_Time()
-        {
-            await Load_NDS_PokemonHeartGold();
-            var mapper = await GameHookClient.GetMapperAsync();
-
-            mapper.AssertAreEqual("game_time.hours", 0x227C31E, [0x37, 0x00], 55);
-            mapper.AssertAreEqual("game_time.minutes", 0x227C320, [0x0E], 14);
-            mapper.AssertAreEqual("game_time.seconds", 0x227C321, [0x00], 0);
-        }
-
-        [TestMethod]
-        public async Task HeartGold_Battle_Structure()
-        {
-            await Load_NDS_PokemonHeartGold(3);
-
-            var mapper = await GameHookClient.GetMapperAsync();
-
+            mapper.AssertAreEqual("flag.farfetchd_guy", 0x227D260, [0], false);
+            mapper.AssertAreEqual("flag.fartfetchd_noticed_you", 0x227D1AE, [1], 1);
             mapper.AssertAreEqual("battle.mode", "Trainer");
-            mapper.AssertAreEqual("battle.outcome", null);
             mapper.AssertAreEqual("battle.player.party_position", 0x22C6488, [0], 0);
             mapper.AssertAreEqual("battle.player.party_position_2", 0x22C6494, [0], 0);
             mapper.AssertAreEqual("battle.player.team_count", 0x22CAD1C, [3], 3);
@@ -683,7 +1006,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.0.ot_name", 0x68, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 255, 255], "AAAAAAA");
             mapper.AssertAreEqual("battle.player.team.0.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("battle.player.team.0.ability", 0x15, [65], "Overgrow");
-            mapper.AssertAreEqual("battle.player.team.0.nature", 0x0, [173, 203, 126, 231], "Careful");
+            mapper.AssertAreEqual("battle.player.team.0.nature", "Careful");
             mapper.AssertAreEqual("battle.player.team.0.held_item", 0xA, [239, 0], "Miracle Seed");
             mapper.AssertAreEqual("battle.player.team.0.friendship", 0x14, [197], 197);
             mapper.AssertAreEqual("battle.player.team.0.pokerus", 0x82, [0], 0);
@@ -724,7 +1047,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.0.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.0.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.0.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.player.team.0.internals.personality_value", 0x0, [173, 203, 126, 231], 3883846573);
+            mapper.AssertAreEqual("battle.player.team.0.internals.personality_value", 3883846573);
             mapper.AssertAreEqual("battle.player.team.0.internals.checksum", 0x6, [60, 16], 4156);
             mapper.AssertAreEqual("battle.player.team.0.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("battle.player.team.0.internals.language", 0x17, [2], "English");
@@ -754,7 +1077,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.1.ot_name", 0x68, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 255, 255], "AAAAAAA");
             mapper.AssertAreEqual("battle.player.team.1.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("battle.player.team.1.ability", 0x15, [15], "Insomnia");
-            mapper.AssertAreEqual("battle.player.team.1.nature", 0x0, [12, 142, 48, 148], "Timid");
+            mapper.AssertAreEqual("battle.player.team.1.nature", "Timid");
             mapper.AssertAreEqual("battle.player.team.1.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.player.team.1.friendship", 0x14, [105], 105);
             mapper.AssertAreEqual("battle.player.team.1.pokerus", 0x82, [0], 0);
@@ -795,7 +1118,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.1.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.1.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.1.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.player.team.1.internals.personality_value", 0x0, [12, 142, 48, 148], 2486210060);
+            mapper.AssertAreEqual("battle.player.team.1.internals.personality_value", 2486210060);
             mapper.AssertAreEqual("battle.player.team.1.internals.checksum", 0x6, [127, 152], 39039);
             mapper.AssertAreEqual("battle.player.team.1.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("battle.player.team.1.internals.language", 0x17, [2], "English");
@@ -825,7 +1148,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.2.ot_name", 0x68, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 255, 255], "AAAAAAA");
             mapper.AssertAreEqual("battle.player.team.2.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("battle.player.team.2.ability", 0x15, [32], "Serene Grace");
-            mapper.AssertAreEqual("battle.player.team.2.nature", 0x0, [69, 231, 178, 210], "Careful");
+            mapper.AssertAreEqual("battle.player.team.2.nature", "Careful");
             mapper.AssertAreEqual("battle.player.team.2.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.player.team.2.friendship", 0x14, [123], 123);
             mapper.AssertAreEqual("battle.player.team.2.pokerus", 0x82, [0], 0);
@@ -866,7 +1189,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.2.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.2.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.2.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.player.team.2.internals.personality_value", 0x0, [69, 231, 178, 210], 3534939973);
+            mapper.AssertAreEqual("battle.player.team.2.internals.personality_value", 3534939973);
             mapper.AssertAreEqual("battle.player.team.2.internals.checksum", 0x6, [31, 135], 34591);
             mapper.AssertAreEqual("battle.player.team.2.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("battle.player.team.2.internals.language", 0x17, [2], "English");
@@ -896,7 +1219,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.3.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.player.team.3.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.3.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.player.team.3.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.player.team.3.nature", "Hardy");
             mapper.AssertAreEqual("battle.player.team.3.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.player.team.3.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.player.team.3.pokerus", 0x82, [0], 0);
@@ -937,7 +1260,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.3.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.3.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.3.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.player.team.3.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.player.team.3.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.player.team.3.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.3.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.3.internals.language", 0x17, [0], null);
@@ -967,7 +1290,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.4.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.player.team.4.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.4.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.player.team.4.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.player.team.4.nature", "Hardy");
             mapper.AssertAreEqual("battle.player.team.4.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.player.team.4.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.player.team.4.pokerus", 0x82, [0], 0);
@@ -1008,7 +1331,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.4.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.4.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.4.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.player.team.4.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.player.team.4.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.player.team.4.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.4.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.4.internals.language", 0x17, [0], null);
@@ -1038,7 +1361,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.5.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.player.team.5.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.5.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.player.team.5.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.player.team.5.nature", "Hardy");
             mapper.AssertAreEqual("battle.player.team.5.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.player.team.5.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.player.team.5.pokerus", 0x82, [0], 0);
@@ -1079,7 +1402,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.player.team.5.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.5.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.player.team.5.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.player.team.5.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.player.team.5.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.player.team.5.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.5.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.player.team.5.internals.language", 0x17, [0], null);
@@ -1109,7 +1432,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.wild.0.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.wild.0.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("battle.wild.0.ability", 0x15, [34], "Chlorophyll");
-            mapper.AssertAreEqual("battle.wild.0.nature", 0x0, [48, 158, 167, 238], "Mild");
+            mapper.AssertAreEqual("battle.wild.0.nature", "Mild");
             mapper.AssertAreEqual("battle.wild.0.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.wild.0.friendship", 0x14, [70], 70);
             mapper.AssertAreEqual("battle.wild.0.pokerus", 0x82, [0], 0);
@@ -1150,7 +1473,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.wild.0.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.wild.0.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.wild.0.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.wild.0.internals.personality_value", 0x0, [48, 158, 167, 238], 4003962416);
+            mapper.AssertAreEqual("battle.wild.0.internals.personality_value", 4003962416);
             mapper.AssertAreEqual("battle.wild.0.internals.checksum", 0x6, [250, 207], 53242);
             mapper.AssertAreEqual("battle.wild.0.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("battle.wild.0.internals.language", 0x17, [2], "English");
@@ -1180,7 +1503,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.wild.1.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.wild.1.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.wild.1.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.wild.1.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.wild.1.nature", "Hardy");
             mapper.AssertAreEqual("battle.wild.1.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.wild.1.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.wild.1.pokerus", 0x82, [0], 0);
@@ -1221,7 +1544,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.wild.1.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.wild.1.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.wild.1.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.wild.1.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.wild.1.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.wild.1.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.wild.1.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.wild.1.internals.language", 0x17, [0], null);
@@ -1302,7 +1625,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.0.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.ally.team.0.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.0.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.ally.team.0.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.ally.team.0.nature", "Hardy");
             mapper.AssertAreEqual("battle.ally.team.0.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.ally.team.0.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.ally.team.0.pokerus", 0x82, [0], 0);
@@ -1343,7 +1666,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.0.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.0.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.0.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.ally.team.0.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.ally.team.0.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.ally.team.0.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.0.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.0.internals.language", 0x17, [0], null);
@@ -1373,7 +1696,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.1.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.ally.team.1.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.1.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.ally.team.1.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.ally.team.1.nature", "Hardy");
             mapper.AssertAreEqual("battle.ally.team.1.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.ally.team.1.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.ally.team.1.pokerus", 0x82, [0], 0);
@@ -1414,7 +1737,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.1.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.1.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.1.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.ally.team.1.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.ally.team.1.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.ally.team.1.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.1.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.1.internals.language", 0x17, [0], null);
@@ -1444,7 +1767,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.2.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.ally.team.2.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.2.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.ally.team.2.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.ally.team.2.nature", "Hardy");
             mapper.AssertAreEqual("battle.ally.team.2.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.ally.team.2.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.ally.team.2.pokerus", 0x82, [0], 0);
@@ -1485,7 +1808,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.2.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.2.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.2.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.ally.team.2.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.ally.team.2.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.ally.team.2.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.2.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.2.internals.language", 0x17, [0], null);
@@ -1515,7 +1838,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.3.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.ally.team.3.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.3.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.ally.team.3.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.ally.team.3.nature", "Hardy");
             mapper.AssertAreEqual("battle.ally.team.3.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.ally.team.3.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.ally.team.3.pokerus", 0x82, [0], 0);
@@ -1556,7 +1879,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.3.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.3.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.3.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.ally.team.3.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.ally.team.3.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.ally.team.3.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.3.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.3.internals.language", 0x17, [0], null);
@@ -1586,7 +1909,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.4.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.ally.team.4.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.4.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.ally.team.4.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.ally.team.4.nature", "Hardy");
             mapper.AssertAreEqual("battle.ally.team.4.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.ally.team.4.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.ally.team.4.pokerus", 0x82, [0], 0);
@@ -1627,7 +1950,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.4.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.4.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.4.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.ally.team.4.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.ally.team.4.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.ally.team.4.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.4.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.4.internals.language", 0x17, [0], null);
@@ -1657,7 +1980,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.5.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.ally.team.5.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.5.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.ally.team.5.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.ally.team.5.nature", "Hardy");
             mapper.AssertAreEqual("battle.ally.team.5.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.ally.team.5.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.ally.team.5.pokerus", 0x82, [0], 0);
@@ -1698,7 +2021,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.ally.team.5.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.5.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.ally.team.5.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.ally.team.5.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.ally.team.5.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.ally.team.5.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.5.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.ally.team.5.internals.language", 0x17, [0], null);
@@ -1779,7 +2102,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.0.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent.team.0.ot_id", 0xC, [235, 16], 4331);
             mapper.AssertAreEqual("battle.opponent.team.0.ability", 0x15, [34], "Chlorophyll");
-            mapper.AssertAreEqual("battle.opponent.team.0.nature", 0x0, [48, 158, 167, 238], "Mild");
+            mapper.AssertAreEqual("battle.opponent.team.0.nature", "Mild");
             mapper.AssertAreEqual("battle.opponent.team.0.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent.team.0.friendship", 0x14, [70], 70);
             mapper.AssertAreEqual("battle.opponent.team.0.pokerus", 0x82, [0], 0);
@@ -1820,7 +2143,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.0.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.0.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.0.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent.team.0.internals.personality_value", 0x0, [48, 158, 167, 238], 4003962416);
+            mapper.AssertAreEqual("battle.opponent.team.0.internals.personality_value", 4003962416);
             mapper.AssertAreEqual("battle.opponent.team.0.internals.checksum", 0x6, [250, 207], 53242);
             mapper.AssertAreEqual("battle.opponent.team.0.internals.secret_id", 0xE, [76, 205], 52556);
             mapper.AssertAreEqual("battle.opponent.team.0.internals.language", 0x17, [2], "English");
@@ -1850,7 +2173,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.1.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent.team.1.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.1.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent.team.1.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent.team.1.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent.team.1.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent.team.1.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent.team.1.pokerus", 0x82, [0], 0);
@@ -1891,7 +2214,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.1.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.1.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.1.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent.team.1.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent.team.1.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent.team.1.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.1.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.1.internals.language", 0x17, [0], null);
@@ -1921,7 +2244,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.2.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent.team.2.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.2.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent.team.2.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent.team.2.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent.team.2.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent.team.2.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent.team.2.pokerus", 0x82, [0], 0);
@@ -1962,7 +2285,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.2.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.2.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.2.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent.team.2.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent.team.2.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent.team.2.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.2.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.2.internals.language", 0x17, [0], null);
@@ -1992,7 +2315,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.3.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent.team.3.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.3.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent.team.3.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent.team.3.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent.team.3.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent.team.3.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent.team.3.pokerus", 0x82, [0], 0);
@@ -2033,7 +2356,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.3.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.3.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.3.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent.team.3.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent.team.3.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent.team.3.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.3.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.3.internals.language", 0x17, [0], null);
@@ -2063,7 +2386,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.4.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent.team.4.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.4.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent.team.4.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent.team.4.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent.team.4.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent.team.4.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent.team.4.pokerus", 0x82, [0], 0);
@@ -2104,7 +2427,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.4.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.4.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.4.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent.team.4.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent.team.4.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent.team.4.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.4.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.4.internals.language", 0x17, [0], null);
@@ -2134,7 +2457,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.5.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent.team.5.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.5.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent.team.5.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent.team.5.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent.team.5.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent.team.5.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent.team.5.pokerus", 0x82, [0], 0);
@@ -2175,7 +2498,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent.team.5.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.5.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent.team.5.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent.team.5.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent.team.5.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent.team.5.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.5.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent.team.5.internals.language", 0x17, [0], null);
@@ -2256,7 +2579,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.0.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent_2.team.0.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.0.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent_2.team.0.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent_2.team.0.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent_2.team.0.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent_2.team.0.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.0.pokerus", 0x82, [0], 0);
@@ -2297,7 +2620,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.0.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.0.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.0.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent_2.team.0.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent_2.team.0.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent_2.team.0.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.0.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.0.internals.language", 0x17, [0], null);
@@ -2327,7 +2650,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.1.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent_2.team.1.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.1.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent_2.team.1.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent_2.team.1.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent_2.team.1.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent_2.team.1.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.1.pokerus", 0x82, [0], 0);
@@ -2368,7 +2691,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.1.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.1.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.1.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent_2.team.1.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent_2.team.1.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent_2.team.1.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.1.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.1.internals.language", 0x17, [0], null);
@@ -2398,7 +2721,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.2.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent_2.team.2.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.2.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent_2.team.2.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent_2.team.2.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent_2.team.2.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent_2.team.2.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.2.pokerus", 0x82, [0], 0);
@@ -2439,7 +2762,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.2.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.2.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.2.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent_2.team.2.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent_2.team.2.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent_2.team.2.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.2.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.2.internals.language", 0x17, [0], null);
@@ -2469,7 +2792,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.3.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent_2.team.3.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.3.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent_2.team.3.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent_2.team.3.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent_2.team.3.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent_2.team.3.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.3.pokerus", 0x82, [0], 0);
@@ -2510,7 +2833,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.3.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.3.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.3.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent_2.team.3.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent_2.team.3.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent_2.team.3.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.3.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.3.internals.language", 0x17, [0], null);
@@ -2540,7 +2863,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.4.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent_2.team.4.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.4.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent_2.team.4.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent_2.team.4.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent_2.team.4.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent_2.team.4.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.4.pokerus", 0x82, [0], 0);
@@ -2581,7 +2904,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.4.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.4.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.4.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent_2.team.4.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent_2.team.4.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent_2.team.4.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.4.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.4.internals.language", 0x17, [0], null);
@@ -2611,7 +2934,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.5.ot_name", 0x68, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "");
             mapper.AssertAreEqual("battle.opponent_2.team.5.ot_id", 0xC, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.5.ability", 0x15, [0], null);
-            mapper.AssertAreEqual("battle.opponent_2.team.5.nature", 0x0, [0, 0, 0, 0], "Hardy");
+            mapper.AssertAreEqual("battle.opponent_2.team.5.nature", "Hardy");
             mapper.AssertAreEqual("battle.opponent_2.team.5.held_item", 0xA, [0, 0], null);
             mapper.AssertAreEqual("battle.opponent_2.team.5.friendship", 0x14, [0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.5.pokerus", 0x82, [0], 0);
@@ -2652,7 +2975,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.5.flags.skip_checksum_1", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.5.flags.skip_checksum_2", 0x4, [0], false);
             mapper.AssertAreEqual("battle.opponent_2.team.5.flags.is_bad_egg", 0x4, [0], false);
-            mapper.AssertAreEqual("battle.opponent_2.team.5.internals.personality_value", 0x0, [0, 0, 0, 0], 0);
+            mapper.AssertAreEqual("battle.opponent_2.team.5.internals.personality_value", 0);
             mapper.AssertAreEqual("battle.opponent_2.team.5.internals.checksum", 0x6, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.5.internals.secret_id", 0xE, [0, 0], 0);
             mapper.AssertAreEqual("battle.opponent_2.team.5.internals.language", 0x17, [0], null);
@@ -2677,6 +3000,22 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.field.weather", 0x22C34DC, [0, 0], null);
             mapper.AssertAreEqual("battle.field.weather_count", 0x22C34E0, [0], 0);
             mapper.AssertAreEqual("battle.other.outcome_flags", 0x22C647B, [0], 0);
+            mapper.AssertAreEqual("rival.name", 0x227E56C, [45, 1, 45, 1, 45, 1, 45, 1, 45, 1, 45, 1, 45, 1], "CCCCCCC");
+            mapper.AssertAreEqual("screen.menu.scene", 0x22D57A7, [109], 109);
+            mapper.AssertAreEqual("screen.menu.cursor.flag", 0x22D57F8, [0], 0);
+            mapper.AssertAreEqual("screen.menu.cursor.x", 0x22D57FA, [0], 0);
+            mapper.AssertAreEqual("screen.menu.cursor.y", 0x22D57F9, [0], 0);
+            mapper.AssertAreEqual("game_time.hours", 0x227C31E, [55, 0], 55);
+            mapper.AssertAreEqual("game_time.minutes", 0x227C320, [23], 23);
+            mapper.AssertAreEqual("game_time.seconds", 0x227C321, [28], 28);
+            mapper.AssertAreEqual("meta.generation", "4");
+            mapper.AssertAreEqual("meta.game_name", "HeartGold and SoulSilver");
+            mapper.AssertAreEqual("meta.game_type", "Remakes");
+            mapper.AssertAreEqual("meta.state", "Battle");
+            mapper.AssertAreEqual("meta.state_enemy", "Pokemon In Battle");
+            mapper.AssertAreEqual("meta.global_pointer", 0x211186C, [168, 242, 38, 2], 36106920);
+            mapper.AssertAreEqual("meta.enemy_pointer", 0x22A6C18, [43, 1, 255, 255], -65237);
         }
+
     }
 }
