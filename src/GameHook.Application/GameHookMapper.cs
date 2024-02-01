@@ -6,7 +6,8 @@ namespace GameHook.Application
     public class GameHookMapper : IGameHookMapper
     {
         public GameHookMapper(
-            MapperMetadata metadata,
+            MetadataSection metadata,
+            MemorySection memory,
             IEnumerable<IGameHookProperty> properties,
             IEnumerable<ReferenceItems> references,
             string? globalScript,
@@ -14,6 +15,7 @@ namespace GameHook.Application
             bool hasGlobalPostprocessor)
         {
             Metadata = metadata;
+            Memory = memory;
             Properties = properties.ToDictionary(x => x.Path, x => x);
             References = references.ToDictionary(x => x.Name, x => x);
 
@@ -22,7 +24,8 @@ namespace GameHook.Application
             HasGlobalPostprocessor = hasGlobalPostprocessor;
         }
 
-        public MapperMetadata Metadata { get; }
+        public MetadataSection Metadata { get; }
+        public MemorySection Memory { get; }
         public Dictionary<string, IGameHookProperty> Properties { get; }
         public Dictionary<string, ReferenceItems> References { get; }
 

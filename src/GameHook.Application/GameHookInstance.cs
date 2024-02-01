@@ -42,8 +42,8 @@ namespace GameHook.Application
             ClientNotifiers = clientNotifiers.ToList();
 
             MemoryContainerManager = new MemoryManager();
-            State = new Dictionary<string, object?>();
-            Variables = new Dictionary<string, object?>();
+            State = [];
+            Variables = [];
         }
 
         private async Task ResetState()
@@ -77,20 +77,19 @@ namespace GameHook.Application
 
             if (_appSettings.SHOW_READ_LOOP_STATISTICS)
             {
+                var stopwatch = new Stopwatch();
+
                 while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
                 {
                     try
                     {
-                        Stopwatch stopwatch = new();
-                        stopwatch.Start();
+                        stopwatch.Restart();
 
                         await Read();
 
                         stopwatch.Stop();
 
-                        var stateJson = JsonSerializer.Serialize(State);
-                        var variablesJson = JsonSerializer.Serialize(Variables);
-                        _logger.LogInformation($"Stopwatch took {stopwatch.ElapsedMilliseconds} ms.\nGlobal State: {stateJson}\nGlobal Variables: {variablesJson}");
+                        _logger.LogInformation($"Instance loop took {stopwatch.ElapsedMilliseconds} ms.");
 
                         await Task.Delay(Driver.DelayMsBetweenReads);
                     }
@@ -266,6 +265,7 @@ namespace GameHook.Application
                     _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
                 };
 
+                var script = Engine.PrepareScript(Mapper.GlobalScript ?? string.Empty, strict: true);
                 var engineOptions = new Options { Strict = true, StringCompilationAllowed = false };
 
                 GlobalScriptEngine1 = new Engine(engineOptions)
@@ -275,7 +275,7 @@ namespace GameHook.Application
                     .SetValue("__mapper", Mapper)
                     .SetValue("__memory", MemoryContainerManager)
                     .SetValue("__driver", Driver)
-                    .Execute(Mapper.GlobalScript ?? string.Empty);
+                    .Execute(script);
 
                 GlobalScriptEngine2 = new Engine(engineOptions)
                     .SetValue("__console", ScriptConsoleAdapter)
@@ -284,7 +284,7 @@ namespace GameHook.Application
                     .SetValue("__mapper", Mapper)
                     .SetValue("__memory", MemoryContainerManager)
                     .SetValue("__driver", Driver)
-                    .Execute(Mapper.GlobalScript ?? string.Empty);
+                    .Execute(script);
 
                 GlobalScriptEngine3 = new Engine(engineOptions)
                     .SetValue("__console", ScriptConsoleAdapter)
@@ -293,10 +293,21 @@ namespace GameHook.Application
                     .SetValue("__mapper", Mapper)
                     .SetValue("__memory", MemoryContainerManager)
                     .SetValue("__driver", Driver)
-                    .Execute(Mapper.GlobalScript ?? string.Empty);
+                    .Execute(script);
 
                 // Calculate the blocks to read from the mapper memory addresses.
-                BlocksToRead = PlatformOptions.Ranges.ToList();
+                BlocksToRead = Mapper.Memory.ReadRanges.Select(x => new MemoryAddressBlock($"Range {x.Start}", x.Start, x.End)).ToArray();
+
+                if (BlocksToRead.Any())
+                {
+                    _logger.LogInformation($"Using {BlocksToRead.Count()} memory read ranges from mapper.");
+                }
+                else
+                {
+                    _logger.LogInformation("Using default driver memory read ranges.");
+
+                    BlocksToRead = PlatformOptions.Ranges.ToList();
+                }
 
                 await Read();
 

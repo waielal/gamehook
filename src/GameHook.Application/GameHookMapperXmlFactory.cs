@@ -52,15 +52,31 @@ namespace GameHook.Application
             }
         }
 
-        public static MapperMetadata GetMetadata(XDocument doc)
+        public static MetadataSection GetMetadata(XDocument doc)
         {
             var root = doc.Element("mapper") ?? throw new Exception($"Unable to find <mapper> root element.");
 
-            return new MapperMetadata()
+            return new MetadataSection()
             {
                 Id = Guid.Parse(root.GetAttributeValue("id")),
                 GameName = root.GetAttributeValue("name"),
                 GamePlatform = root.GetAttributeValue("platform")
+            };
+        }
+
+        public static MemorySection GetMemory(XDocument doc)
+        {
+            var memory = doc.Element("mapper")?.Element("memory");
+
+            if (memory == null) { return new MemorySection(); }
+
+            return new MemorySection()
+            {
+                ReadRanges = memory.Elements("read").Select(x => new ReadRange()
+                {
+                    Start = uint.Parse(x.GetAttributeValue("start").NormalizeMemoryAddresses()),
+                    End = uint.Parse(x.GetAttributeValue("end").NormalizeMemoryAddresses()),
+                }).ToArray()
             };
         }
 
@@ -192,7 +208,7 @@ namespace GameHook.Application
             var hasGlobalPreprocessor = scriptContents?.Contains("function preprocessor(") ?? false;
             var hasGlobalPostprocessor = scriptContents?.Contains("function postprocessor(") ?? false;
 
-            return new GameHookMapper(GetMetadata(doc), GetProperties(doc, instance), GetGlossary(doc), scriptContents, hasGlobalPreprocessor, hasGlobalPostprocessor);
+            return new GameHookMapper(GetMetadata(doc), GetMemory(doc), GetProperties(doc, instance), GetGlossary(doc), scriptContents, hasGlobalPreprocessor, hasGlobalPostprocessor);
         }
     }
 }

@@ -46,10 +46,18 @@ namespace GameHook.Domain.Implementations
             {
                 if (fragment.Contains(memoryAddress))
                 {
-                    var offset = (int)(memoryAddress - fragment.StartingAddress);
-                    fragment.Fill(offset, data);
+                    try
+                    {
+                        var offset = (int)(memoryAddress - fragment.StartingAddress);
 
-                    filledFragments += 1;
+                        fragment.Fill(offset, data);
+
+                        filledFragments += 1;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Cannot fill {memoryAddress} (starting address of {fragment.StartingAddress}) with {data.Length} bytes of data.", ex);
+                    }
                 }
             }
 
@@ -68,11 +76,17 @@ namespace GameHook.Domain.Implementations
                 if (fragment.Contains(memoryAddress))
                 {
                     var offset = memoryAddress - fragment.StartingAddress;
+
+                    if (offset < 0 || offset >= fragment.Data.Length || length < 0 || (offset + length) > fragment.Data.Length)
+                    {
+                        throw new Exception($"Cannot retrieve bytes starting at {memoryAddress.ToHexdecimalString()} (starting address at {fragment.StartingAddress.ToHexdecimalString()} because getting {length} bytes would overflow the fragment array.");
+                    }
+
                     return fragment.Slice((int)offset, length);
                 }
             }
 
-            throw new ArgumentOutOfRangeException(nameof(memoryAddress), $"Memory address {memoryAddress.ToHexdecimalString()} is not contained in any fragment in the namespace.");
+            throw new Exception($"Memory address {memoryAddress.ToHexdecimalString()} is not contained in any fragment in the namespace.");
         }
         public byte get_byte(MemoryAddress memoryAddress) => get_bytes(memoryAddress, 1).get_byte(0);
     }
@@ -90,9 +104,16 @@ namespace GameHook.Domain.Implementations
 
         public void Fill(int offset, byte[] data)
         {
-            if (offset < 0 || offset + data.Length > Data.Length)
+            // Check if the offset is negative or beyond the bounds of the destination array
+            if (offset < 0 || offset >= Data.Length)
             {
-                throw new ArgumentException("Invalid offset or data length.");
+                throw new Exception($"Offset {offset} is out of range of the data array length of {data.Length}.");
+            }
+
+            // Check if the destination array has enough space
+            if (data.Length > Data.Length - offset)
+            {
+                throw new Exception($"The destination array is not long enough. The destination array has a length of {Data.Length} where the source array has a length of {data.Length}.");
             }
 
             Array.Copy(data, 0, Data, offset, data.Length);

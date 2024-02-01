@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace GameHook.Domain
 {
-    public static class Extensions
+    public static partial class Extensions
     {
         public static string ToHexdecimalString(this int value) => $"0x{value:X2}";
         public static string ToHexdecimalString(this MemoryAddress value) => $"0x{value:X2}";
@@ -17,7 +17,7 @@ namespace GameHook.Domain
         {
             if (value.Contains("0x"))
             {
-                return Regex.Replace(value, @"0x[a-fA-F\d]+", match =>
+                return HexdecimalMemoryAddress().Replace(value, match =>
                 {
                     try
                     {
@@ -95,5 +95,8 @@ namespace GameHook.Domain
 
             return firstChar + restOfString;
         }
+
+        [GeneratedRegex(@"0x[a-fA-F\d]+")]
+        private static partial Regex HexdecimalMemoryAddress();
     }
 }
