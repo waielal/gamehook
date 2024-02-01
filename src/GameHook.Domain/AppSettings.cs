@@ -28,6 +28,8 @@ namespace GameHook.Domain
 
             BIZHAWK_DELAY_MS_BETWEEN_READS = int.Parse(configuration.GetRequiredValue("BIZHAWK_DELAY_MS_BETWEEN_READS"));
 
+            SHOW_READ_LOOP_STATISTICS = bool.Parse(configuration.GetRequiredValue("SHOW_READ_LOOP_STATISTICS"));
+
             AUTOMATIC_MAPPER_UPDATES = bool.Parse(configuration.GetRequiredValue("AUTOMATIC_MAPPER_UPDATES"));
             MAPPER_VERSION = configuration.GetRequiredValue("MAPPER_VERSION");
 
