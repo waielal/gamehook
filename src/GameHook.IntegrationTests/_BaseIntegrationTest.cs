@@ -146,7 +146,7 @@ namespace GameHook.IntegrationTests
         protected async Task Load_GBA_PokemonRuby(int n = 0)
         {
             await StaticMemoryDriver.SetMemoryFragment($"gba_pokemon_ruby_sapphire_{n}.json");
-            await LoadMapper($"official_gba_pokemon_ruby");
+            await LoadMapper($"official_gba_pokemon_ruby_sapphire");
         }
 
         protected async Task Load_GBA_PokemonEmerald(int n = 0)
