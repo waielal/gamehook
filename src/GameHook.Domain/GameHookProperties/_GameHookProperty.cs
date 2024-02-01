@@ -8,9 +8,9 @@ namespace GameHook.Domain.GameHookProperties
         public GameHookProperty(IGameHookInstance instance, PropertyAttributes attributes)
         {
             Instance = instance;
-
             Path = attributes.Path;
             Type = attributes.Type;
+
             MemoryContainer = attributes.MemoryContainer;
             Address = attributes.Address;
             Length = attributes.Length;
@@ -18,13 +18,16 @@ namespace GameHook.Domain.GameHookProperties
             Bits = attributes.Bits;
             Reference = attributes.Reference;
             Description = attributes.Description;
-
-            StaticValue = attributes.StaticValue;
+            Value = attributes.Value;
+            StaticValue = attributes.Value;
+            Bytes = null;
+            BytesFrozen = null;
 
             ReadFunction = attributes.ReadFunction;
             WriteFunction = attributes.WriteFunction;
 
             AfterReadValueExpression = attributes.AfterReadValueExpression;
+            BeforeWriteValueFunction = attributes.BeforeWriteValueFunction;
         }
 
         protected IGameHookInstance Instance { get; }
@@ -60,10 +63,6 @@ namespace GameHook.Domain.GameHookProperties
 
         uint? IGameHookProperty.Address => ComputedAddress;
 
-        public string? ReadFunction { get; }
-        public string? WriteFunction { get; }
-        public string? AfterReadValueExpression { get; }
-
         public HashSet<string> FieldsChanged { get; } = [];
 
         public void ProcessLoop(IMemoryManager memoryManager)
@@ -72,10 +71,9 @@ namespace GameHook.Domain.GameHookProperties
             if (Instance.Mapper == null) { throw new Exception("Instance.Mapper is NULL."); }
             if (Instance.Driver == null) { throw new Exception("Instance.Driver is NULL."); }
 
-            if (string.IsNullOrEmpty(ReadFunction) == false)
+            if (Instance.ExecuteFunction_Type1(ReadFunction, this) == false)
             {
                 // They want to do it themselves entirely in Javascript.
-                Instance.Evalulate(ReadFunction, this, null);
 
                 return;
             }
@@ -209,7 +207,7 @@ namespace GameHook.Domain.GameHookProperties
 
             if (string.IsNullOrEmpty(AfterReadValueExpression) == false)
             {
-                value = Instance.Evalulate(AfterReadValueExpression, value, null);
+                value = Instance.EvalulateExpression_Type1(AfterReadValueExpression, value);
             }
 
             // Reference lookup
@@ -225,14 +223,6 @@ namespace GameHook.Domain.GameHookProperties
 
         public async Task WriteValue(string value, bool? freeze)
         {
-            if (string.IsNullOrEmpty(WriteFunction) == false)
-            {
-                // They want to do it themselves entirely in Javascript.
-                Instance.Evalulate(WriteFunction, this, null);
-
-                return;
-            }
-
             if (Bytes == null)
             {
                 throw new Exception("Bytes is NULL.");
@@ -286,11 +276,6 @@ namespace GameHook.Domain.GameHookProperties
                     }
                 }
 
-                if ((2 ^ indexes.Length) - 1 < BitConverter.ToInt32(bytes))
-                {
-                    throw new Exception($"Cannot write bytes because it would overflow the bits attribute range.");
-                }
-
                 var inputBits = new BitArray(bytes);
                 var outputBits = new BitArray(Bytes);
 
@@ -300,6 +285,11 @@ namespace GameHook.Domain.GameHookProperties
                 }
 
                 outputBits.CopyTo(bytes, 0);
+            }
+
+            if (string.IsNullOrEmpty(BeforeWriteValueFunction) == false)
+            {
+                bytes = Instance.ExecuteFunction_Type2(BeforeWriteValueFunction, bytes, this);
             }
 
             await WriteBytes(bytes, freeze);
@@ -322,6 +312,13 @@ namespace GameHook.Domain.GameHookProperties
             {
                 if (i < bytesToWrite.Length) bytes[i] = bytesToWrite[i];
                 else if (Bytes != null) bytes[i] = Bytes[i];
+            }
+
+            if (Instance.ExecuteFunction_Type1(WriteFunction, this) == false)
+            {
+                // They want to do it themselves entirely in Javascript.
+
+                return;
             }
 
             if (freeze == true)

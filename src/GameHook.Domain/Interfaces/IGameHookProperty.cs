@@ -13,11 +13,12 @@
         public string? Reference { get; set; }
         public string? Description { get; set; }
 
-        public string? StaticValue { get; set; }
+        public string? Value { get; set; }
 
         public string? ReadFunction { get; set; }
         public string? WriteFunction { get; set; }
         public string? AfterReadValueExpression { get; set; }
+        public string? BeforeWriteValueFunction { get; set; }
     }
 
     public interface IGameHookProperty

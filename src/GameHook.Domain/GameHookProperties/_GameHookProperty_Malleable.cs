@@ -14,6 +14,10 @@ namespace GameHook.Domain.GameHookProperties
         private object? _value { get; set; }
         private byte[]? _bytes { get; set; }
         private byte[]? _bytesFrozen { get; set; }
+        private string? _readFunction { get; set; }
+        private string? _writeFunction { get; set; }
+        private string? _afterReadValueExpression { get; set; }
+        private string? _beforeWriteValueFunction { get; set; }
 
         public string? MemoryContainer
         {
@@ -113,10 +117,22 @@ namespace GameHook.Domain.GameHookProperties
             }
         }
 
+        public object? Value
+        {
+            get => _value;
+            set
+            {
+                if (_value != null && _value.Equals(value)) return;
+
+                FieldsChanged.Add("value");
+                _value = value;
+            }
+        }
+
         public byte[]? Bytes
         {
             get => _bytes;
-            private set
+            set
             {
                 if (_bytes != null && value != null && _bytes.SequenceEqual(value)) return;
 
@@ -128,7 +144,7 @@ namespace GameHook.Domain.GameHookProperties
         public byte[]? BytesFrozen
         {
             get => _bytesFrozen;
-            private set
+            set
             {
                 if (_bytesFrozen != null && value != null && _bytesFrozen.SequenceEqual(value)) return;
 
@@ -137,15 +153,51 @@ namespace GameHook.Domain.GameHookProperties
             }
         }
 
-        public object? Value
+        public string? ReadFunction
         {
-            get => _value;
+            get => _readFunction;
             set
             {
-                if (_value != null && _value.Equals(value)) return;
+                if (_readFunction == value) return;
 
-                FieldsChanged.Add("value");
-                _value = value;
+                FieldsChanged.Add("readFunction");
+                _readFunction = value;
+            }
+        }
+
+        public string? WriteFunction
+        {
+            get => _writeFunction;
+            set
+            {
+                if (_writeFunction == value) return;
+
+                FieldsChanged.Add("writeFunction");
+                _writeFunction = value;
+            }
+        }
+
+        public string? AfterReadValueExpression
+        {
+            get => _afterReadValueExpression;
+            set
+            {
+                if (_afterReadValueExpression == value) return;
+
+                FieldsChanged.Add("afterReadValueExpression");
+                _afterReadValueExpression = value;
+            }
+        }
+
+        public string? BeforeWriteValueFunction
+        {
+            get => _beforeWriteValueFunction;
+            set
+            {
+                if (_beforeWriteValueFunction == value) return;
+
+                FieldsChanged.Add("beforeWriteValueFunction");
+                _beforeWriteValueFunction = value;
             }
         }
     }

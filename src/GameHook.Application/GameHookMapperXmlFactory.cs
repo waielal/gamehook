@@ -86,10 +86,11 @@ namespace GameHook.Application
                             Bits = x.GetOptionalAttributeValue("bits"),
                             Reference = x.GetOptionalAttributeValue("reference"),
                             Description = x.GetOptionalAttributeValue("description"),
-                            StaticValue = x.GetOptionalAttributeValue("value"),
+                            Value = x.GetOptionalAttributeValue("value"),
                             ReadFunction = x.GetOptionalAttributeValue("read-function"),
                             WriteFunction = x.GetOptionalAttributeValue("write-function"),
                             AfterReadValueExpression = x.GetOptionalAttributeValue("after-read-value-expression"),
+                            BeforeWriteValueFunction = x.GetOptionalAttributeValue("before-write-value-function"),
                         };
 
                         if (type == "binaryCodedDecimal") return new BinaryCodedDecimalProperty(instance, variables);

@@ -25,7 +25,9 @@ namespace GameHook.Application
         public IMemoryManager MemoryContainerManager { get; private set; }
         public Dictionary<string, object?> State { get; private set; }
         public Dictionary<string, object?> Variables { get; private set; }
-        private Engine? GlobalScriptEngine { get; set; }
+        public Engine? GlobalScriptEngine1 { get; set; }
+        public Engine? GlobalScriptEngine2 { get; set; }
+        public Engine? GlobalScriptEngine3 { get; set; }
 
 #if DEBUG
         private bool DebugOutputMemoryLayoutToFilesystem { get; set; } = false;
@@ -59,9 +61,12 @@ namespace GameHook.Application
             PlatformOptions = null;
             BlocksToRead = null;
 
-            GlobalScriptEngine = null;
-            State = new Dictionary<string, object?>();
-            Variables = new Dictionary<string, object?>();
+            GlobalScriptEngine1 = null;
+            GlobalScriptEngine2 = null;
+            GlobalScriptEngine3 = null;
+
+            State = [];
+            Variables = [];
 
             await ClientNotifiers.ForEachAsync(async x => await x.SendInstanceReset());
         }
@@ -150,9 +155,9 @@ namespace GameHook.Application
             // Preprocessor
             if (Mapper.HasGlobalPreprocessor)
             {
-                if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
+                if (GlobalScriptEngine1 == null) throw new Exception("GlobalScriptEngine1 is null.");
 
-                if (GlobalScriptEngine.Invoke("preprocessor").ToObject() as bool? == false)
+                if (GlobalScriptEngine1.Invoke("preprocessor").ToObject() as bool? == false)
                 {
                     // The preprocessor returned false, which means we do not want to run anything this loop.
                     return;
@@ -176,9 +181,9 @@ namespace GameHook.Application
             // Postprocessor
             if (Mapper.HasGlobalPostprocessor)
             {
-                if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
+                if (GlobalScriptEngine1 == null) throw new Exception("GlobalScriptEngine1 is null.");
 
-                GlobalScriptEngine.Invoke("postprocessor");
+                GlobalScriptEngine1.Invoke("postprocessor");
             }
 
             // Fields Changed
@@ -261,7 +266,27 @@ namespace GameHook.Application
                     _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
                 };
 
-                GlobalScriptEngine = new Engine()
+                var engineOptions = new Options { Strict = true, StringCompilationAllowed = false };
+
+                GlobalScriptEngine1 = new Engine(engineOptions)
+                    .SetValue("__console", ScriptConsoleAdapter)
+                    .SetValue("__state", State)
+                    .SetValue("__variables", Variables)
+                    .SetValue("__mapper", Mapper)
+                    .SetValue("__memory", MemoryContainerManager)
+                    .SetValue("__driver", Driver)
+                    .Execute(Mapper.GlobalScript ?? string.Empty);
+
+                GlobalScriptEngine2 = new Engine(engineOptions)
+                    .SetValue("__console", ScriptConsoleAdapter)
+                    .SetValue("__state", State)
+                    .SetValue("__variables", Variables)
+                    .SetValue("__mapper", Mapper)
+                    .SetValue("__memory", MemoryContainerManager)
+                    .SetValue("__driver", Driver)
+                    .Execute(Mapper.GlobalScript ?? string.Empty);
+
+                GlobalScriptEngine3 = new Engine(engineOptions)
                     .SetValue("__console", ScriptConsoleAdapter)
                     .SetValue("__state", State)
                     .SetValue("__variables", Variables)
@@ -295,17 +320,67 @@ namespace GameHook.Application
             }
         }
 
-        public object? Evalulate(string function, object? x, object? y)
+        public object? EvalulateExpression_Type1(string function, object? value)
         {
-            if (GlobalScriptEngine == null) throw new Exception("GlobalScriptEngine is null.");
+            if (GlobalScriptEngine2 == null) throw new Exception("GlobalScriptEngine2 is null.");
 
             try
             {
-                return GlobalScriptEngine.SetValue("x", x).SetValue("y", y).Evaluate(function).ToObject();
+                return GlobalScriptEngine2.SetValue("x", value).Evaluate(function).ToObject();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Javascript evalulate engine exception.");
+                _logger.LogError(ex, "Javascript EvalulateExpression_Type1 evalulate engine exception.");
+
+                throw;
+            }
+        }
+
+        public bool? ExecuteFunction_Type1(string? function, IGameHookProperty property)
+        {
+            if (string.IsNullOrEmpty(function)) return null;
+            if (GlobalScriptEngine3 == null) throw new Exception("GlobalScriptEngine3 is null.");
+
+            try
+            {
+                return (bool?)GlobalScriptEngine3.Invoke(function, property).ToObject();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Javascript ExecuteFunction_Type1 evalulate engine exception.");
+
+                throw;
+            }
+        }
+
+        private static byte ConvertDoubleToByte(double value)
+        {
+            // Round the double value to the nearest integer and cast it to byte.
+            byte byteValue = (byte)Math.Round(value);
+
+            // Ensure the byte value is within the valid byte range (0 to 255).
+            if (byteValue < 0 || byteValue > 255)
+            {
+                throw new ArgumentException("Double value cannot be converted to a byte because it's out of range.");
+            }
+
+            return byteValue;
+        }
+
+        public byte[] ExecuteFunction_Type2(string function, byte[] bytes, IGameHookProperty property)
+        {
+            if (GlobalScriptEngine3 == null) throw new Exception("GlobalScriptEngine3 is null.");
+
+            try
+            {
+                var result = GlobalScriptEngine3.Invoke(function, bytes, property).ToObject() as object[] ??
+                    throw new Exception($"function {function} must return a byte array.");
+
+                return result.Select(x => ConvertDoubleToByte((double)x)).ToArray();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Javascript ExecuteFunction_Type2 evalulate engine exception.");
 
                 throw;
             }

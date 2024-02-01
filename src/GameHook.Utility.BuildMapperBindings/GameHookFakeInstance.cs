@@ -38,7 +38,17 @@ namespace GameHook.Utility.BuildMapperBindings
             throw new NotImplementedException();
         }
 
-        public object? Evalulate(string function, object? x, object? y)
+        public object? EvalulateExpression_Type1(string function, object? value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool? ExecuteFunction_Type1(string? function, IGameHookProperty property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool? ExecuteFunction_Type2(string? function, byte[] bytes, IGameHookProperty property)
         {
             throw new NotImplementedException();
         }
