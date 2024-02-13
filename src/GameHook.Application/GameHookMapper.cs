@@ -9,29 +9,18 @@ namespace GameHook.Application
             MetadataSection metadata,
             MemorySection memory,
             IEnumerable<IGameHookProperty> properties,
-            IEnumerable<ReferenceItems> references,
-            string? globalScript,
-            bool hasGlobalPreprocessor,
-            bool hasGlobalPostprocessor)
+            IEnumerable<ReferenceItems> references)
         {
             Metadata = metadata;
             Memory = memory;
             Properties = properties.ToDictionary(x => x.Path, x => x);
             References = references.ToDictionary(x => x.Name, x => x);
-
-            GlobalScript = globalScript;
-            HasGlobalPreprocessor = hasGlobalPreprocessor;
-            HasGlobalPostprocessor = hasGlobalPostprocessor;
         }
 
         public MetadataSection Metadata { get; }
         public MemorySection Memory { get; }
         public Dictionary<string, IGameHookProperty> Properties { get; }
         public Dictionary<string, ReferenceItems> References { get; }
-
-        public string? GlobalScript { get; }
-        public bool HasGlobalPreprocessor { get; }
-        public bool HasGlobalPostprocessor { get; }
 
         public IGameHookProperty[] GetAllProperties() => Properties.Values.ToArray();
     }

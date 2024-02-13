@@ -2,10 +2,11 @@
 using GameHook.Domain.Implementations;
 using GameHook.Domain.Interfaces;
 using Jint;
+using Jint.Native;
+using Jint.Native.Object;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace GameHook.Application
 {
@@ -25,9 +26,12 @@ namespace GameHook.Application
         public IMemoryManager MemoryContainerManager { get; private set; }
         public Dictionary<string, object?> State { get; private set; }
         public Dictionary<string, object?> Variables { get; private set; }
-        public Engine? GlobalScriptEngine1 { get; set; }
-        public Engine? GlobalScriptEngine2 { get; set; }
-        public Engine? GlobalScriptEngine3 { get; set; }
+
+        private Engine? JavascriptEngine { get; set; }
+        private ObjectInstance? JavascriptModuleInstance { get; set; }
+
+        private bool HasPreprocessor { get; set; }
+        private bool HasPostprocessor { get; set; }
 
 #if DEBUG
         private bool DebugOutputMemoryLayoutToFilesystem { get; set; } = false;
@@ -61,14 +65,129 @@ namespace GameHook.Application
             PlatformOptions = null;
             BlocksToRead = null;
 
-            GlobalScriptEngine1 = null;
-            GlobalScriptEngine2 = null;
-            GlobalScriptEngine3 = null;
+            JavascriptModuleInstance = null;
 
             State = [];
             Variables = [];
 
             await ClientNotifiers.ForEachAsync(async x => await x.SendInstanceReset());
+        }
+
+        public async Task Load(IGameHookDriver driver, string mapperId)
+        {
+            try
+            {
+                await ResetState();
+
+                _logger.LogDebug("Creating GameHook mapper instance...");
+
+                Driver = driver;
+
+                await Driver.EstablishConnection();
+
+                // Load the mapper file.
+                if (string.IsNullOrEmpty(mapperId))
+                {
+                    throw new ArgumentException("ID was NULL or empty.", nameof(mapperId));
+                }
+
+                // Get the file path from the filesystem provider.
+                var mapperFile = MapperFilesystemProvider.MapperFiles.SingleOrDefault(x => x.Id == mapperId) ??
+                                 throw new Exception($"Unable to determine a mapper with the ID of {mapperId}.");
+
+                if (File.Exists(mapperFile.AbsolutePath) == false)
+                {
+                    throw new FileNotFoundException($"File was not found in the {mapperFile.Type} mapper folder.", mapperFile.DisplayName);
+                }
+
+                var mapperContents = await File.ReadAllTextAsync(mapperFile.AbsolutePath);
+                if (mapperFile.AbsolutePath.EndsWith(".xml"))
+                {
+                    Mapper = GameHookMapperXmlFactory.LoadMapperFromFile(this, mapperFile.AbsolutePath, mapperContents);
+                }
+                else
+                {
+                    throw new Exception($"Invalid file extension for mapper.");
+                }
+
+                PlatformOptions = Mapper.Metadata.GamePlatform switch
+                {
+                    "NES" => new NES_PlatformOptions(),
+                    "SNES" => new SNES_PlatformOptions(),
+                    "GB" => new GB_PlatformOptions(),
+                    "GBC" => new GBC_PlatformOptions(),
+                    "GBA" => new GBA_PlatformOptions(),
+                    "PSX" => new PSX_PlatformOptions(),
+                    "NDS" => new NDS_PlatformOptions(),
+                    _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
+                };
+
+                var engineOptions = new Options
+                {
+                    Strict = true,
+                    StringCompilationAllowed = false
+                };
+
+                var javascriptAbsolutePath = mapperFile.AbsolutePath.Replace(".xml", ".js");
+                if (File.Exists(javascriptAbsolutePath))
+                {
+                    var rootDirectory = MapperFilesystemProvider.GetMapperRootDirectory(javascriptAbsolutePath);
+                    engineOptions.EnableModules(rootDirectory, true);
+
+                    JavascriptEngine = new Engine(engineOptions)
+                        .SetValue("__console", ScriptConsoleAdapter)
+                        .SetValue("__state", State)
+                        .SetValue("__variables", Variables)
+                        .SetValue("__mapper", Mapper)
+                        .SetValue("__memory", MemoryContainerManager)
+                        .SetValue("__driver", Driver);
+
+                    JavascriptModuleInstance = JavascriptEngine.Modules.Import(MapperFilesystemProvider.GetRelativePath(javascriptAbsolutePath));
+
+                    HasPreprocessor = JavascriptModuleInstance.HasProperty("preprocessor");
+                    HasPostprocessor = JavascriptModuleInstance.HasProperty("postprocessor");
+                }
+                else
+                {
+                    JavascriptEngine = new Engine(engineOptions);
+                }
+
+                // Calculate the blocks to read from the mapper memory addresses.
+                BlocksToRead = Mapper.Memory.ReadRanges.Select(x => new MemoryAddressBlock($"Range {x.Start}", x.Start, x.End)).ToArray();
+
+                if (BlocksToRead.Any())
+                {
+                    _logger.LogInformation($"Using {BlocksToRead.Count()} memory read ranges from mapper.");
+                }
+                else
+                {
+                    _logger.LogInformation("Using default driver memory read ranges.");
+
+                    BlocksToRead = PlatformOptions.Ranges.ToList();
+                }
+
+                // Read once
+                await Read();
+
+                // Read twice
+                await Read();
+
+                Initalized = true;
+
+                await ClientNotifiers.ForEachAsync(async x => await x.SendMapperLoaded(Mapper));
+
+                // Start the read loop once successfully running once.
+                ReadLoopToken = new CancellationTokenSource();
+                _ = Task.Run(ReadLoop, ReadLoopToken.Token);
+
+                _logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName} ({Mapper.Metadata.Id}).");
+            }
+            catch
+            {
+                await ResetState();
+
+                throw;
+            }
         }
 
         private async Task ReadLoop()
@@ -152,13 +271,13 @@ namespace GameHook.Application
             }
 
             // Preprocessor
-            if (Mapper.HasGlobalPreprocessor)
+            if (HasPreprocessor)
             {
-                if (GlobalScriptEngine1 == null) throw new Exception("GlobalScriptEngine1 is null.");
+                if (JavascriptModuleInstance == null) throw new Exception("JavascriptModuleInstance is null.");
 
-                if (GlobalScriptEngine1.Invoke("preprocessor").ToObject() as bool? == false)
+                if (JavascriptModuleInstance.Get("preprocessor").Call().ToObject() as bool? == false)
                 {
-                    // The preprocessor returned false, which means we do not want to run anything this loop.
+                    // The function returned false, which means we do not want to continue.
                     return;
                 }
             }
@@ -172,17 +291,20 @@ namespace GameHook.Application
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Property {property.Path} failed to run processor.");
-                    throw new PropertyProcessException($"Property {property.Path} failed to run processor.", ex);
+                    throw new PropertyProcessException($"Property {property.Path} failed to run processor. {ex.Message}", ex);
                 }
             }
 
             // Postprocessor
-            if (Mapper.HasGlobalPostprocessor)
+            if (HasPostprocessor)
             {
-                if (GlobalScriptEngine1 == null) throw new Exception("GlobalScriptEngine1 is null.");
+                if (JavascriptModuleInstance == null) throw new Exception("JavascriptModuleInstance is null.");
 
-                GlobalScriptEngine1.Invoke("postprocessor");
+                if (JavascriptModuleInstance.Get("postprocessor").Call().ToObject() as bool? == false)
+                {
+                    // The function returned false, which means we do not want to continue.
+                    return;
+                }
             }
 
             // Fields Changed
@@ -204,197 +326,24 @@ namespace GameHook.Application
             }
         }
 
-        public async Task Load(IGameHookDriver driver, string mapperId)
+        public object? ExecuteModuleFunction(string? function, IGameHookProperty property)
         {
-            try
-            {
-                await ResetState();
+            if (string.IsNullOrEmpty(function)) { return null; }
 
-                _logger.LogDebug("Creating GameHook mapper instance...");
+            if (JavascriptEngine == null) throw new Exception("JavascriptEngine is null.");
+            if (JavascriptModuleInstance == null) throw new Exception("JavascriptModuleInstance is null.");
 
-                Driver = driver;
-
-                await Driver.EstablishConnection();
-
-                // Load the mapper file.
-                if (string.IsNullOrEmpty(mapperId))
-                {
-                    throw new ArgumentException("ID was NULL or empty.", nameof(mapperId));
-                }
-
-                // Get the file path from the filesystem provider.
-                var mapperFile = MapperFilesystemProvider.MapperFiles.SingleOrDefault(x => x.Id == mapperId) ??
-                                 throw new Exception($"Unable to determine a mapper with the ID of {mapperId}.");
-
-                if (File.Exists(mapperFile.AbsolutePath) == false)
-                {
-                    throw new FileNotFoundException($"File was not found in the {mapperFile.Type} mapper folder.", mapperFile.DisplayName);
-                }
-
-                var mapperContents = await File.ReadAllTextAsync(mapperFile.AbsolutePath);
-                if (mapperFile.AbsolutePath.EndsWith(".xml"))
-                {
-                    var scriptContentsAbsolutePath = mapperFile.AbsolutePath.Replace(".xml", ".js");
-                    string? scriptContents = null;
-
-                    if (File.Exists(scriptContentsAbsolutePath))
-                    {
-                        scriptContents = await File.ReadAllTextAsync(scriptContentsAbsolutePath);
-
-                        // This is a bit nasty, but it's needed for the non-module script to load within Jint.
-                        var pattern = @"export\s*\{[^}]*\};"; // Regex pattern to match 'export { };' with any content inside
-                        scriptContents = Regex.Replace(scriptContents, pattern, string.Empty);
-                    }
-
-                    Mapper = GameHookMapperXmlFactory.LoadMapperFromFile(this, mapperContents, scriptContents);
-                }
-                else
-                {
-                    throw new Exception($"Invalid file extension for mapper.");
-                }
-
-                PlatformOptions = Mapper.Metadata.GamePlatform switch
-                {
-                    "NES" => new NES_PlatformOptions(),
-                    "SNES" => new SNES_PlatformOptions(),
-                    "GB" => new GB_PlatformOptions(),
-                    "GBC" => new GBC_PlatformOptions(),
-                    "GBA" => new GBA_PlatformOptions(),
-                    "PSX" => new PSX_PlatformOptions(),
-                    "NDS" => new NDS_PlatformOptions(),
-                    _ => throw new Exception($"Unknown game platform {Mapper.Metadata.GamePlatform}.")
-                };
-
-                var script = Engine.PrepareScript(Mapper.GlobalScript ?? string.Empty, strict: true);
-                var engineOptions = new Options { Strict = true, StringCompilationAllowed = false };
-
-                GlobalScriptEngine1 = new Engine(engineOptions)
-                    .SetValue("__console", ScriptConsoleAdapter)
-                    .SetValue("__state", State)
-                    .SetValue("__variables", Variables)
-                    .SetValue("__mapper", Mapper)
-                    .SetValue("__memory", MemoryContainerManager)
-                    .SetValue("__driver", Driver)
-                    .Execute(script);
-
-                GlobalScriptEngine2 = new Engine(engineOptions)
-                    .SetValue("__console", ScriptConsoleAdapter)
-                    .SetValue("__state", State)
-                    .SetValue("__variables", Variables)
-                    .SetValue("__mapper", Mapper)
-                    .SetValue("__memory", MemoryContainerManager)
-                    .SetValue("__driver", Driver)
-                    .Execute(script);
-
-                GlobalScriptEngine3 = new Engine(engineOptions)
-                    .SetValue("__console", ScriptConsoleAdapter)
-                    .SetValue("__state", State)
-                    .SetValue("__variables", Variables)
-                    .SetValue("__mapper", Mapper)
-                    .SetValue("__memory", MemoryContainerManager)
-                    .SetValue("__driver", Driver)
-                    .Execute(script);
-
-                // Calculate the blocks to read from the mapper memory addresses.
-                BlocksToRead = Mapper.Memory.ReadRanges.Select(x => new MemoryAddressBlock($"Range {x.Start}", x.Start, x.End)).ToArray();
-
-                if (BlocksToRead.Any())
-                {
-                    _logger.LogInformation($"Using {BlocksToRead.Count()} memory read ranges from mapper.");
-                }
-                else
-                {
-                    _logger.LogInformation("Using default driver memory read ranges.");
-
-                    BlocksToRead = PlatformOptions.Ranges.ToList();
-                }
-
-                await Read();
-
-                Initalized = true;
-
-                await ClientNotifiers.ForEachAsync(async x => await x.SendMapperLoaded(Mapper));
-
-                // Start the read loop once successfully running once.
-                ReadLoopToken = new CancellationTokenSource();
-                _ = Task.Run(ReadLoop, ReadLoopToken.Token);
-
-                _logger.LogInformation($"Loaded mapper for {Mapper.Metadata.GameName} ({Mapper.Metadata.Id}).");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occured when loading the mapper.");
-
-                await ResetState();
-
-                throw;
-            }
+            return JavascriptModuleInstance.Get(function).Call(JsValue.FromObject(JavascriptEngine, property)).ToObject();
         }
 
-        public object? EvalulateExpression_Type1(string function, object? value)
+        public object? ExecuteExpression(string? expression, object x)
         {
-            if (GlobalScriptEngine2 == null) throw new Exception("GlobalScriptEngine2 is null.");
+            if (expression == null) { throw new Exception($"Expression is NULL when evaluating object {x}."); }
+            if (JavascriptEngine == null) throw new Exception("JavascriptEngine is null.");
 
-            try
-            {
-                return GlobalScriptEngine2.SetValue("x", value).Evaluate(function).ToObject();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Javascript EvalulateExpression_Type1 evalulate engine exception.");
-
-                throw;
-            }
+            return JavascriptEngine.SetValue("x", x).Evaluate(expression).ToObject();
         }
 
-        public bool? ExecuteFunction_Type1(string? function, IGameHookProperty property)
-        {
-            if (string.IsNullOrEmpty(function)) return null;
-            if (GlobalScriptEngine3 == null) throw new Exception("GlobalScriptEngine3 is null.");
-
-            try
-            {
-                return (bool?)GlobalScriptEngine3.Invoke(function, property).ToObject();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Javascript ExecuteFunction_Type1 evalulate engine exception.");
-
-                throw;
-            }
-        }
-
-        private static byte ConvertDoubleToByte(double value)
-        {
-            // Round the double value to the nearest integer and cast it to byte.
-            byte byteValue = (byte)Math.Round(value);
-
-            // Ensure the byte value is within the valid byte range (0 to 255).
-            if (byteValue < 0 || byteValue > 255)
-            {
-                throw new ArgumentException("Double value cannot be converted to a byte because it's out of range.");
-            }
-
-            return byteValue;
-        }
-
-        public byte[] ExecuteFunction_Type2(string function, byte[] bytes, IGameHookProperty property)
-        {
-            if (GlobalScriptEngine3 == null) throw new Exception("GlobalScriptEngine3 is null.");
-
-            try
-            {
-                var result = GlobalScriptEngine3.Invoke(function, bytes, property).ToObject() as object[] ??
-                    throw new Exception($"function {function} must return a byte array.");
-
-                return result.Select(x => ConvertDoubleToByte((double)x)).ToArray();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Javascript ExecuteFunction_Type2 evalulate engine exception.");
-
-                throw;
-            }
-        }
+        public bool? GetModuleFunctionResult(string? function, IGameHookProperty property) => ExecuteModuleFunction(function, property) as bool?;
     }
 }

@@ -5,7 +5,8 @@ namespace GameHook.Domain.GameHookProperties
     public abstract partial class GameHookProperty : IGameHookProperty
     {
         private string? _memoryContainer { get; set; }
-        private string? _address { get; set; }
+        private uint? _address { get; set; }
+        private string? _addressString { get; set; }
         private int? _length { get; set; }
         private int? _size { get; set; }
         private string? _bits { get; set; }
@@ -17,6 +18,7 @@ namespace GameHook.Domain.GameHookProperties
         private string? _readFunction { get; set; }
         private string? _writeFunction { get; set; }
         private string? _afterReadValueExpression { get; set; }
+        private string? _afterReadValueFunction { get; set; }
         private string? _beforeWriteValueFunction { get; set; }
 
         public string? MemoryContainer
@@ -31,7 +33,7 @@ namespace GameHook.Domain.GameHookProperties
             }
         }
 
-        public string? Address
+        public uint? Address
         {
             get { return _address; }
             set
@@ -39,18 +41,32 @@ namespace GameHook.Domain.GameHookProperties
                 if (value == _address) { return; }
 
                 _address = value;
+                _addressString = value.ToString();
 
-                ComputedAddress = null;
+                IsMemoryAddressSolved = true;
 
-                IsMemoryAddressSolved = AddressMath.TrySolve(value, new Dictionary<string, object?>(), out var solvedAddress);
+                FieldsChanged.Add("address");
+            }
+        }
+
+        public string? AddressString
+        {
+            get { return _addressString; }
+            set
+            {
+                if (value == _addressString) { return; }
+
+                _addressString = value;
+
+                IsMemoryAddressSolved = AddressMath.TrySolve(value, [], out var solvedAddress);
 
                 if (IsMemoryAddressSolved == false)
                 {
-                    ComputedAddress = null;
+                    _address = null;
                 }
                 else
                 {
-                    ComputedAddress = solvedAddress;
+                    _address = solvedAddress;
                 }
 
                 FieldsChanged.Add("address");
@@ -186,6 +202,18 @@ namespace GameHook.Domain.GameHookProperties
 
                 FieldsChanged.Add("afterReadValueExpression");
                 _afterReadValueExpression = value;
+            }
+        }
+
+        public string? AfterReadValueFunction
+        {
+            get => _afterReadValueFunction;
+            set
+            {
+                if (_afterReadValueFunction == value) return;
+
+                FieldsChanged.Add("afterReadValueFunction");
+                _afterReadValueFunction = value;
             }
         }
 

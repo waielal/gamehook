@@ -10,16 +10,10 @@ namespace GameHook.WebAPI.Controllers
     [Produces("application/json")]
     [Consumes("application/json")]
     [Route("driver")]
-    public class DriverController : Controller
+    public class DriverController(IGameHookDriver gameHookDriver, IGameHookInstance instance) : Controller
     {
-        private readonly IGameHookDriver _driver;
-        private readonly IGameHookInstance _instance;
-
-        public DriverController(IGameHookDriver gameHookDriver, IGameHookInstance instance)
-        {
-            _driver = gameHookDriver;
-            _instance = instance;
-        }
+        private readonly IGameHookDriver _driver = gameHookDriver;
+        private readonly IGameHookInstance _instance = instance;
 
         [HttpPut("memory")]
         [SwaggerOperation("Write bytes back to the driver manually.")]

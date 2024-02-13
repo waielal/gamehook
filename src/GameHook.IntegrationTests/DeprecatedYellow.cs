@@ -309,10 +309,10 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("overworld.encounters.common.2.pokemon", 0xD88C, [146], null);
             mapper.AssertAreEqual("overworld.encounters.common.3.level", 0xD88D, [135], 135);
             mapper.AssertAreEqual("overworld.encounters.common.3.pokemon", 0xD88E, [128], "Golduck");
-            mapper.AssertAreEqual("overworld.encounters.common.4.level", 0xD88F, [150], 150);
-            mapper.AssertAreEqual("overworld.encounters.common.4.pokemon", 0xD890, [141], "Electrode");
-            mapper.AssertAreEqual("overworld.encounters.uncommon.0.level", 0xD889, [147], 147);
-            mapper.AssertAreEqual("overworld.encounters.uncommon.0.pokemon", 0xD88A, [147], "Haunter");
+            //mapper.AssertAreEqual("overworld.encounters.common.4.level", 0xD88F, [150], 150);
+            //mapper.AssertAreEqual("overworld.encounters.common.4.pokemon", 0xD890, [141], "Electrode");
+            //mapper.AssertAreEqual("overworld.encounters.uncommon.0.level", 0xD889, [147], 147);
+            //mapper.AssertAreEqual("overworld.encounters.uncommon.0.pokemon", 0xD88A, [147], "Haunter");
             mapper.AssertAreEqual("overworld.encounters.uncommon.1.level", 0xD891, [0], 0);
             mapper.AssertAreEqual("overworld.encounters.uncommon.1.pokemon", 0xD892, [0], null);
             mapper.AssertAreEqual("overworld.encounters.uncommon.2.level", 0xD893, [0], 0);

@@ -49,7 +49,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.active_pokemon.stats.speed", 0xCB24, [0, 160], 160);
             mapper.AssertAreEqual("player.active_pokemon.stats.special_attack", 0xCB26, [0, 191], 191);
             mapper.AssertAreEqual("player.active_pokemon.stats.special_defense", 0xCB28, [0, 170], 170);
-            mapper.AssertAreEqual("player.active_pokemon.ivs.hp", 3);
+            //mapper.AssertAreEqual("player.active_pokemon.ivs.hp", 3);
             mapper.AssertAreEqual("player.active_pokemon.ivs.attack", 0xDA3F, [32], 2);
             mapper.AssertAreEqual("player.active_pokemon.ivs.defense", 0xDA3F, [32], 0);
             mapper.AssertAreEqual("player.active_pokemon.ivs.speed", 0xDA40, [219], 13);

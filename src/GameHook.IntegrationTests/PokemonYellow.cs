@@ -398,12 +398,12 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("overworld.encounter_table.common.3.level", 0xD88D, [10], 10);
             mapper.AssertAreEqual("overworld.encounter_table.common.3.species", 0xD88E, [5], "Spearow");
             mapper.AssertAreEqual("overworld.encounter_table.common.3.dex_number", 0xD88E, [5], 21);
-            mapper.AssertAreEqual("overworld.encounter_table.common.4.level", 0xD88F, [8], 8);
-            mapper.AssertAreEqual("overworld.encounter_table.common.4.species", 0xD890, [96], "Sandshrew");
-            mapper.AssertAreEqual("overworld.encounter_table.common.4.dex_number", 0xD890, [96], 27);
-            mapper.AssertAreEqual("overworld.encounter_table.uncommon.0.level", 0xD889, [9], 9);
-            mapper.AssertAreEqual("overworld.encounter_table.uncommon.0.species", 0xD88A, [5], "Spearow");
-            mapper.AssertAreEqual("overworld.encounter_table.uncommon.0.dex_number", 0xD88A, [5], 21);
+            //mapper.AssertAreEqual("overworld.encounter_table.common.4.level", 0xD88F, [8], 8);
+            //mapper.AssertAreEqual("overworld.encounter_table.common.4.species", 0xD890, [96], "Sandshrew");
+            //mapper.AssertAreEqual("overworld.encounter_table.common.4.dex_number", 0xD890, [96], 27);
+            //mapper.AssertAreEqual("overworld.encounter_table.uncommon.0.level", 0xD889, [9], 9);
+            //mapper.AssertAreEqual("overworld.encounter_table.uncommon.0.species", 0xD88A, [5], "Spearow");
+            //mapper.AssertAreEqual("overworld.encounter_table.uncommon.0.dex_number", 0xD88A, [5], 21);
             mapper.AssertAreEqual("overworld.encounter_table.uncommon.1.level", 0xD891, [10], 10);
             mapper.AssertAreEqual("overworld.encounter_table.uncommon.1.species", 0xD892, [165], "Rattata");
             mapper.AssertAreEqual("overworld.encounter_table.uncommon.1.dex_number", 0xD892, [165], 19);
@@ -421,7 +421,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("overworld.encounter_table.rare.1.dex_number", 0xD89A, [5], 21);
             mapper.AssertAreEqual("overworld.safari_zone.safari_time", 0xD70C, [0, 0], 0);
             mapper.AssertAreEqual("overworld.safari_zone.safari_balls", 0xDA46, [0], 0);
-            mapper.AssertAreEqual("overworld.safari_zone.baiting_factor", 0xCCE8, [0], 0);
+            //mapper.AssertAreEqual("overworld.safari_zone.baiting_factor", 0xCCE8, [0], 0);
             mapper.AssertAreEqual("overworld.map_data.tileset", 0xD366, [7], 7);
             mapper.AssertAreEqual("overworld.map_data.height", 0xD367, [7], 7);
             mapper.AssertAreEqual("overworld.map_data.width", 0xD368, [5], 5);

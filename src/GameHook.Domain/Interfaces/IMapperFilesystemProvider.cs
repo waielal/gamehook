@@ -19,5 +19,8 @@
         IEnumerable<MapperFilesystemDTO> MapperFiles { get; }
 
         void CacheMapperFiles();
+
+        string GetMapperRootDirectory(string absolutePath);
+        string GetRelativePath(string absolutePath);
     }
 }

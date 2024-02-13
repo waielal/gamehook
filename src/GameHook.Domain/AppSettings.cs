@@ -30,32 +30,26 @@ namespace GameHook.Domain
 
             SHOW_READ_LOOP_STATISTICS = bool.Parse(configuration.GetRequiredValue("SHOW_READ_LOOP_STATISTICS"));
 
-            AUTOMATIC_MAPPER_UPDATES = bool.Parse(configuration.GetRequiredValue("AUTOMATIC_MAPPER_UPDATES"));
-            MAPPER_VERSION = configuration.GetRequiredValue("MAPPER_VERSION");
+            if (BuildEnvironment.IsDebug && configuration["MAPPER_DIRECTORY"]?.Length > 0)
+            {
+                MAPPER_DIRECTORY = configuration.GetRequiredValue("MAPPER_DIRECTORY");
+                MAPPER_VERSION = "LOCAL FILESYTEM";
+                MAPPER_DIRECTORY_OVERWRITTEN = true;
+            }
+            else
+            {
+                MAPPER_DIRECTORY = Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
+                MAPPER_VERSION = configuration.GetRequiredValue("MAPPER_VERSION");
+            }
 
-            MAPPER_DIRECTORY = Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
+            LOG_HTTP_TRAFFIC = bool.Parse(configuration.GetRequiredValue("LOG_HTTP_TRAFFIC"));
 
             var processPath = Path.GetDirectoryName(Environment.ProcessPath) ?? throw new Exception("Unable to determine process path.");
             var localMapperDirectory = Path.Combine(processPath, "mappers");
-
             if (Directory.Exists(localMapperDirectory))
             {
                 MAPPER_LOCAL_DIRECTORY = localMapperDirectory;
             }
-
-            if (BuildEnvironment.IsDebug || BuildEnvironment.IsTestingBuild)
-            {
-                var overrideMapperDirectory = configuration["MAPPER_DIRECTORY"];
-                if (string.IsNullOrEmpty(overrideMapperDirectory) == false)
-                {
-                    SET_CUSTOM_MAPPER_DIRECTORY = true;
-                    MAPPER_DIRECTORY = overrideMapperDirectory;
-
-                    AUTOMATIC_MAPPER_UPDATES = false;
-                }
-            }
-
-            LOG_HTTP_TRAFFIC = bool.Parse(configuration.GetRequiredValue("LOG_HTTP_TRAFFIC"));
         }
 
         public string Urls { get; }
@@ -69,12 +63,12 @@ namespace GameHook.Domain
 
         public bool SHOW_READ_LOOP_STATISTICS { get; }
 
-        public bool AUTOMATIC_MAPPER_UPDATES { get; }
         public string MAPPER_VERSION { get; }
 
         public string MAPPER_DIRECTORY { get; }
+        public bool MAPPER_DIRECTORY_OVERWRITTEN { get; } = false;
+
         public string? MAPPER_LOCAL_DIRECTORY { get; }
-        public bool SET_CUSTOM_MAPPER_DIRECTORY { get; } = false;
 
         public bool LOG_HTTP_TRAFFIC { get; }
     }

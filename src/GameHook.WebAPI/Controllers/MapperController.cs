@@ -10,7 +10,7 @@ namespace GameHook.WebAPI.Controllers
     static class MapperHelper
     {
         public static PropertyModel MapToPropertyModel(this IGameHookProperty x) =>
-            new PropertyModel
+            new()
             {
                 Path = x.Path,
 
@@ -25,7 +25,7 @@ namespace GameHook.WebAPI.Controllers
 
                 Value = x.Value,
                 Bytes = x.Bytes?.ToIntegerArray(),
-                
+
                 IsFrozen = x.IsFrozen,
                 IsReadOnly = x.IsReadOnly,
             };
@@ -130,7 +130,7 @@ namespace GameHook.WebAPI.Controllers
     {
         private readonly ILogger<MapperController> _logger;
         public GameHookInstance Instance { get; }
-        private readonly IMapperUpdateManager _mapperUpdateManager;
+        private readonly AppSettings _appSettings;
         public readonly IBizhawkMemoryMapDriver _bizhawkMemoryMapDriver;
         public readonly IRetroArchUdpPollingDriver _retroArchUdpPollingDriver;
         public readonly IStaticMemoryDriver _staticMemoryDriver;
@@ -138,7 +138,7 @@ namespace GameHook.WebAPI.Controllers
         public MapperController(
             ILogger<MapperController> logger,
             GameHookInstance gameHookInstance,
-            IMapperUpdateManager mapperUpdateManager,
+            AppSettings appSettings,
             IBizhawkMemoryMapDriver bizhawkMemoryMapDriver,
             IRetroArchUdpPollingDriver retroArchUdpPollingDriver,
             IStaticMemoryDriver nullDriver)
@@ -147,7 +147,7 @@ namespace GameHook.WebAPI.Controllers
 
             Instance = gameHookInstance;
 
-            _mapperUpdateManager = mapperUpdateManager;
+            _appSettings = appSettings;
             _bizhawkMemoryMapDriver = bizhawkMemoryMapDriver;
             _retroArchUdpPollingDriver = retroArchUdpPollingDriver;
             _staticMemoryDriver = nullDriver;
@@ -167,7 +167,7 @@ namespace GameHook.WebAPI.Controllers
                     Id = Instance.Mapper.Metadata.Id,
                     GameName = Instance.Mapper.Metadata.GameName,
                     GamePlatform = Instance.Mapper.Metadata.GamePlatform,
-                    MapperReleaseVersion = _mapperUpdateManager.MapperVersion
+                    MapperReleaseVersion = _appSettings.MAPPER_VERSION
                 },
                 Properties = Instance.Mapper.Properties.Values.Select(x => x.MapToPropertyModel()).ToArray(),
                 Glossary = Instance.Mapper.References.Values.MapToDictionaryGlossaryItemModel()
@@ -180,41 +180,24 @@ namespace GameHook.WebAPI.Controllers
         [SwaggerOperation("Changes the active mapper.")]
         public async Task<ActionResult> ChangeMapper(MapperReplaceModel model)
         {
-            try
+            if (model.Driver == "bizhawk")
             {
-                if (model.Driver == "bizhawk")
-                {
-                    await Instance.Load(_bizhawkMemoryMapDriver, model.Id);
-                }
-                else if (model.Driver == "retroarch")
-                {
-                    await Instance.Load(_retroArchUdpPollingDriver, model.Id);
-                }
-                else if (model.Driver == "staticMemory")
-                {
-                    await Instance.Load(_staticMemoryDriver, model.Id);
-                }
-                else
-                {
-                    return ApiHelper.BadRequestResult("A valid driver was not supplied.");
-                }
-
-                return Ok();
+                await Instance.Load(_bizhawkMemoryMapDriver, model.Id);
             }
-            catch (PropertyProcessException ex)
+            else if (model.Driver == "retroarch")
             {
-                _logger.LogError(ex, "An error occured when loading the mapper.");
-
-                return StatusCode(500,
-                    new ProblemDetails()
-                    { Status = 500, Title = "An error occured when loading the mapper.", Detail = ex.Message });
+                await Instance.Load(_retroArchUdpPollingDriver, model.Id);
             }
-            catch (Exception ex)
+            else if (model.Driver == "staticMemory")
             {
-                _logger.LogError(ex, "An error occured when loading the mapper.");
-
-                return StatusCode(500, new ProblemDetails() { Status = 500, Title = "An error occured when loading the mapper." });
+                await Instance.Load(_staticMemoryDriver, model.Id);
             }
+            else
+            {
+                return ApiHelper.BadRequestResult("A valid driver was not supplied.");
+            }
+
+            return Ok();
         }
 
         [HttpGet("meta")]
@@ -230,7 +213,7 @@ namespace GameHook.WebAPI.Controllers
                 Id = meta.Id,
                 GameName = meta.GameName,
                 GamePlatform = meta.GamePlatform,
-                MapperReleaseVersion = _mapperUpdateManager.MapperVersion
+                MapperReleaseVersion = _appSettings.MAPPER_VERSION
             };
 
             return Ok(model);

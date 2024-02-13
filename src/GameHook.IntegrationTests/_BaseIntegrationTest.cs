@@ -39,7 +39,8 @@ namespace GameHook.IntegrationTests
                 Assert.AreEqual(expectedValue.ToString(), actual?.Value.ToString());
             }
         }
-        //Properties with only values
+
+        // Properties with only values
         public static void AssertAreEqual(this MapperModel mapper, string path, object? expectedValue)
         {
             if (mapper == null) { throw new Exception("Mapper cannot be NULL."); }
@@ -49,7 +50,8 @@ namespace GameHook.IntegrationTests
 
             Assert.AreEqual(expectedValue?.ToString(), actual.Value?.ToString());
         }
-        //DMA properties that have byte values but no address
+
+        // DMA properties that have byte values but no address
         public static void AssertAreEqual(this MapperModel mapper, string path, int[] expectedBytes, object? expectedValue)
         {
             if (mapper == null) { throw new Exception("Mapper cannot be NULL."); }
@@ -87,7 +89,9 @@ namespace GameHook.IntegrationTests
 
         public BaseTest()
         {
-            var testConfiguration = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
+            var testConfiguration = new ConfigurationBuilder()
+                .AddJsonFile("testsettings.json")
+                .Build();
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(testConfiguration)
@@ -98,8 +102,8 @@ namespace GameHook.IntegrationTests
                 .ConfigureWebHost(host =>
                 {
                     host
-                        .UseTestServer()
                         .UseConfiguration(testConfiguration)
+                        .UseTestServer()
                         .UseStartup<Startup>();
                 })
                 .Start();

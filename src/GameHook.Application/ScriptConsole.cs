@@ -4,7 +4,7 @@ namespace GameHook.Application
 {
     public record ScriptConsole
     {
-        private ILogger<ScriptConsole> _logger;
+        private readonly ILogger<ScriptConsole> _logger;
 
         public ScriptConsole(ILogger<ScriptConsole> logger)
         {

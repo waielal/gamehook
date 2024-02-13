@@ -106,6 +106,7 @@ namespace GameHook.Application
                             ReadFunction = x.GetOptionalAttributeValue("read-function"),
                             WriteFunction = x.GetOptionalAttributeValue("write-function"),
                             AfterReadValueExpression = x.GetOptionalAttributeValue("after-read-value-expression"),
+                            AfterReadValueFunction = x.GetOptionalAttributeValue("after-read-value-function"),
                             BeforeWriteValueFunction = x.GetOptionalAttributeValue("before-write-value-function"),
                         };
 
@@ -155,7 +156,7 @@ namespace GameHook.Application
                 });
         }
 
-        public static IGameHookMapper LoadMapperFromFile(IGameHookInstance? instance, string mapperContents, string? scriptContents)
+        public static IGameHookMapper LoadMapperFromFile(IGameHookInstance? instance, string filePath, string mapperContents)
         {
             var doc = XDocument.Parse(mapperContents.Replace("{", string.Empty).Replace("}", string.Empty));
 
@@ -205,10 +206,7 @@ namespace GameHook.Application
                 attr.Value = attr.Value.NormalizeMemoryAddresses();
             }
 
-            var hasGlobalPreprocessor = scriptContents?.Contains("function preprocessor(") ?? false;
-            var hasGlobalPostprocessor = scriptContents?.Contains("function postprocessor(") ?? false;
-
-            return new GameHookMapper(GetMetadata(doc), GetMemory(doc), GetProperties(doc, instance), GetGlossary(doc), scriptContents, hasGlobalPreprocessor, hasGlobalPostprocessor);
+            return new GameHookMapper(GetMetadata(doc), GetMemory(doc), GetProperties(doc, instance), GetGlossary(doc));
         }
     }
 }

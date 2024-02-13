@@ -25,27 +25,19 @@ namespace GameHook.Domain
             Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ??
             throw new Exception("Could not determine the binary directory.");
 
+        public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
+
         public static string ConfigurationDirectory =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GameHook");
 
         public static string LogFilePath =>
             Path.Combine(ConfigurationDirectory, "GameHook.log");
 
-        // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
-        public static string MapperUserSettingsDirectory => Path.Combine(ConfigurationDirectory, "MapperUserSettings");
-
         public static string ConfigurationDirectoryAppsettingsFilePath =>
             Path.Combine(ConfigurationDirectory, "appsettings.json");
 
         public static string ConfigurationDirectoryWpfConfigFilePath =>
             Path.Combine(ConfigurationDirectory, "gamehook.wpf.config");
-
-        public static string BinaryDirectoryGameHookFilePath => Path.Combine(BinaryDirectory, "GameHook.json");
-
-        // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
-        public static string ConfigurationDirectoryUiBuilderScreenDirectory =>
-            Path.Combine(ConfigurationDirectory, "UiBuilderScreens");
-
 
 #if DEBUG
         public static bool IsDebug => true;

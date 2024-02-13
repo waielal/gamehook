@@ -6,12 +6,10 @@
   "RETROARCH_DELAY_MS_BETWEEN_READS": 5,
   "BIZHAWK_DELAY_MS_BETWEEN_READS": 5,
 
-  "MAPPER_DIRECTORY": "C:\\Users\\Owner\\source\\repos\\gamehook-io\\mappers\\dist",
-
   "SHOW_READ_LOOP_STATISTICS": false,
 
-  "AUTOMATIC_MAPPER_UPDATES": false,
-  "MAPPER_VERSION": "latest",
+  "MAPPER_DIRECTORY": "C:\\Users\\Owner\\source\\repos\\gamehook-io\\mappers",
+  "MAPPER_VERSION": null,
 
   "LOG_HTTP_TRAFFIC": false,
 
@@ -19,16 +17,27 @@
   "AllowedHosts": "*",
 
   "Serilog": {
-    "Using": [ "Serilog.Sinks.Debug" ],
-    "MinimumLevel": "Debug",
+    "Using": [ "Serilog.Sinks.Console" ],
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "GameHook": "Information",
+        "Microsoft": "Warning",
+        "Serilog.AspNetCore.RequestLoggingMiddleware": "Warning",
+        "System.Net.Http.HttpClient": "Warning"
+      }
+    },
     "WriteTo": [
       {
-        "Name": "Debug",
+        "Name": "Console",
         "Args": {
-          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}"
+          "OutputTemplate": "{Timestamp:HH:mm} [{Level}] ({SourceContext}) {Message}{NewLine}{Exception}"
         }
       }
     ],
-    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ]
+    "Enrich": [ "FromLogContext" ],
+    "Properties": {
+      "Application": "GameHook"
+    }
   }
 }

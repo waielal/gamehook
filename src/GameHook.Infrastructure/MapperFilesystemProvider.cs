@@ -105,5 +105,53 @@ namespace GameHook.Infrastructure
 
             return mappers;
         }
+
+        public string GetMapperRootDirectory(string absolutePath)
+        {
+            if (string.IsNullOrEmpty(absolutePath))
+            {
+                throw new Exception("Absolute path was not supplied.");
+            }
+
+            var path = absolutePath;
+
+            while (path != null)
+            {
+                if (path.ToLower().EndsWith($"{Path.DirectorySeparatorChar}mappers"))
+                {
+                    return path;
+                }
+
+                if (path.EndsWith(":\\") || path == "/")
+                {
+                    throw new Exception($"Could not find a mappers directory in function GetMapperRootDirectory() with an absolute path of {absolutePath}. Reached the filesystem root.");
+                }
+
+                path = Path.GetDirectoryName(path);
+            }
+
+            throw new Exception($"Could not find a mappers directory in function GetMapperRootDirectory() with an absolute path of {absolutePath}.");
+        }
+
+        public string GetRelativePath(string absolutePath)
+        {
+            if (absolutePath.Contains(".."))
+            {
+                throw new Exception("The path provided does not appear to be an absolute path.");
+            }
+
+            if (absolutePath.StartsWith(_appSettings.MAPPER_DIRECTORY))
+            {
+                return string.Concat(".", absolutePath.AsSpan(_appSettings.MAPPER_DIRECTORY.Length));
+            }
+            else if (_appSettings.MAPPER_LOCAL_DIRECTORY != null && absolutePath.StartsWith(_appSettings.MAPPER_LOCAL_DIRECTORY))
+            {
+                return string.Concat(".", absolutePath.AsSpan(_appSettings.MAPPER_LOCAL_DIRECTORY.Length));
+            }
+            else
+            {
+                throw new Exception($"The absolute path {absolutePath} does not appear to be a mapper directory.");
+            }
+        }
     }
 }

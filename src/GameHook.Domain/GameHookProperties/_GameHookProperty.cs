@@ -12,7 +12,7 @@ namespace GameHook.Domain.GameHookProperties
             Type = attributes.Type;
 
             MemoryContainer = attributes.MemoryContainer;
-            Address = attributes.Address;
+            AddressString = attributes.Address;
             Length = attributes.Length;
             Size = attributes.Size;
             Bits = attributes.Bits;
@@ -27,6 +27,8 @@ namespace GameHook.Domain.GameHookProperties
             WriteFunction = attributes.WriteFunction;
 
             AfterReadValueExpression = attributes.AfterReadValueExpression;
+            AfterReadValueFunction = attributes.AfterReadValueFunction;
+
             BeforeWriteValueFunction = attributes.BeforeWriteValueFunction;
         }
 
@@ -36,7 +38,6 @@ namespace GameHook.Domain.GameHookProperties
 
         public string? StaticValue { get; }
 
-        private MemoryAddress? ComputedAddress { get; set; }
         public ReferenceItems? ComputedReference
         {
             get
@@ -56,12 +57,10 @@ namespace GameHook.Domain.GameHookProperties
         }
 
         public bool IsFrozen => BytesFrozen != null;
-        public bool IsReadOnly => Address == null;
+        public bool IsReadOnly => AddressString == null;
 
         protected abstract object? ToValue(byte[] bytes);
         protected abstract byte[] FromValue(string value);
-
-        uint? IGameHookProperty.Address => ComputedAddress;
 
         public HashSet<string> FieldsChanged { get; } = [];
 
@@ -71,7 +70,7 @@ namespace GameHook.Domain.GameHookProperties
             if (Instance.Mapper == null) { throw new Exception("Instance.Mapper is NULL."); }
             if (Instance.Driver == null) { throw new Exception("Instance.Driver is NULL."); }
 
-            if (Instance.ExecuteFunction_Type1(ReadFunction, this) == false)
+            if (Instance.GetModuleFunctionResult(ReadFunction, this) == false)
             {
                 // They want to do it themselves entirely in Javascript.
 
@@ -85,11 +84,11 @@ namespace GameHook.Domain.GameHookProperties
                 return;
             }
 
-            MemoryAddress? address = ComputedAddress;
+            MemoryAddress? address = Address;
 
-            if (string.IsNullOrEmpty(this._address) == false && IsMemoryAddressSolved == false)
+            if (string.IsNullOrEmpty(_addressString) == false && IsMemoryAddressSolved == false)
             {
-                if (AddressMath.TrySolve(this._address, Instance.Variables, out var solvedAddress))
+                if (AddressMath.TrySolve(_addressString, Instance.Variables, out var solvedAddress))
                 {
                     address = solvedAddress;
                 }
@@ -130,19 +129,19 @@ namespace GameHook.Domain.GameHookProperties
                 return;
             }
 
-            ComputedAddress = address;
+            Address = address;
             Bytes = bytes?.ToArray();
 
             if (bytes == null)
             {
                 throw new Exception(
-                    $"Unable to retrieve bytes for property '{Path}' at address {ComputedAddress?.ToHexdecimalString()}. Is the address within the drivers' memory address block ranges?");
+                    $"Unable to retrieve bytes for property '{Path}' at address {Address?.ToHexdecimalString()}. Is the address within the drivers' memory address block ranges?");
             }
 
             if (bytes.Length == 0)
             {
                 throw new Exception(
-                  $"Unable to retrieve bytes for property '{Path}' at address {ComputedAddress?.ToHexdecimalString()}. A byte array length of zero was returned?");
+                  $"Unable to retrieve bytes for property '{Path}' at address {Address?.ToHexdecimalString()}. A byte array length of zero was returned?");
             }
 
             if (string.IsNullOrEmpty(Bits) == false)
@@ -205,9 +204,14 @@ namespace GameHook.Domain.GameHookProperties
 
             value = ToValue(bytes);
 
-            if (string.IsNullOrEmpty(AfterReadValueExpression) == false)
+            if (value != null && AfterReadValueExpression != null)
             {
-                value = Instance.EvalulateExpression_Type1(AfterReadValueExpression, value);
+                value = Instance.ExecuteExpression(AfterReadValueExpression, value);
+            }
+
+            if (value != null && AfterReadValueFunction != null)
+            {
+                value = Instance.ExecuteModuleFunction(AfterReadValueFunction, this);
             }
 
             // Reference lookup
@@ -234,7 +238,7 @@ namespace GameHook.Domain.GameHookProperties
             {
                 if (ComputedReference == null) throw new Exception("Glossary is NULL.");
 
-                bytes = BitConverter.GetBytes(ComputedReference.GetSingleByValue(value).Key);
+                bytes = BitConverter.GetBytes(ComputedReference.GetFirstByValue(value).Key);
             }
             else
             {
@@ -287,9 +291,11 @@ namespace GameHook.Domain.GameHookProperties
                 outputBits.CopyTo(bytes, 0);
             }
 
-            if (string.IsNullOrEmpty(BeforeWriteValueFunction) == false)
+            if (Instance.GetModuleFunctionResult(BeforeWriteValueFunction, this) == false)
             {
-                bytes = Instance.ExecuteFunction_Type2(BeforeWriteValueFunction, bytes, this);
+                // They want to do it themselves entirely in Javascript.
+
+                return;
             }
 
             await WriteBytes(bytes, freeze);
@@ -300,7 +306,7 @@ namespace GameHook.Domain.GameHookProperties
             if (Instance == null) throw new Exception("Instance is NULL.");
             if (Instance.Driver == null) throw new Exception("Driver is NULL.");
 
-            if (ComputedAddress == null) throw new Exception($"{Path} does not have an address. Cannot write data to an empty address.");
+            if (Address == null) throw new Exception($"{Path} does not have an address. Cannot write data to an empty address.");
             if (Length == null) throw new Exception($"{Path}'s length is NULL, so we can't write bytes.");
 
             var bytes = new byte[Length ?? 1];
@@ -314,7 +320,7 @@ namespace GameHook.Domain.GameHookProperties
                 else if (Bytes != null) bytes[i] = Bytes[i];
             }
 
-            if (Instance.ExecuteFunction_Type1(WriteFunction, this) == false)
+            if (Instance.GetModuleFunctionResult(WriteFunction, (IGameHookProperty)this) == false)
             {
                 // They want to do it themselves entirely in Javascript.
 
@@ -334,7 +340,7 @@ namespace GameHook.Domain.GameHookProperties
                 throw new Exception($"Something went wrong with attempting to write bytes for {Path}. The bytes to write and the length of the property do not match. Will not proceed.");
             }
 
-            await Instance.Driver.WriteBytes((MemoryAddress)ComputedAddress, bytes);
+            await Instance.Driver.WriteBytes((MemoryAddress)Address, bytes);
 
             if (freeze == true) await FreezeProperty(bytes);
             else if (freeze == false) await UnfreezeProperty();

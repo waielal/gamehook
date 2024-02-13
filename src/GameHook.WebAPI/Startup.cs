@@ -69,8 +69,7 @@ namespace GameHook.WebAPI
 
                 options.IncludeExceptionDetails = (ctx, ex) =>
                 {
-                    var env = ctx.RequestServices.GetRequiredService<IHostEnvironment>();
-                    return env.IsDevelopment();
+                    return BuildEnvironment.IsDebug;
                 };
             });
 
@@ -96,37 +95,10 @@ namespace GameHook.WebAPI
 
             Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectory);
 
-            // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
-            if (Directory.Exists(BuildEnvironment.MapperUserSettingsDirectory))
-            {
-                Directory.Delete(BuildEnvironment.MapperUserSettingsDirectory, true);
-            }
+            logger.LogInformation($"GameHook version: {BuildEnvironment.AssemblyVersion}.");
+            logger.LogInformation($"Mapper version: {appSettings.MAPPER_VERSION}.");
 
-            // TODO: DEPRECATED FEATURE - Remove this code later. 5/19/2023
-            if (Directory.Exists(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory))
-            {
-                Directory.Delete(BuildEnvironment.ConfigurationDirectoryUiBuilderScreenDirectory, true);
-            }
-
-            if (appSettings.AUTOMATIC_MAPPER_UPDATES)
-            {
-                mapperUpdateManager.CheckForUpdates().GetAwaiter().GetResult();
-            }
-            else
-            {
-                logger.LogInformation("Automatic mapper updates have been disabled via configuration.");
-            }
-
-            logger.LogInformation($"GameHook version {BuildEnvironment.AssemblyVersion}.");
-
-            if (appSettings.SET_CUSTOM_MAPPER_DIRECTORY)
-            {
-                logger.LogInformation("Mapper version is overwritten with a local filesystem path.");
-            }
-            else
-            {
-                logger.LogInformation($"Mapper version {mapperUpdateManager.MapperVersion}.");
-            }
+            mapperUpdateManager.CheckForUpdates().GetAwaiter().GetResult();
 
             app.UseCors(x =>
             {
@@ -146,7 +118,6 @@ namespace GameHook.WebAPI
             }
 
             app.UseProblemDetails();
-
             app.UseRouting();
 
             if (BuildEnvironment.IsDebug)

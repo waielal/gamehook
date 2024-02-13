@@ -1,4 +1,5 @@
 ﻿using GameHook.Domain.Interfaces;
+using NCalc;
 
 namespace GameHook.Utility.BuildMapperBindings
 {
@@ -23,32 +24,17 @@ namespace GameHook.Utility.BuildMapperBindings
             throw new NotImplementedException();
         }
 
-        public Task Read()
+        public object? ExecuteExpression(string? expression, object x)
         {
             throw new NotImplementedException();
         }
 
-        public Task ReadLoop()
+        public object? ExecuteModuleFunction(string? function, IGameHookProperty property)
         {
             throw new NotImplementedException();
         }
 
-        public Task ResetState()
-        {
-            throw new NotImplementedException();
-        }
-
-        public object? EvalulateExpression_Type1(string function, object? value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool? ExecuteFunction_Type1(string? function, IGameHookProperty property)
-        {
-            throw new NotImplementedException();
-        }
-
-        public byte[] ExecuteFunction_Type2(string function, byte[] bytes, IGameHookProperty property)
+        public bool? GetModuleFunctionResult(string? function, IGameHookProperty property)
         {
             throw new NotImplementedException();
         }

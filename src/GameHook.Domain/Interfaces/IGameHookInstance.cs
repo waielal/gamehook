@@ -13,8 +13,9 @@
 
         Task Load(IGameHookDriver driver, string mapperId);
 
-        object? EvalulateExpression_Type1(string function, object? value);
-        bool? ExecuteFunction_Type1(string? function, IGameHookProperty property);
-        byte[] ExecuteFunction_Type2(string function, byte[] bytes, IGameHookProperty property);
+        object? ExecuteExpression(string? expression, object x);
+        object? ExecuteModuleFunction(string? function, IGameHookProperty property);
+
+        bool? GetModuleFunctionResult(string? function, IGameHookProperty property);
     }
 }

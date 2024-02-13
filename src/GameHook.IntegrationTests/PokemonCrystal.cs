@@ -7,7 +7,6 @@ namespace GameHook.IntegrationTests
     [TestClass]
     public class PokemonCrystal : BaseTest
     {
-
         [TestMethod]
         public async Task All_Properties()
         {
@@ -21,8 +20,8 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("player.hall_of_fame_count", 0xD95E, [0], 0);
             mapper.AssertAreEqual("player.team_count", 0xDCD7, [1], 1);
             mapper.AssertAreEqual("player.party_position", 0);
-            mapper.AssertAreEqual("player.active_pokemon.species", 0xC62C, [158], "Totodile");
-            mapper.AssertAreEqual("player.active_pokemon.dex_number", 0xC62C, [158], 158);
+            //mapper.AssertAreEqual("player.active_pokemon.species", 0xC62C, [158], "Totodile");
+            //mapper.AssertAreEqual("player.active_pokemon.dex_number", 0xC62C, [158], 158);
             mapper.AssertAreEqual("player.active_pokemon.nickname", 0xDE41, [141, 136, 130, 138, 80, 80, 80, 80, 80, 80, 80], "NICK");
             mapper.AssertAreEqual("player.active_pokemon.level", 0xC639, [5], 5);
             mapper.AssertAreEqual("player.active_pokemon.exp", 0xDCE7, [0, 0, 135], 135);

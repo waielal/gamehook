@@ -24,9 +24,5 @@
         MemorySection Memory { get; }
         Dictionary<string, IGameHookProperty> Properties { get; }
         Dictionary<string, ReferenceItems> References { get; }
-
-        string? GlobalScript { get; }
-        bool HasGlobalPreprocessor { get; }
-        bool HasGlobalPostprocessor { get; }
     }
 }

@@ -14,14 +14,9 @@ namespace GameHook.WebAPI.Controllers
     [Produces("application/json")]
     [Consumes("application/json")]
     [Route("files")]
-    public class FilesController : ControllerBase
+    public class FilesController(IMapperFilesystemProvider mapperFilesystemProvider) : ControllerBase
     {
-        public IMapperFilesystemProvider MapperFilesystemProvider { get; }
-
-        public FilesController(IMapperFilesystemProvider mapperFilesystemProvider)
-        {
-            MapperFilesystemProvider = mapperFilesystemProvider;
-        }
+        public IMapperFilesystemProvider MapperFilesystemProvider { get; } = mapperFilesystemProvider;
 
         [SwaggerOperation("Returns a list of all mapper files available inside of the /mappers folder.")]
         [HttpGet("mappers")]

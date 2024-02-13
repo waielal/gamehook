@@ -17,7 +17,10 @@
 
         public string? ReadFunction { get; set; }
         public string? WriteFunction { get; set; }
+
         public string? AfterReadValueExpression { get; set; }
+        public string? AfterReadValueFunction { get; set; }
+
         public string? BeforeWriteValueFunction { get; set; }
     }
 

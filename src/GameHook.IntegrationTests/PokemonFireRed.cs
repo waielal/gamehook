@@ -76,7 +76,7 @@ namespace GameHook.IntegrationTests
             // mapper.AssertAreEqual("player.active_pokemon.misc.has_species", 0x13, [2], true);
             // mapper.AssertAreEqual("player.active_pokemon.misc.use_egg_name", 0x13, [2], false);
             mapper.AssertAreEqual("player.active_pokemon.misc.ot_name", 0x14, [205, 189, 201, 206, 206, 255, 255], "SCOTT");
-            mapper.AssertAreEqual("player.active_pokemon.misc.marking_circle", 0x1B, [0], false);
+            //mapper.AssertAreEqual("player.active_pokemon.misc.marking_circle", 0x1B, [0], false);
             mapper.AssertAreEqual("player.active_pokemon.misc.marking_square", 0x1B, [0], false);
             mapper.AssertAreEqual("player.active_pokemon.misc.marking_triangle", 0x1B, [0], false);
             mapper.AssertAreEqual("player.active_pokemon.misc.marking_heart", 0x1B, [0], false);

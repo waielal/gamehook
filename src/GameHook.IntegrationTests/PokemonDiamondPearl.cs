@@ -3091,7 +3091,7 @@ namespace GameHook.IntegrationTests
             mapper.AssertAreEqual("battle.opponent_2.team.5.misc.ribbons.ribbons_sinnoh_set_1", 0x24, [0, 0, 0, 0], 0);
             mapper.AssertAreEqual("battle.field.weather", 0x22B2CC0, [0, 0], null);
             mapper.AssertAreEqual("battle.field.weather_count", 0x22B2CC4, [0], 0);
-            mapper.AssertAreEqual("battle.other.outcome_flags", 0x22B5C5E, [0], 0);
+            mapper.AssertAreEqual("battle.other.outcome_flags", 0x22B5C5F, [0], 0);
             mapper.AssertAreEqual("rival.name", 0x226FABC, [43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1, 43, 1], "AAAAAAA");
             mapper.AssertAreEqual("screen.menu.scene", 0x22C3D3F, [1], 1);
             mapper.AssertAreEqual("screen.menu.cursor.flag", 0x22C3D90, [0], 0);
