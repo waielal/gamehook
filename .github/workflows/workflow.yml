@@ -1,12 +1,41 @@
-name: Publish
+name: Create Release
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
 
 jobs:
-  release:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Current Date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y.%m.%d.%H%M%S')"
+
+      - name: Get latest commit hash of @gamehook-io/mappers
+        id: get-latest-commit
+        run: |
+          LATEST_COMMIT=$(curl -s https://api.github.com/repos/gamehook-io/mappers/commits/main | jq -r '.sha')
+          echo "Latest commit hash of mappers repository is $LATEST_COMMIT"
+          echo "::set-output name=mapper_commit_hash::$LATEST_COMMIT"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.date.outputs.date }}
+          release_name: Release ${{ steps.date.outputs.date }}
+          draft: false
+          prerelease: true
+
+      - name: Set Release ID
+        id: get_release_id
+        run: echo "::set-output name=release_id::${{ steps.create_release.outputs.id }}"
+  
+  upload-binaries:
     name: Build and Release
+    needs: create-release
     strategy:
       fail-fast: false
       matrix:
@@ -25,6 +54,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+
+      - name: Update MAPPER_VERSION in appsettings.json
+        run: |
+          jq --arg hash "${{ needs.create-release.outputs.mapper_commit_hash }}" '.MAPPER_VERSION = $hash' src/GameHook.WebAPI/appsettings.json > temp.json
+          mv temp.json src/GameHook.WebAPI/appsettings.json
 
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1.7.2
@@ -67,22 +101,32 @@ jobs:
             cd ./deploy/ && tar czvf "./../${release_name}.tar.gz" GameHook && cd -
           fi
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: Upload Release Assets
+        uses: octokit/request-action@v2.x
         with:
-          files: |
-            ./GameHook-*.zip
-            ./GameHook-*.tar.gz
-            ./deploy/GameHook.exe
+          route: POST /repos/:owner/:repo/releases/:release_id/assets
+          release_id: ${{ needs.create-release.outputs.release_id }}
+          headers: |
+            Authorization: "token ${{ secrets.GITHUB_TOKEN }}"
+            Content-Type: "application/zip"
+          args: |
+            - name: "GameHook-${{ matrix.target }}-$tag.zip"
+              path: "./${{ release_name }}.zip"
+
+            - name: "GameHook-${{ matrix.target }}-$tag.tar.gz"
+              path: "./${{ release_name }}.tar.gz"
+
+            - name: "GameHook.exe"
+              path: "./deploy/GameHook.exe"
+
   notify:
     name: Notify Users
     runs-on: ubuntu-latest
-    needs:
-      - release
+    needs: upload-binaries
     steps:
       - name: Discord notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_APP_UPDATES_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: 'A new version of GameHook has been released. Version ${{ github.event.release.tag_name }} is now available. https://github.com/gamehook-io/gamehook/releases/tag/${{ github.event.release.tag_name }}'
+          args: 'A new version of GameHook has been released. Version ${{ github.event.release.tag_name }} is now available. <https://github.com/gamehook-io/gamehook/releases/tag/${{ github.event.release.tag_name }}>'
