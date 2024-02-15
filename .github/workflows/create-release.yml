@@ -5,7 +5,10 @@ on:
 
 jobs:
   release:
+    name: Create New Release
     runs-on: ubuntu-latest
+    outputs:
+      mapper_commit_hash: ${{ steps.get_latest_commit.outputs.commit_hash }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -65,8 +68,10 @@ jobs:
 
       - name: Update MAPPER_VERSION in appsettings.json
         run: |
-          MAPPER_COMMIT=${{ steps.get_latest_commit.outputs.commit_hash }}
-
+          MAPPER_COMMIT=${{ needs.release.outputs.commit_hash }} # Correctly reference the output
+          
+          echo "MAPPER_COMMIT is: $MAPPER_COMMIT"
+          
           if [ -z "$MAPPER_COMMIT" ]; then
             echo "MAPPER_COMMIT is NULL."
             exit 1
