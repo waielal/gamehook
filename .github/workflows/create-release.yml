@@ -8,7 +8,7 @@ jobs:
     name: Create New Release
     runs-on: ubuntu-latest
     outputs:
-      release_tag_name: ${{ steps.create_release.outputs.tag_name }}
+      release_tag_name: ${{ env.CURRENT_TIMESTAMP }}
       release_id: ${{ steps.create_release.outputs.id }}
       mapper_commit_hash: ${{ steps.get_latest_commit.outputs.mapper_commit_hash }}
     steps:
@@ -131,11 +131,15 @@ jobs:
 
       - name: Release
         uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
             ./GameHook-*.zip
             ./GameHook-*.tar.gz
             ./deploy/GameHook.exe
+          tag_name: ${{ needs.release.outputs.release_tag_name }}
+          release_id: ${{ needs.release.outputs.release_id }}
   
   notify:
     name: Notify Users
