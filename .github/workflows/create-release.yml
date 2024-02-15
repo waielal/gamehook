@@ -2,32 +2,26 @@ name: Create Release
 
 on:
   workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Mark as prerelease'
+        required: false
+        default: 'false'
 
 jobs:
   release:
     name: Create New Release
     runs-on: ubuntu-latest
     outputs:
+      mapper_commit_hash: ${{ steps.get_latest_commit.outputs.mapper_commit_hash }}
       release_tag_name: ${{ env.CURRENT_TIMESTAMP }}
       release_id: ${{ steps.create_release.outputs.id }}
-      mapper_commit_hash: ${{ steps.get_latest_commit.outputs.mapper_commit_hash }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     
     - name: Get current timestamp
       run: echo "CURRENT_TIMESTAMP=$(date +'%Y.%m.%d.%H%M%S')" >> $GITHUB_ENV
-
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.CURRENT_TIMESTAMP }}
-        release_name: Release ${{ env.CURRENT_TIMESTAMP }}
-        draft: false
-        prerelease: false
 
     - name: Get latest commit hash from gamehook-io/mappers
       id: get_latest_commit
@@ -44,6 +38,22 @@ jobs:
           });
 
           core.setOutput('mapper_commit_hash', response.data.sha);
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.CURRENT_TIMESTAMP }}
+        release_name: Release ${{ env.CURRENT_TIMESTAMP }}
+        draft: false
+        prerelease: ${{ github.event.inputs.prerelease }}
+        body: |
+          Changes:
+          - Misc bug fixes and enhancements.
+
+          This version retrieves mappers from commit [${{ steps.get_latest_commit.outputs.mapper_commit_hash }}]
 
   build-and-upload:
     name: Build and Upload Assets
@@ -68,26 +78,34 @@ jobs:
       - name: Use Release Outputs
         shell: bash
         run: |
+          echo "Mapper Commit Hash: ${{ needs.release.outputs.mapper_commit_hash }}"
           echo "Release Tag Name: ${{ needs.release.outputs.release_tag_name }}"
           echo "Release ID: ${{ needs.release.outputs.release_id }}"
-          echo "Mapper Commit Hash: ${{ needs.release.outputs.mapper_commit_hash }}"
 
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Update MAPPER_VERSION in appsettings.json
+      - name: Update MAPPER_VERSION and PRERELEASE in appsettings.json
         shell: bash
         run: |
           MAPPER_COMMIT=${{ needs.release.outputs.mapper_commit_hash }}
+          PRERELEASE=${{ github.event.inputs.prerelease }}
           
           if [ -z "$MAPPER_COMMIT" ]; then
             echo "MAPPER_COMMIT is NULL."
             exit 1
           fi
 
-          jq --arg MAPPER_COMMIT "$MAPPER_COMMIT" '.MAPPER_VERSION = $MAPPER_COMMIT' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp
-          mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
+          if [ -z "$MAPPER_COMMIT" ]; then
+            echo "MAPPER_COMMIT is NULL."
+            exit 1
+          fi
 
+          # Update MAPPER_VERSION
+          jq --arg MAPPER_COMMIT "$MAPPER_COMMIT" '.MAPPER_VERSION = $MAPPER_COMMIT' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp && mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
+
+          # Update PRERELEASE
+          jq --arg PRERELEASE "$PRERELEASE" '.PRERELEASE = ($PRERELEASE | test("true"))' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp && mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
