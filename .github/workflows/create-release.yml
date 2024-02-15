@@ -1,0 +1,53 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Get current timestamp
+      run: echo "CURRENT_TIMESTAMP=$(date +'%Y.%m.%d.%H%M%S')" >> $GITHUB_ENV
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.CURRENT_TIMESTAMP }}
+        release_name: Release ${{ env.CURRENT_TIMESTAMP }}
+        draft: false
+        prerelease: false
+
+    - name: Get latest commit hash from gamehook-io/mappers
+      id: get_latest_commit
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const repo = { owner: 'gamehook-io', repo: 'mappers' };
+
+          const response = await github.rest.repos.getCommit({
+            owner: repo.owner,
+            repo: repo.repo,
+            ref: 'heads/main'
+          });
+
+          return response.data.sha;
+
+    - name: Create MAPPER_REPOSITORY.txt
+      run: echo "${{ steps.get_latest_commit.outputs.result }}" > MAPPER_COMMIT.txt
+
+    - name: Upload MAPPER_COMMIT.txt to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./MAPPER_COMMIT.txt
+        asset_name: MAPPER_COMMIT.txt
+        asset_content_type: text/plain
