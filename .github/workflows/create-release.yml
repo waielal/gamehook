@@ -57,6 +57,8 @@ jobs:
             os: ['macos-latest']
             target: osx-x64
     runs-on: ${{ matrix.os }}
+    needs:
+      - release
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -64,6 +66,12 @@ jobs:
       - name: Update MAPPER_VERSION in appsettings.json
         run: |
           MAPPER_COMMIT=${{ steps.get_latest_commit.outputs.commit_hash }}
+
+          if [ -z "$MAPPER_COMMIT" ]; then
+            echo "MAPPER_COMMIT is NULL."
+            exit 1
+          fi
+
           jq --arg MAPPER_COMMIT "$MAPPER_COMMIT" '.MAPPER_VERSION = $MAPPER_COMMIT' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp && mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
       
       - name: Setup .NET Core SDK
