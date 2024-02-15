@@ -8,7 +8,7 @@ jobs:
     name: Create New Release
     runs-on: ubuntu-latest
     outputs:
-      mapper_commit_hash: ${{ steps.get_latest_commit.outputs.commit_hash }}
+      mapper_commit_hash: ${{ steps.get_latest_commit.outputs.mapper_commit_hash }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -41,7 +41,7 @@ jobs:
             ref: 'heads/main'
           });
 
-          core.setOutput('commit_hash', response.data.sha);
+          core.setOutput('mapper_commit_hash', response.data.sha);
 
   build-and-upload:
     name: Build and Upload Assets
@@ -68,8 +68,8 @@ jobs:
 
       - name: Update MAPPER_VERSION in appsettings.json
         run: |
-          MAPPER_COMMIT=${{ needs.release.outputs.commit_hash }} # Correctly reference the output
-          
+          MAPPER_COMMIT=${{ needs.release.outputs.mapper_commit_hash }}
+
           echo "MAPPER_COMMIT is: $MAPPER_COMMIT"
           
           if [ -z "$MAPPER_COMMIT" ]; then
