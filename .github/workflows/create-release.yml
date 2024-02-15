@@ -8,6 +8,8 @@ jobs:
     name: Create New Release
     runs-on: ubuntu-latest
     outputs:
+      release_tag_name: ${{ steps.create_release.outputs.tag_name }}
+      release_id: ${{ steps.create_release.outputs.id }}
       mapper_commit_hash: ${{ steps.get_latest_commit.outputs.mapper_commit_hash }}
     steps:
     - name: Checkout code
@@ -63,22 +65,29 @@ jobs:
     needs:
       - release
     steps:
+      - name: Use Release Outputs
+        shell: bash
+        run: |
+          echo "Release Tag Name: ${{ needs.release.outputs.release_tag_name }}"
+          echo "Release ID: ${{ needs.release.outputs.release_id }}"
+          echo "Mapper Commit Hash: ${{ needs.release.outputs.mapper_commit_hash }}"
+
       - name: Checkout
         uses: actions/checkout@v1
 
       - name: Update MAPPER_VERSION in appsettings.json
+        shell: bash
         run: |
           MAPPER_COMMIT=${{ needs.release.outputs.mapper_commit_hash }}
-
-          echo "MAPPER_COMMIT is: $MAPPER_COMMIT"
           
           if [ -z "$MAPPER_COMMIT" ]; then
             echo "MAPPER_COMMIT is NULL."
             exit 1
           fi
 
-          jq --arg MAPPER_COMMIT "$MAPPER_COMMIT" '.MAPPER_VERSION = $MAPPER_COMMIT' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp && mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
-      
+          jq --arg MAPPER_COMMIT "$MAPPER_COMMIT" '.MAPPER_VERSION = $MAPPER_COMMIT' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp
+          mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
+
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
@@ -139,4 +148,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_APP_UPDATES_WEBHOOK }}
         uses: Ilshidur/action-discord@master
         with:
-          args: 'A new version of GameHook has been released. Version ${{ github.event.release.tag_name }} is now available. <https://github.com/gamehook-io/gamehook/releases/tag/${{ github.event.release.tag_name }}>'
+          args: 'A new version of GameHook has been released. Version ${{ needs.release.outputs.release_tag_name }} is now available. <https://github.com/gamehook-io/gamehook/releases/tag/${{ needs.release.outputs.release_tag_name }}>'
