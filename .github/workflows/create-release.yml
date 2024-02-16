@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v2
     
     - name: Get current timestamp
-      run: echo "CURRENT_TIMESTAMP=$(date +'%Y.%-m.%-d.%-H%-M')" >> $GITHUB_ENV
+      run: echo "CURRENT_TIMESTAMP=$(date +'%Y.%-m.%-d.%H%M')" >> $GITHUB_ENV
 
     - name: Get latest commit hash from gamehook-io/mappers
       id: get_latest_commit
