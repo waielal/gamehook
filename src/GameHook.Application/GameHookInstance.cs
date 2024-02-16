@@ -37,6 +37,13 @@ namespace GameHook.Application
         private bool DebugOutputMemoryLayoutToFilesystem { get; set; } = false;
 #endif
 
+        private Stopwatch ReadLoopStopwatch { get; set; } = new();
+        private Stopwatch ReadDriverStopwatch { get; set; } = new();
+        private Stopwatch PreprocessorStopwatch { get; set; } = new();
+        private Stopwatch ProcessorStopwatch { get; set; } = new();
+        private Stopwatch PostprocessorStopwatch { get; set; } = new();
+        private Stopwatch FieldsChangedStopwatch { get; set; } = new();
+
         public GameHookInstance(ILogger<GameHookInstance> logger, AppSettings appSettings, ScriptConsole scriptConsoleAdapter, IMapperFilesystemProvider provider, IEnumerable<IClientNotifier> clientNotifiers)
         {
             _logger = logger;
@@ -194,48 +201,24 @@ namespace GameHook.Application
         {
             if (Driver == null) throw new Exception("Driver is null.");
 
-            if (_appSettings.SHOW_READ_LOOP_STATISTICS)
+            while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
             {
-                var stopwatch = new Stopwatch();
-
-                while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
+                try
                 {
-                    try
+                    await Read();
+
+                    if (_appSettings.SHOW_READ_LOOP_STATISTICS)
                     {
-                        stopwatch.Restart();
-
-                        await Read();
-
-                        stopwatch.Stop();
-
-                        _logger.LogInformation($"Instance loop took {stopwatch.ElapsedMilliseconds} ms.");
-
-                        await Task.Delay(Driver.DelayMsBetweenReads);
+                        _logger.LogInformation($"ReadLoop took {ReadLoopStopwatch.ElapsedMilliseconds}ms, ReadDriver took {ReadDriverStopwatch.ElapsedMilliseconds}ms, Preprocessor took {PreprocessorStopwatch.ElapsedMilliseconds}ms, Processor took {ProcessorStopwatch.ElapsedMilliseconds}ms, Postprocessor took {PostprocessorStopwatch.ElapsedMilliseconds}ms FieldsChanged took {FieldsChangedStopwatch.ElapsedMilliseconds}ms. Javascript took {PreprocessorStopwatch.ElapsedMilliseconds + ProcessorStopwatch.ElapsedMilliseconds + PostprocessorStopwatch.ElapsedMilliseconds}ms. Everything else took {ReadLoopStopwatch.ElapsedMilliseconds - PreprocessorStopwatch.ElapsedMilliseconds - ProcessorStopwatch.ElapsedMilliseconds - PostprocessorStopwatch.ElapsedMilliseconds}ms.");
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "An error occured when read looping the mapper.");
 
-                        await ResetState();
-                    }
+                    await Task.Delay(Driver.DelayMsBetweenReads);
                 }
-            }
-            else
-            {
-                while (ReadLoopToken != null && ReadLoopToken.IsCancellationRequested == false)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        await Read();
+                    _logger.LogError(ex, "An error occured when read looping the mapper.");
 
-                        await Task.Delay(Driver.DelayMsBetweenReads);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "An error occured when read looping the mapper.");
-
-                        await ResetState();
-                    }
+                    await ResetState();
                 }
             }
         }
@@ -247,12 +230,18 @@ namespace GameHook.Application
             if (Mapper == null) throw new Exception("Mapper is null.");
             if (BlocksToRead == null) throw new Exception("BlocksToRead is null.");
 
+            ReadLoopStopwatch.Restart();
+
+            ReadDriverStopwatch.Restart();
+
             var driverResult = await Driver.ReadBytes(BlocksToRead);
 
             foreach (var result in driverResult)
             {
                 MemoryContainerManager.DefaultNamespace.Fill(result.Key, result.Value);
             }
+
+            ReadDriverStopwatch.Stop();
 
 #if DEBUG
             if (MemoryContainerManager is not IStaticMemoryDriver && DebugOutputMemoryLayoutToFilesystem)
@@ -271,6 +260,8 @@ namespace GameHook.Application
             }
 
             // Preprocessor
+            PreprocessorStopwatch.Restart();
+
             if (HasPreprocessor)
             {
                 if (JavascriptModuleInstance == null) throw new Exception("JavascriptModuleInstance is null.");
@@ -282,7 +273,11 @@ namespace GameHook.Application
                 }
             }
 
+            PreprocessorStopwatch.Stop();
+
             // Processor
+            ProcessorStopwatch.Restart();
+
             foreach (var property in Mapper.Properties.Values)
             {
                 try
@@ -295,7 +290,11 @@ namespace GameHook.Application
                 }
             }
 
+            ProcessorStopwatch.Stop();
+
             // Postprocessor
+            PostprocessorStopwatch.Restart();
+
             if (HasPostprocessor)
             {
                 if (JavascriptModuleInstance == null) throw new Exception("JavascriptModuleInstance is null.");
@@ -307,7 +306,11 @@ namespace GameHook.Application
                 }
             }
 
+            PostprocessorStopwatch.Stop();
+
             // Fields Changed
+            FieldsChangedStopwatch.Restart();
+
             var propertiesChanged = Mapper.Properties.Values.Where(x => x.FieldsChanged.Any()).ToArray();
             if (propertiesChanged.Length > 0)
             {
@@ -324,6 +327,10 @@ namespace GameHook.Application
                     throw new PropertyProcessException($"Could not send {propertiesChanged.Length} property change events.", ex);
                 }
             }
+
+            FieldsChangedStopwatch.Stop();
+
+            ReadLoopStopwatch.Stop();
         }
 
         public object? ExecuteModuleFunction(string? function, IGameHookProperty property)
