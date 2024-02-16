@@ -209,7 +209,7 @@ namespace GameHook.Application
 
                     if (_appSettings.SHOW_READ_LOOP_STATISTICS)
                     {
-                        _logger.LogInformation($"ReadLoop took {ReadLoopStopwatch.ElapsedMilliseconds}ms, ReadDriver took {ReadDriverStopwatch.ElapsedMilliseconds}ms, Preprocessor took {PreprocessorStopwatch.ElapsedMilliseconds}ms, Processor took {ProcessorStopwatch.ElapsedMilliseconds}ms, Postprocessor took {PostprocessorStopwatch.ElapsedMilliseconds}ms FieldsChanged took {FieldsChangedStopwatch.ElapsedMilliseconds}ms. Javascript took {PreprocessorStopwatch.ElapsedMilliseconds + ProcessorStopwatch.ElapsedMilliseconds + PostprocessorStopwatch.ElapsedMilliseconds}ms. Everything else took {ReadLoopStopwatch.ElapsedMilliseconds - PreprocessorStopwatch.ElapsedMilliseconds - ProcessorStopwatch.ElapsedMilliseconds - PostprocessorStopwatch.ElapsedMilliseconds}ms.");
+                        _logger.LogInformation($"ReadLoop took {ReadLoopStopwatch.ElapsedMilliseconds}ms, ReadDriver took {ReadDriverStopwatch.ElapsedMilliseconds}ms, Preprocessor took {PreprocessorStopwatch.ElapsedMilliseconds}ms, Processor took {ProcessorStopwatch.ElapsedMilliseconds}ms, Postprocessor took {PostprocessorStopwatch.ElapsedMilliseconds}ms FieldsChanged took {FieldsChangedStopwatch.ElapsedMilliseconds}ms. Javascript took {PreprocessorStopwatch.ElapsedMilliseconds + PostprocessorStopwatch.ElapsedMilliseconds}ms. Everything else took {ReadLoopStopwatch.ElapsedMilliseconds - PreprocessorStopwatch.ElapsedMilliseconds - PostprocessorStopwatch.ElapsedMilliseconds}ms.");
                     }
 
                     await Task.Delay(Driver.DelayMsBetweenReads);

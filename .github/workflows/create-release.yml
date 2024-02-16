@@ -155,6 +155,7 @@ jobs:
     name: Notify Users
     runs-on: ubuntu-latest
     needs:
+      - release
       - build-and-upload
     steps:
       - name: Discord Notification
