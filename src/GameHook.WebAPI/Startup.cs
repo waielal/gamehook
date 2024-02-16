@@ -95,10 +95,10 @@ namespace GameHook.WebAPI
 
             Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectory);
 
-            logger.LogInformation($"GameHook version: {BuildEnvironment.AssemblyVersion}.");
-            logger.LogInformation($"Mapper version: {appSettings.MAPPER_VERSION}.");
-
             mapperUpdateManager.CheckForUpdates().GetAwaiter().GetResult();
+
+            logger.LogInformation($"GameHook version: {BuildEnvironment.AssemblyVersion}.");
+            logger.LogInformation($"Mapper version: {mapperUpdateManager.MapperVersion}.");
 
             app.UseCors(x =>
             {

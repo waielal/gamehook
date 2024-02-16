@@ -2,14 +2,23 @@
 using GameHook.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.IO.Compression;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace GameHook.Infrastructure
 {
     public class MapperUpdateManager : IMapperUpdateManager
     {
+        class LatestCommit
+        {
+            public string sha { get; set; } = string.Empty;
+        }
+
         private readonly ILogger<MapperUpdateManager> _logger;
         private readonly AppSettings _appSettings;
         private readonly IHttpClientFactory _httpClientFactory;
+
+        public string MapperVersion { get; private set; }
 
         public MapperUpdateManager(ILogger<MapperUpdateManager> logger, AppSettings appSettings, IHttpClientFactory httpClientFactory)
         {
@@ -23,6 +32,8 @@ namespace GameHook.Infrastructure
 
                 Directory.CreateDirectory(BuildEnvironment.ConfigurationDirectory);
             }
+
+            MapperVersion = _appSettings.MAPPER_VERSION;
         }
 
         private static string MapperLocalDirectory => Path.Combine(BuildEnvironment.ConfigurationDirectory, "Mappers");
@@ -89,6 +100,7 @@ namespace GameHook.Infrastructure
                 if (BuildEnvironment.IsDebug && _appSettings.MAPPER_DIRECTORY_OVERWRITTEN)
                 {
                     _logger.LogWarning("Mapper directory is overwritten, will not perform any updates.");
+
                     return false;
                 }
 
@@ -97,15 +109,28 @@ namespace GameHook.Infrastructure
                     throw new Exception($"Mapper version is not defined in application settings. Please upgrade to the latest version of GameHook.");
                 }
 
+                // Grab from Github the latest commit hash from the mappers
+                // repository and set mapper version to that.
+                if (MapperVersion.Equals("latest", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var httpClient = _httpClientFactory.CreateClient();
+                    httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GameHook", BuildEnvironment.AssemblyVersion));
+
+                    var response = await httpClient.GetStringAsync($"https://api.github.com/repos/gamehook-io/mappers/commits/main");
+                    var latestCommit = JsonSerializer.Deserialize<LatestCommit>(response)?.sha ?? throw new Exception("Latest mapper sha was not provided.");
+
+                    MapperVersion = latestCommit;
+                }
+
                 var localMapperVersion = string.Empty;
                 if (File.Exists(MapperLocalCommitHashFilePath))
                 {
                     localMapperVersion = await File.ReadAllTextAsync(MapperLocalCommitHashFilePath);
                 }
 
-                if (_appSettings.MAPPER_VERSION != localMapperVersion)
+                if (MapperVersion != localMapperVersion)
                 {
-                    _logger.LogInformation($"Downloading new mappers from server.");
+                    _logger.LogInformation($"Downloading new mappers (version {MapperVersion}) from server.");
 
                     var httpClient = _httpClientFactory.CreateClient();
 
