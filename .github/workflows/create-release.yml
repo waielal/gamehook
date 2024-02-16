@@ -89,12 +89,6 @@ jobs:
         shell: bash
         run: |
           MAPPER_COMMIT=${{ needs.release.outputs.mapper_commit_hash }}
-          PRERELEASE=${{ github.event.inputs.prerelease }}
-          
-          if [ -z "$MAPPER_COMMIT" ]; then
-            echo "MAPPER_COMMIT is NULL."
-            exit 1
-          fi
 
           if [ -z "$MAPPER_COMMIT" ]; then
             echo "MAPPER_COMMIT is NULL."
@@ -103,13 +97,11 @@ jobs:
 
           # Update MAPPER_VERSION
           jq --arg MAPPER_COMMIT "$MAPPER_COMMIT" '.MAPPER_VERSION = $MAPPER_COMMIT' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp && mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
-
-          # Update PRERELEASE
-          jq --arg PRERELEASE "$PRERELEASE" '.PRERELEASE = ($PRERELEASE | test("true"))' ./src/GameHook.WebAPI/appsettings.json > ./src/GameHook.WebAPI/appsettings.json.tmp && mv ./src/GameHook.WebAPI/appsettings.json.tmp ./src/GameHook.WebAPI/appsettings.json
+      
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1.7.2
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 8
 
       - name: Build Project
         shell: bash
